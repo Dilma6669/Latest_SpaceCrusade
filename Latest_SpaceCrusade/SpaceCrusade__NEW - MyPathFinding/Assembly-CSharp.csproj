@@ -115,16 +115,16 @@
      <Compile Include="Assets\Scripts\PlayerData\PlayerData_03.cs" />
      <Compile Include="Assets\Scripts\Tools\FramesPerSecond.cs" />
  <Reference Include="UnityEditor.StandardEvents">
- <HintPath>D:/Made Games/SpaceCrusade_02_Git/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+ <HintPath>D:/Made Games/Latest_SpaceCrusade_Git/Latest_SpaceCrusade/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>D:/Made Games/SpaceCrusade_02_Git/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>D:/Made Games/Latest_SpaceCrusade_Git/Latest_SpaceCrusade/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>D:/Made Games/SpaceCrusade_02_Git/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>D:/Made Games/Latest_SpaceCrusade_Git/Latest_SpaceCrusade/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>D:/Made Games/SpaceCrusade_02_Git/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>D:/Made Games/Latest_SpaceCrusade_Git/Latest_SpaceCrusade/SpaceCrusade__NEW - MyPathFinding/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>D:/Programs/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

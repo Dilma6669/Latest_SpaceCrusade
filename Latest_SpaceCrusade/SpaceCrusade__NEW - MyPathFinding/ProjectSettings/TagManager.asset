@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Cube
+  - Panel_Ground
+  - Panel_Wall
+  - Panel_Floor
+  - Panel_FloorAngle
+  - Panel_CeilingAngle
+  - CubeFront
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Floor0
+  - Floor1
+  - Floor2
+  - Floor3
+  - Floor4
+  - Floor5
+  - Floor6
+  - Floor7
+  - Floor8
+  - Floor9
+  - Floor10
+  - Floor11
+  - Floor12
+  - Floor13
+  - Floor14
+  - Floor15
+  - Floor16
+  - Floor17
+  - Floor18
+  - Floor19
+  - Floor20
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

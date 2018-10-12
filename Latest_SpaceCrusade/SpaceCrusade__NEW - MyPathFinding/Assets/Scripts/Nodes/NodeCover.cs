@@ -2,21 +2,20 @@
 
 public class NodeCover : MonoBehaviour {
 
-    BaseNode parentNode;
+    public BaseNode parentNode;
     GameObject selector;
 
     bool _active = true;
 
     void Awake()
     {
-        parentNode = transform.parent.GetComponent<BaseNode>();
         selector = transform.Find("Select").gameObject;
         selector.SetActive(false);
     }
 
     void OnMouseDown()
     {
-        _active = parentNode.ActivateMapPiece(_active, this);
+        _active = parentNode.ActivateMapPiece(parentNode, _active, gameObject); 
     }
 
     void OnMouseOver()

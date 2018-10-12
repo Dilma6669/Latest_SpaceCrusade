@@ -1,13 +1,16 @@
-﻿
+﻿using System.Collections.Generic;
+
 public class WorldNode : BaseNode
 {
+    public List<MapNode> mapNodes;
+    public List<ConnectorNode> connectorNodes;
+
+
     public int worldNodeCount;
-    public bool connected; // Used to determine if a node has had its neighbours defined
-    public int[] neighbours;
 
     void Awake()
     {
-        thisNodeType = this;
+        thisNodeType = NodeTypes.WorldNode;
     }
 
 }

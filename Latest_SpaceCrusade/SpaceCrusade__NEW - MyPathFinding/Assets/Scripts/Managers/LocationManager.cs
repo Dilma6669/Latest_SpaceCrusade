@@ -18,7 +18,9 @@ public class LocationManager : MonoBehaviour {
 
 	MapSettings _mapSettings;
 
-	public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
+    public List<WorldNode> _worldNodes;
+
+    public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
 
 	void Awake() {
 
@@ -51,35 +53,89 @@ public class LocationManager : MonoBehaviour {
 
 	}
 
-
-    public void AttachMapToNode(BaseNode node)
+    //////////////////////////////////////////
+    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+    public void AttachMapToNode<T>(T node) where T : BaseNode
     {
-        Vector3Int nodeVect = node.nodeLocation;
-
-        int mapSize = node.nodeSize;
-
-        int layerCount = node.nodeLayerCount;
-        int rotation = node.nodeRotation;
-
-        int mapType = -1;
-        if(node.thisNodeType.GetType() == typeof(MapNode))
+        if (node.thisNodeType == NodeTypes.WorldNode)
         {
-            mapType = 0;
-        }
-        if (node.thisNodeType.GetType() == typeof(ConnectorNode))
-        {
-            mapType = 2;
+            WorldNode worldNode = node as WorldNode;
+            AttachMapPiecesToWorldNode(worldNode);
         }
 
-        _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+        if (node.thisNodeType == NodeTypes.MapNode)
+        {
+            MapNode mapNode = node as MapNode;
+            AttachMapPieceToMapNode(mapNode);
+        }
 
-        List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-
-        Debug.Log("mapPieceNodes.Count<<<<<<<<<<<<<<< " + mapPieceNodes.Count);
-
-        _mapPieceBuilder.AttachMapPieceToMapNode(node.gameObject.transform, mapPieceNodes, layerCount, mapSize, mapType, rotation); // 0 = mapPieces 1 = Roofs
+        if (node.thisNodeType == NodeTypes.ConnectorNode)
+        {
+            ConnectorNode connectNode = node as ConnectorNode;
+            AttachMapPieceToConnectorNode(connectNode);
+        }
     }
 
+    //////////////////////////////////////////
+    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+    private void AttachMapPiecesToWorldNode(WorldNode worldNode)
+    {
+        int mapCount = 0;
+        foreach (MapNode mapNode in worldNode.mapNodes)
+        {
+            Vector3Int nodeVect = mapNode.nodeLocation;
+            int mapSize = mapNode.nodeSize;
+            int layerCount = mapNode.nodeLayerCount;
+            int rotation = mapNode.nodeRotation;
+            int mapType = 4;
+            int mapPiece = mapCount;
+            _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+            List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
+            _mapPieceBuilder.AttachMapPieceToMapNode(mapNode.gameObject.transform, mapPieceNodes, mapNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+            mapNode.RemoveDoorPanels();
+            mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
+            mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+            mapCount++;
+        }
+    }
+
+    //////////////////////////////////////////
+    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+    private void AttachMapPieceToMapNode(MapNode mapNode)
+    {
+        Vector3Int nodeVect = mapNode.nodeLocation;
+        int mapSize = mapNode.nodeSize;
+        int layerCount = mapNode.nodeLayerCount;
+        int rotation = mapNode.nodeRotation;
+        int mapType = 0;
+        int mapPiece = -1; // Random
+        _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+        List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
+        _mapPieceBuilder.AttachMapPieceToMapNode(mapNode.gameObject.transform, mapPieceNodes, mapNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+        mapNode.RemoveDoorPanels();
+        mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
+        mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+    }
+
+    //////////////////////////////////////////
+    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+    private void AttachMapPieceToConnectorNode(ConnectorNode connectNode)
+    {
+        Vector3Int nodeVect = connectNode.nodeLocation;
+        int mapSize = connectNode.nodeSize;
+        int layerCount = connectNode.nodeLayerCount;
+        int rotation = connectNode.nodeRotation;
+        int mapType = 2;
+        int mapPiece = -1; // Random
+        _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+        List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
+        _mapPieceBuilder.AttachMapPieceToMapNode(connectNode.gameObject.transform, mapPieceNodes, connectNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+        //connectNode.RemoveDoorPanels();
+        //connectNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
+        //connectNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+    }
+
+    /////////////////////////////////////////////////
 
 
 
@@ -95,6 +151,7 @@ public class LocationManager : MonoBehaviour {
 
         // Get the World Nodes
         _worldBuilder.BuildWorldNodes(buildTime);
+        _worldNodes = _worldBuilder.GetWorldNodes();
 
         // Get the Map Nodes around the World Nodes
         Dictionary<WorldNode, List<MapNode>> worldAndMapNodes = _worldBuilder.GetWorldAndWrapperNodes();
@@ -102,6 +159,7 @@ public class LocationManager : MonoBehaviour {
         // World Nodes and Maps
         foreach (WorldNode worldNode in worldAndMapNodes.Keys)
         {
+            worldNode._locationBuilder = this;
             List<MapNode> wrapperNodes = worldAndMapNodes[worldNode];
             foreach (MapNode mapNode in wrapperNodes)
             {
@@ -113,7 +171,7 @@ public class LocationManager : MonoBehaviour {
         // Connectors
         Dictionary<WorldNode, List<ConnectorNode>> worldAndConnectorNodes = _worldBuilder.GetWorldAndConnectorNodes();
 
-        Debug.Log("worldAndConnectorNodes.Count: " + worldAndConnectorNodes.Count);
+        //Debug.Log("worldAndConnectorNodes.Count: " + worldAndConnectorNodes.Count);
 
         foreach (WorldNode worldNode in worldAndConnectorNodes.Keys)
         {

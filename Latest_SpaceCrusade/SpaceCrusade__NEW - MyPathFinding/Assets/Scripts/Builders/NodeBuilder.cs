@@ -29,11 +29,12 @@ public class NodeBuilder : MonoBehaviour {
         return nodeObject;
     }
 
-    public void AttachCoverToNode(GameObject node, CoverTypes _cover)
+    public void AttachCoverToNode<T>(T nodeType, GameObject node, CoverTypes _cover) where T : BaseNode
     {
         //Debug.Log("Vector3 (gridLoc): x: " + gridLocX + " y: " + gridLocY + " z: " + gridLocZ);
         GameObject cover = Instantiate(GetCoverPrefab(_cover), node.transform, false);
         cover.transform.SetParent(node.transform);
+        cover.GetComponent<NodeCover>().parentNode = nodeType;
     }
 
 

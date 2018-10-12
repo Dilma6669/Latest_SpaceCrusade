@@ -7,16 +7,15 @@ public class WorldBuilder : MonoBehaviour
     NodeBuilder _nodeBuilder;
 
     private List<Vector3Int> worldVects;
-    private Dictionary<WorldNode, List<KeyValuePair<List<Vector3Int>, int>>> connectorVectsAndRotations;
+    private Dictionary<WorldNode, List<KeyValuePair<Vector3Int, int>>> connectorVectsAndRotations;
     private List<Vector3Int> outerVects;
     private List<Vector3Int> dockingVects;
 
-    private List<WorldNode> worldNodes;
+    private List<WorldNode> WorldNodes;
     private Dictionary<WorldNode, List<MapNode>> worldNodeAndWrapperNodes;
     private Dictionary<WorldNode, List<ConnectorNode>> worldNodeAndconnectorNodes;
     private List<MapNode> outerNodes;
     //private List<MapNode> dockingNodes;
-
 
     private int lowestYpos = 10000;
     private int highestYpos = 0;
@@ -33,7 +32,7 @@ public class WorldBuilder : MonoBehaviour
     }
 
 
-    public List<WorldNode> GetWorldNodes() { return worldNodes; }
+    public List<WorldNode> GetWorldNodes() { return WorldNodes; }
     public Dictionary<WorldNode, List<MapNode>> GetWorldAndWrapperNodes() { return worldNodeAndWrapperNodes; }
     public Dictionary<WorldNode, List<ConnectorNode>> GetWorldAndConnectorNodes() { return worldNodeAndconnectorNodes; }
     public List<MapNode> GetOuterNodes() { return outerNodes; }
@@ -49,10 +48,11 @@ public class WorldBuilder : MonoBehaviour
         //dockingVects = container[2];
         outerNodes = CreateOuterNodes(this.transform, outerVects);
 
-        worldNodes = CreateWorldNodes(worldVects);
-        worldNodeAndWrapperNodes = CreateMapNodes(worldNodes);
+        WorldNodes = CreateWorldNodes(worldVects);
+        GetWorldNodeNeighbours();
+        worldNodeAndWrapperNodes = CreateMapNodes(WorldNodes);
 
-        connectorVectsAndRotations = GetConnectorVects(worldNodes);
+        connectorVectsAndRotations = GetConnectorVects(WorldNodes);
         worldNodeAndconnectorNodes = CreateConnectorNodes(connectorVectsAndRotations);
 
         //dockingNodes = CreateDockingNodes(dockingVects);
@@ -80,7 +80,7 @@ public class WorldBuilder : MonoBehaviour
         int nodeDistanceXZ = _mapSettings.worldNodeDistanceXZ + 1; // + 1 cause distance is only space IN-between nodes
         int nodeDistanceY = _mapSettings.worldNodeDistanceY + 1;
 
-        int worldSizeY = _mapSettings.worldSizeY;
+        int worldSizeY = _mapSettings.worldSizeY + 2; // +2 for Outer/Ship Zones
         int worldSizeZ = _mapSettings.worldSizeZ + 2; // +2 for Outer/Ship Zones
         int worldSizeX = _mapSettings.worldSizeX + 2; // +2 for Outer/Ship Zones
 
@@ -98,7 +98,8 @@ public class WorldBuilder : MonoBehaviour
                     int resultZ = countZ * _mapSettings.sizeOfMapPiecesXZ;
                     int resultX = countX * _mapSettings.sizeOfMapPiecesXZ;
                    
-                    if ((x == 0) || (z == 0) || (x == (worldSizeX - 1)) || (z == (worldSizeZ - 1)))
+                    if ((x == 0) || (z == 0) || (x == (worldSizeX - 1)) || (z == (worldSizeZ - 1))
+                        || y == 0 || y == worldSizeY-1)
                     {
                         // Get outer Zone central node
                        // if (z == (worldSizeX - 2) && x == centralOuterNodeX && y == 0)
@@ -173,58 +174,65 @@ public class WorldBuilder : MonoBehaviour
     }
     ////////////////////////////////////////////////////////////////////////////
 
-    // Get Connector Vects /////////////////////////////////////////////////////
-    private Dictionary<WorldNode, List<KeyValuePair<List<Vector3Int>, int>>> GetConnectorVects(List<WorldNode> worldNodes)
+
+    List<int[]> doorPanelLocations = new List<int[]>()
     {
-        Dictionary<WorldNode, List<KeyValuePair<List<Vector3Int>, int>>> connectorVectsAndRotations = new Dictionary<WorldNode, List<KeyValuePair<List<Vector3Int>, int>>>();
+        new int[]{}
+    };
+
+
+    // Get Connector Vects /////////////////////////////////////////////////////
+    private Dictionary<WorldNode, List<KeyValuePair<Vector3Int, int>>> GetConnectorVects(List<WorldNode> worldNodes)
+    {
+        Dictionary<WorldNode, List<KeyValuePair<Vector3Int, int>>> connectorVectsAndRotations = new Dictionary<WorldNode, List<KeyValuePair<Vector3Int, int>>>();
+
+       // int floorBounds = _mapSettings.worldSizeX * _mapSettings.worldSizeZ; dont need this now for some weird reason
+        int roofBounds = ((_mapSettings.worldSizeX * _mapSettings.worldSizeZ) * _mapSettings.worldSizeY);
 
         foreach (WorldNode worldNode in worldNodes)
         {
             int nodeCount = worldNode.worldNodeCount;
-            int[] neighbours = worldNode.neighbours;
-            List<KeyValuePair<List<Vector3Int>, int>> vectList = new List<KeyValuePair<List<Vector3Int>, int>>();
+            int[] worldNeighbours = worldNode.neighbours;
+            List<KeyValuePair<Vector3Int, int>> vectList = new List<KeyValuePair<Vector3Int, int>>();
 
-            if (!worldNode.connected && worldNode.nodeSize > 0)
+            if (worldNode.nodeSize == 1)
             {
-                foreach (int neigh in neighbours)
+                foreach (int worldNeigh in worldNeighbours)
                 {
-                    if (neigh > 0 && neigh < (_mapSettings.worldSizeX * _mapSettings.worldSizeZ) * _mapSettings.worldSizeY)
+                    if (worldNeigh != -1) // out of bounds check
                     {
-                        WorldNode neighbour = worldNodes[neigh];
-                        if (!neighbour.connected && neighbour.nodeSize > 0)
-                        {
-                            //Debug.Log("Vector3 worldNode: " + worldNode.nodeLocation);
-                            KeyValuePair<List<Vector3Int>, int> vectorAndRot = GetVectsAndRotation(worldNode, neighbour, neigh);
-                            vectList.Add(vectorAndRot);
+                       if (worldNeigh < roofBounds) // keeping nodes inside bounds
+                       {
+                            WorldNode neighbour = worldNodes[worldNeigh];
+                            KeyValuePair<Vector3Int, int> vectorAndRot = GetVectsAndRotation(worldNode, neighbour, worldNeigh);
+                            if (vectorAndRot.Value != -1) // weird issue still not sure why
+                            {
+                                vectList.Add(vectorAndRot);
+                            }
                         }
                     }
                 }
                 connectorVectsAndRotations.Add(worldNode, vectList);
-                worldNode.connected = true;
             }
         }
         return connectorVectsAndRotations;
     }
 
-    public KeyValuePair<List<Vector3Int>, int> GetVectsAndRotation(WorldNode node0, WorldNode node1, int neighCount)
+    public KeyValuePair<Vector3Int, int> GetVectsAndRotation(WorldNode node0, WorldNode node1, int neighCount)
     {
-        List<Vector3Int> connectionVects = new List<Vector3Int>();
+        Vector3Int connectionVect = new Vector3Int();
 
         bool initialSmaller = false;
         WorldNode smallerNode = null;
         WorldNode biggerNode = null;
 
-        int widthOfConnects = 0;
-        int lengthOfConnects = 0;
-
-
-        if (node0.nodeSize < node1.nodeSize)
+        if (node0.nodeSize <= node1.nodeSize)
         {
             initialSmaller = true;
             smallerNode = node0;
             biggerNode = node1;
         }
-        else if (node0.nodeSize >= node1.nodeSize)
+        else if (node0.nodeSize > node1.nodeSize)
         {
             initialSmaller = false;
             smallerNode = node1;
@@ -235,82 +243,73 @@ public class WorldBuilder : MonoBehaviour
             Debug.LogError("Something went wrong here");
         }
 
-        int smallLength = (int)Mathf.Floor(smallerNode.nodeSize / 2); // 0
-        int bigLength = (int)Mathf.Floor(biggerNode.nodeSize / 2); // 1
-
-        widthOfConnects = smallerNode.nodeSize;
-        lengthOfConnects = _mapSettings.worldNodeDistanceXZ - (bigLength + smallLength); // 3
 
         int rotation = -1;
 
-        int distance = (initialSmaller) ? smallLength : bigLength;
-        distance += 1;
+        Vector3Int finalVect;
+        Vector3Int direction; // this is to seperate what axis x,y,z neighbour is
 
-        for (int i = 0; i < lengthOfConnects; i++)
+        if (initialSmaller)
         {
-            Vector3Int finalVect;
-            Vector3Int direction; // this is to seperate what axis x,y,z neighbour is
-
-            if (initialSmaller)
-            {
-                direction = (biggerNode.nodeLocation - smallerNode.nodeLocation);
-            }
-            else
-            {
-                direction = (smallerNode.nodeLocation - biggerNode.nodeLocation);
-            }
-
-            finalVect = node0.nodeLocation;
-
-            if (direction.x != 0 && direction.y == 0 && direction.z == 0)
-            {
-                if (direction.x > 0)
-                {
-                    rotation = 1;
-                    finalVect = new Vector3Int(finalVect.x + (distance * _mapSettings.sizeOfMapPiecesXZ), finalVect.y, finalVect.z);
-                }
-                else if (direction.x < 0)
-                {
-                    rotation = 3;
-                    finalVect = new Vector3Int(finalVect.x - (distance * _mapSettings.sizeOfMapPiecesXZ), finalVect.y, finalVect.z);
-                }
-            }
-            else if (direction.x == 0 && direction.y != 0 && direction.z == 0)
-            {
-                if (direction.y > 0)
-                {
-                    rotation = 4;
-                    finalVect = new Vector3Int(finalVect.x, finalVect.y + (distance * (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
-                }
-                else if (direction.y < 0)
-                {
-                    rotation = 4;
-                    finalVect = new Vector3Int(finalVect.x, finalVect.y - (distance * (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
-                }
-            }
-            else if (direction.x == 0 && direction.y == 0 && direction.z != 0)
-            {
-                if (direction.z > 0)
-                {
-                    rotation = 0;
-                    finalVect = new Vector3Int(finalVect.x, finalVect.y, finalVect.z + (distance * _mapSettings.sizeOfMapPiecesXZ));
-                }
-                else if (direction.z < 0)
-                {
-                    rotation = 2;
-                    finalVect = new Vector3Int(finalVect.x, finalVect.y, finalVect.z - (distance * _mapSettings.sizeOfMapPiecesXZ));
-                }
-            }
-            else
-            {
-                Debug.LogError("SOMETHING WRONG HERE direction: " + direction);
-                Debug.LogFormat("initialSmaller: {0} -node0: {1} -node1: {2}", initialSmaller, node0.nodeLocation, node1.nodeLocation);
-            }
-
-            distance += 1;
-            connectionVects.Add(new Vector3Int(finalVect.x - 1, finalVect.y, finalVect.z - 1)); // -1's to fix annoying postiioning issue
+            direction = (biggerNode.nodeLocation - smallerNode.nodeLocation);
         }
-        return new KeyValuePair<List<Vector3Int>, int>(connectionVects, rotation);
+        else
+        {
+            direction = (smallerNode.nodeLocation - biggerNode.nodeLocation);
+        }
+
+
+        finalVect = node0.nodeLocation;
+
+        if (direction.x != 0 && direction.y == 0 && direction.z == 0)
+        {
+            if (direction.x > 0)
+            {
+                rotation = 1;
+                finalVect = new Vector3Int(finalVect.x + (_mapSettings.sizeOfMapPiecesXZ), finalVect.y, finalVect.z);
+            }
+            else if (direction.x < 0)
+            {
+                rotation = 3;
+                finalVect = new Vector3Int(finalVect.x - (_mapSettings.sizeOfMapPiecesXZ), finalVect.y, finalVect.z);
+            }
+        }
+        else if (direction.x == 0 && direction.y != 0 && direction.z == 0)
+        {
+            if (direction.y > 0)
+            {
+                rotation = 4;
+                finalVect = new Vector3Int(finalVect.x, finalVect.y + ((_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
+            }
+            else if (direction.y < 0)
+            {
+                rotation = 4;
+                finalVect = new Vector3Int(finalVect.x, finalVect.y - ((_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
+            }
+        }
+        else if (direction.x == 0 && direction.y == 0 && direction.z != 0)
+        {
+            if (direction.z > 0)
+            {
+                rotation = 0;
+                finalVect = new Vector3Int(finalVect.x, finalVect.y, finalVect.z + (_mapSettings.sizeOfMapPiecesXZ));
+            }
+            else if (direction.z < 0)
+            {
+                rotation = 2;
+                finalVect = new Vector3Int(finalVect.x, finalVect.y, finalVect.z - (_mapSettings.sizeOfMapPiecesXZ));
+            }
+        }
+        else
+        {
+            Debug.LogError("SOMETHING WRONG HERE direction: " + direction);
+            Debug.LogFormat("initialSmaller: {0} -node0: {1} -node1: {2}", initialSmaller, node0.nodeLocation, node1.nodeLocation);
+            return new KeyValuePair<Vector3Int, int>(new Vector3Int(-1, -1, -1), -1);
+        }
+
+        connectionVect = new Vector3Int(finalVect.x - 1, finalVect.y, finalVect.z - 1); // -1's to fix annoying postiioning issue
+
+        return new KeyValuePair<Vector3Int, int>(connectionVect, rotation);
     }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -323,14 +322,8 @@ public class WorldBuilder : MonoBehaviour
     // Create World Nodes ///////////////////////////////////////////////////
     private List<WorldNode> CreateWorldNodes(List<Vector3Int> nodeVects)
     {
-        int[,] nodeGrid = new int[_mapSettings.worldSizeX, _mapSettings.worldSizeZ];
-
         // build inital map Node
         List<WorldNode> worldNodes = new List<WorldNode>();
-        bool left = true;
-        bool right = false;
-        bool front = false;
-        bool back = true;
 
         int rowMultipler = _mapSettings.worldSizeX;
         int colMultiplier = _mapSettings.worldSizeZ;
@@ -347,28 +340,29 @@ public class WorldBuilder : MonoBehaviour
         int count = 1;
         foreach (Vector3Int vect in nodeVects)
         {
-            // for neighbours
-            right = (count % rowMultipler == 0) ? true : false;
-            left = (count == 1 || ((count - 1) % rowMultipler == 0)) ? true : false;
-            front = ((count + _mapSettings.worldSizeX) > (totalMultiplier * countFloorY) && count <= (totalMultiplier * countFloorY)) ? true : false;
-            back = (count >= ((totalMultiplier + 1) * (countFloorY - 1)) && count <= (totalMultiplier * (countFloorY - 1)) + _mapSettings.worldSizeX) ? true : false;
-
-
             int rotation = 0;
             WorldNode nodeScript = CreateNode<WorldNode>(this.transform, vect, rotation, NodeTypes.WorldNode);
             nodeScript.worldNodeCount = (count - 1);
-            nodeScript.neighbours = GetWorldNodeNeighbours((count - 1), left, right, front, back);
 
+            bool loadPrebuiltStructure = false;
             // for the specified map structures
-            int[,] floor = floors[countFloorY - 1];
-            if (floor[countFloorX, countFloorZ] == 01)
+            if (loadPrebuiltStructure)
             {
-                int randSize = _mapSettings.getRandomMapSize;
-                nodeScript.nodeSize = randSize;
+                int[,] floor = floors[countFloorY - 1];
+                if (floor[countFloorX, countFloorZ] == 01)
+                {
+                    int randSize = _mapSettings.getRandomMapSize;
+                    nodeScript.nodeSize = randSize;
+                }
+                else
+                {
+                    nodeScript.nodeSize = 0;
+                }
             }
             else
             {
-                nodeScript.nodeSize = 0;
+                int randSize = _mapSettings.getRandomMapSize;
+                nodeScript.nodeSize = randSize;
             }
 
             worldNodes.Add(nodeScript);
@@ -389,7 +383,6 @@ public class WorldBuilder : MonoBehaviour
                 countFloorZ = 0;
             }
             count++;
-
         }
         return worldNodes;
     }
@@ -406,11 +399,13 @@ public class WorldBuilder : MonoBehaviour
             List<Vector3Int> mapVects = GetMapVects(worldNode);
             List<MapNode> mapNodes = new List<MapNode>();
 
-            bool carPark = false;
+            bool shipEntrance = false;
+            int shipEntranceProbablity = 20;
 
-            if (Random.Range(0, 20) == 0)
+            if (worldNode.nodeSize == 3 && Random.Range(0, shipEntranceProbablity) == 0)
             {
-                carPark = true;
+                shipEntrance = true;
+                _nodeBuilder.AttachCoverToNode(worldNode, worldNode.gameObject, CoverTypes.LargeGarageCover);
             }
 
             int mapCount = 0;
@@ -420,28 +415,25 @@ public class WorldBuilder : MonoBehaviour
 
                 MapNode mapNode = CreateNode<MapNode>(worldNode.gameObject.transform, vect, rotation, NodeTypes.MapNode);
                 mapNode.nodeSize = 1;
-                mapNodes.Add(mapNode);
-
-                int multiplier = (worldNode.nodeSize * worldNode.nodeSize);
-
-                if (worldNode.nodeSize == 3)
+                mapNode.neighbours = new int[6];
+                for (int i = 0; i < mapNode.neighbours.Length; i++)
                 {
-                    if (carPark)
-                    {
-                        _nodeBuilder.AttachCoverToNode(worldNode.gameObject, CoverTypes.LargeGarageCover);
-                    }
+                    /*
+                    if (!shipEntrance)
+                    {*/
+                        mapNode.neighbours[i] = 1;
+                  /*  }
                     else
                     {
-                        _nodeBuilder.AttachCoverToNode(mapNode.gameObject, CoverTypes.NormalCover);
-                    }
+                        mapNode.neighbours[i] = -1; // less connections in the shipEntrance, mostly open
+                    }*/
                 }
-                else
+
+                mapNodes.Add(mapNode);
+                if (!shipEntrance)
                 {
-                    _nodeBuilder.AttachCoverToNode(mapNode.gameObject, CoverTypes.NormalCover);
+                    _nodeBuilder.AttachCoverToNode(mapNode, mapNode.gameObject, CoverTypes.NormalCover);
                 }
-                // need to figure out entrance points
-
-
 
                 /*// dont think need this anymore But not deleteing incase still do
                 if (vect.y <= lowestYpos) // this is find lowest point to make LayerCounts
@@ -451,13 +443,51 @@ public class WorldBuilder : MonoBehaviour
                 if (vect.y >= highestYpos) // this is find highest point to make LayerCounts
                 {
                     highestYpos = vect.y;
-                }
-                */
+                }*/
 
                 mapCount++;
             }
+            worldNode.mapNodes = mapNodes;
             worldNodeAndWrapperNodes.Add(worldNode, mapNodes);
+
+            //////// Map Neighbours
+            int[] worldNodeNeighbours = worldNode.neighbours;
+
+            if (worldNode.nodeSize == 1)
+            {
+                MapNode mapNode = worldNode.mapNodes[0];
+                int[] mapNeighbours = mapNode.neighbours;
+
+                for (int i = 0; i < worldNodeNeighbours.Length; i++)
+                {
+                    if (worldNodeNeighbours[i] != -1)
+                    {
+                        mapNeighbours[i] = 1;
+                    }
+                    else
+                    {
+                        mapNeighbours[i] = -1;
+                    }
+                }
+            }
+            ////////
+            if (worldNode.nodeSize == 3)
+            {
+                // bottom
+                SetMapNeighboursWithMultipleLinks(worldNode, 0, 4, new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, shipEntrance);
+                // Front
+                SetMapNeighboursWithMultipleLinks(worldNode, 1, 10, new int[] { 0, 1, 2, 9, 10, 11, 18, 19, 20 }, shipEntrance);
+                // Left
+                SetMapNeighboursWithMultipleLinks(worldNode, 2, 12, new int[] { 0, 3, 6, 9, 12, 15, 18, 21, 24 }, shipEntrance);
+                // Right
+                SetMapNeighboursWithMultipleLinks(worldNode, 3, 14, new int[] { 2, 5, 8, 11, 14, 17, 20, 23, 26 }, shipEntrance);
+                // Back
+                SetMapNeighboursWithMultipleLinks(worldNode, 4, 16, new int[] { 6, 7, 8, 15, 16, 17, 24, 25, 26 }, shipEntrance);
+                // Top
+                SetMapNeighboursWithMultipleLinks(worldNode, 5, 22, new int[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 }, shipEntrance);
+            }
         }
+    
 
         /* // dont think need this anymore But not deleteing incase still do
         // figure out LayerCount (DONT LIKE THIS) basicly have to re-run whats just happened to get count
@@ -473,33 +503,69 @@ public class WorldBuilder : MonoBehaviour
     }
     ////////////////////////////////////////////////////////////////////////////
 
+    // SetUp MapNode Connections to neighbours ////////////////////////////////////////////////////////
+    private void SetMapNeighboursWithMultipleLinks(WorldNode worldNode, int worldNeighCount, int singleLinkCount, int[] multipleLinkCounts, bool shipEntrance)
+    {
+        int[] worldNodeNeighbours = worldNode.neighbours;
+
+        if (worldNodeNeighbours[worldNeighCount] != -1)
+        {
+            WorldNode worldNeighbour = WorldNodes[worldNodeNeighbours[worldNeighCount]];
+
+            if (worldNeighbour.nodeSize == 1)
+            {
+                foreach (int link in multipleLinkCounts)
+                {
+                    if (!shipEntrance)
+                    {
+                        worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
+                    }
+                }
+                worldNode.mapNodes[singleLinkCount].neighbours[worldNeighCount] = 1; // for the middle front connector
+            }
+            if (worldNeighbour.nodeSize == 3)
+            {
+                foreach (int link in multipleLinkCounts)
+                {
+                    worldNode.mapNodes[link].neighbours[worldNeighCount] = 1;
+                }
+            }
+        }
+        else
+        {
+            foreach (int link in multipleLinkCounts)
+            {
+                worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////
+
     // Create Connector Nodes ////////////////////////////////////////////////
-    private Dictionary<WorldNode, List<ConnectorNode>> CreateConnectorNodes(Dictionary<WorldNode, List<KeyValuePair<List<Vector3Int>, int>>> connectorVects)
+    private Dictionary<WorldNode, List<ConnectorNode>> CreateConnectorNodes(Dictionary<WorldNode, List<KeyValuePair<Vector3Int, int>>> connectorVects)
     {
         // Wrap map Nodes around around Initial
-        Dictionary<WorldNode, List<ConnectorNode>> worldNodeAndWrapperNodes = new Dictionary<WorldNode, List<ConnectorNode>>();
+        Dictionary<WorldNode, List<ConnectorNode>> worldNodeAndConnectorNodes = new Dictionary<WorldNode, List<ConnectorNode>>();
 
         foreach (WorldNode worldNode in connectorVects.Keys)
         {
-            List<ConnectorNode> nodes = new List<ConnectorNode>();
-            List<KeyValuePair<List<Vector3Int>, int>> vectsAndRot = connectorVects[worldNode];
+            List<ConnectorNode> connectorNodes = new List<ConnectorNode>();
+            List<KeyValuePair<Vector3Int, int>> vectsAndRot = connectorVects[worldNode];
 
-            foreach (KeyValuePair<List<Vector3Int>, int> pair in vectsAndRot)
+            foreach (KeyValuePair<Vector3Int, int> pair in vectsAndRot)
             {
-                List<Vector3Int> vectors = pair.Key;
+                Vector3Int vector = pair.Key;
                 int rotation = pair.Value;
 
-                foreach (Vector3Int vect in vectors)
-                {
-                    ConnectorNode node = CreateNode<ConnectorNode>(worldNode.gameObject.transform, vect, rotation, NodeTypes.ConnectorNode);
-                    _nodeBuilder.AttachCoverToNode(node.gameObject, CoverTypes.ConnectorCover);
-                    node.nodeSize = 1;
-                    nodes.Add(node);
-                }
+                ConnectorNode node = CreateNode<ConnectorNode>(worldNode.gameObject.transform, vector, rotation, NodeTypes.ConnectorNode);
+                _nodeBuilder.AttachCoverToNode(node, node.gameObject, CoverTypes.ConnectorCover);
+                node.nodeSize = 1;
+                connectorNodes.Add(node);
             }
-            worldNodeAndWrapperNodes.Add(worldNode, nodes);
+            worldNode.connectorNodes = connectorNodes;
+            worldNodeAndConnectorNodes.Add(worldNode, connectorNodes);
         }
-        return worldNodeAndWrapperNodes;
+        return worldNodeAndConnectorNodes;
    }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -568,17 +634,72 @@ public class WorldBuilder : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////
 
     // Get World Node Neighbours ///////////////////////////////////////////////
-    private int[] GetWorldNodeNeighbours(int count, bool left, bool right, bool front, bool back)
+    private void GetWorldNodeNeighbours()
+    {
+        // build inital map Node
+        List<WorldNode> worldNodes = new List<WorldNode>();
+        bool left = true;
+        bool right = false;
+        bool front = false;
+        bool back = true;
+
+        int rowMultipler = _mapSettings.worldSizeX;
+        int colMultiplier = _mapSettings.worldSizeZ;
+
+        int totalMultiplier = _mapSettings.worldSizeX * _mapSettings.worldSizeZ;
+
+        int countFloorY = 1;
+
+        int count = 1;
+        foreach (WorldNode worldNode in WorldNodes)
+        {
+
+            //Debug.Log("worldNode.worldNodeCount: " + worldNode.worldNodeCount);
+            // for neighbours
+            right = (count % rowMultipler == 0) ? true : false;
+            left = (count == 1 || ((count - 1) % rowMultipler == 0)) ? true : false;
+            front = ((count + _mapSettings.worldSizeX) > (totalMultiplier * countFloorY) && count <= (totalMultiplier * countFloorY)) ? true : false;
+            back = (count >= ((totalMultiplier + 1) * (countFloorY - 1)) && count <= (totalMultiplier * (countFloorY - 1)) + _mapSettings.worldSizeX) ? true : false;
+
+            worldNode.neighbours = GetNeighbours((count - 1), left, right, front, back);
+
+            // for counting, best not to change, even tho its ugly
+            if (count % totalMultiplier == 0)
+            {
+                countFloorY++;
+            }
+            count++;
+        }
+    }
+
+
+
+    private int[] GetNeighbours(int count, bool left, bool right, bool front, bool back)
     {
         int[] neighbours = new int[6];
 
-        neighbours[0] = (left) ? -1 : count - 1;                             //(x - 1, y, z)
-        neighbours[1] = (right) ? -1 : count + 1;                            //(x + 1, y, z)
-        neighbours[2] = (front) ? -1 : count + _mapSettings.worldSizeX;      //(x, y, z + 1)
-        neighbours[3] = (back) ? -1 : count - _mapSettings.worldSizeX;       //(x, y, z - 1)
-        neighbours[4] = count - (_mapSettings.worldSizeX * _mapSettings.worldSizeZ);  //(x, y - 1, z)
-        neighbours[5] = count + (_mapSettings.worldSizeX * _mapSettings.worldSizeZ);  //(x, y + 1, z)
+        neighbours[0] = count - (_mapSettings.worldSizeX * _mapSettings.worldSizeZ);//(x, y - 1, z)
+        neighbours[1] = (back) ? -1 : count - _mapSettings.worldSizeX;              //(x, y, z - 1)
+        neighbours[2] = (left) ? -1 : count - 1;                                    //(x - 1, y, z)
+        neighbours[3] = (right) ? -1 : count + 1;                                   //(x + 1, y, z)
+        neighbours[4] = (front) ? -1 : count + _mapSettings.worldSizeX;             //(x, y, z + 1)
+        neighbours[5] = count + (_mapSettings.worldSizeX * _mapSettings.worldSizeZ);//(x, y + 1, z)
 
+        for (int i = 0; i < neighbours.Length; i++)
+        {
+            if (neighbours[i] <= -1)
+            {
+                neighbours[i] = -1;
+            }
+            else if (neighbours[i] >= WorldNodes.Count)
+            {
+               neighbours[i] = -1;
+            }
+            else if (WorldNodes[neighbours[i]].nodeSize < 1)
+            {
+                neighbours[i] = -1;
+            }
+        }
         return neighbours;
     }
     ////////////////////////////////////////////////////////////////////////////

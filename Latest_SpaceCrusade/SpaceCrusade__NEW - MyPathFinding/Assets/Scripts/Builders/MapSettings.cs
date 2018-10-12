@@ -2,13 +2,13 @@
 
 public class MapSettings : MonoBehaviour {
 
-    private int _worldSizeX = 10;
+    private int _worldSizeX = 5;
     public int worldSizeX { get { return _worldSizeX; } set { _worldSizeX = value; } }
 
-    private int _worldSizeZ = 10;
+    private int _worldSizeZ = 5;
     public int worldSizeZ { get { return _worldSizeZ; } set { _worldSizeZ = value; } }
 
-    private int _worldSizeY = 44;
+    private int _worldSizeY = 5;
     public int worldSizeY { get { return _worldSizeY; } set { _worldSizeY = value; } }
 
     private int _worldType = 0; // 0 = square, 1 = Line, 2 = tower

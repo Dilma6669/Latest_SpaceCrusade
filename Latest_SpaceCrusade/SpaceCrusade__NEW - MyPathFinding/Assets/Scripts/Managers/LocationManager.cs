@@ -83,15 +83,26 @@ public class LocationManager : MonoBehaviour {
         int mapCount = 0;
         foreach (MapNode mapNode in worldNode.mapNodes)
         {
+            mapNode.entrance = true;
             Vector3Int nodeVect = mapNode.nodeLocation;
             int mapSize = mapNode.nodeSize;
             int layerCount = mapNode.nodeLayerCount;
             int rotation = mapNode.nodeRotation;
-            int mapType = 4;
+            int mapType = 6;
             int mapPiece = mapCount;
+            // for the players small ship
+            if(mapCount == 4)
+            {
+                mapNode.playerShipMapPART1 = true;
+            }
+            if (mapCount == 13)
+            {
+                mapNode.playerShipMapPART2 = true;
+            }
             _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
             List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-            _mapPieceBuilder.AttachMapPieceToMapNode(mapNode.gameObject.transform, mapPieceNodes, mapNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+            _mapPieceBuilder.SetWorldNodeNeighboursForDock(worldNode.neighbours); // for the ship docks
+            _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
             mapNode.RemoveDoorPanels();
             mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
             mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
@@ -111,7 +122,7 @@ public class LocationManager : MonoBehaviour {
         int mapPiece = -1; // Random
         _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
         List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-        _mapPieceBuilder.AttachMapPieceToMapNode(mapNode.gameObject.transform, mapPieceNodes, mapNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+        _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
         mapNode.RemoveDoorPanels();
         mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
         mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
@@ -125,11 +136,19 @@ public class LocationManager : MonoBehaviour {
         int mapSize = connectNode.nodeSize;
         int layerCount = connectNode.nodeLayerCount;
         int rotation = connectNode.nodeRotation;
-        int mapType = 2;
+        int mapType = -1;
+        if (connectNode.connectorUp)
+        {
+            mapType = 4;
+        }
+        else
+        {
+            mapType = 2;
+        }
         int mapPiece = -1; // Random
         _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
         List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-        _mapPieceBuilder.AttachMapPieceToMapNode(connectNode.gameObject.transform, mapPieceNodes, connectNode.neighbours, layerCount, mapSize, mapType, mapPiece, rotation); // 0 = mapPieces 1 = Roofs
+        _mapPieceBuilder.AttachMapPieceToMapNode(connectNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
         //connectNode.RemoveDoorPanels();
         //connectNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
         //connectNode.mapVentData = _mapPieceBuilder.GetMapVentData();
@@ -189,7 +208,7 @@ public class LocationManager : MonoBehaviour {
 
                 int rotation = connectorNode.nodeRotation;
 
-                if (rotation == 4) // for the connectors going up
+                if (connectorNode.connectorUp) // for the connectors going up ... FCKING ANNOYING THAT ITS USING A ROTATION AND NOT A TAG
                 {
                     connectorNode.gameObject.transform.Find("ConnectorNodeCover(Clone)").transform.localPosition = new Vector3Int(0, 0, 0); // to fix annoying vertical connector
                     connectorNode.gameObject.transform.Find("ConnectorNodeCover(Clone)").transform.localScale = new Vector3Int(8, 8, 8);

@@ -6,9 +6,6 @@ public class MapNode : BaseNode {
     public List<int[,]> mapFloorData = new List<int[,]>();
     public List<int[,]> mapVentData = new List<int[,]>();
 
-
-
-
     void Awake()
     {
         thisNodeType = NodeTypes.MapNode;

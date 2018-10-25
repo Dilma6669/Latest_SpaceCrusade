@@ -22,6 +22,9 @@ public class WorldBuilder : MonoBehaviour
 
     Dictionary<Vector3, int[]> NEW_WORLD_GRID = new Dictionary<Vector3, int[]>();
 
+    bool LOADPREBUILT_STRUCTURE = true;
+
+
     void Awake()
     {
         _mapSettings = transform.parent.GetComponent<MapSettings>();
@@ -278,12 +281,12 @@ public class WorldBuilder : MonoBehaviour
         {
             if (direction.y > 0)
             {
-                rotation = 4;
+                rotation = 4; // these are the bastards making the connectors go UP
                 finalVect = new Vector3Int(finalVect.x, finalVect.y + ((_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
             }
             else if (direction.y < 0)
             {
-                rotation = 4;
+                rotation = 4;// these are the bastards making the connectors go UP
                 finalVect = new Vector3Int(finalVect.x, finalVect.y - ((_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY)), finalVect.z);
             }
         }
@@ -344,9 +347,8 @@ public class WorldBuilder : MonoBehaviour
             WorldNode nodeScript = CreateNode<WorldNode>(this.transform, vect, rotation, NodeTypes.WorldNode);
             nodeScript.worldNodeCount = (count - 1);
 
-            bool loadPrebuiltStructure = false;
             // for the specified map structures
-            if (loadPrebuiltStructure)
+            if (LOADPREBUILT_STRUCTURE)
             {
                 int[,] floor = floors[countFloorY - 1];
                 if (floor[countFloorX, countFloorZ] == 01)
@@ -467,6 +469,7 @@ public class WorldBuilder : MonoBehaviour
                     else
                     {
                         mapNeighbours[i] = -1;
+                        mapNode.entranceSides.Add(i);
                     }
                 }
             }
@@ -516,10 +519,7 @@ public class WorldBuilder : MonoBehaviour
             {
                 foreach (int link in multipleLinkCounts)
                 {
-                    if (!shipEntrance)
-                    {
-                        worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
-                    }
+                    worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
                 }
                 worldNode.mapNodes[singleLinkCount].neighbours[worldNeighCount] = 1; // for the middle front connector
             }
@@ -536,6 +536,7 @@ public class WorldBuilder : MonoBehaviour
             foreach (int link in multipleLinkCounts)
             {
                 worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
+                worldNode.mapNodes[link].entranceSides.Add(worldNeighCount);
             }
         }
     }
@@ -561,6 +562,10 @@ public class WorldBuilder : MonoBehaviour
                 _nodeBuilder.AttachCoverToNode(node, node.gameObject, CoverTypes.ConnectorCover);
                 node.nodeSize = 1;
                 connectorNodes.Add(node);
+                if(rotation == 4)
+                {
+                    node.connectorUp = true;
+                }
             }
             worldNode.connectorNodes = connectorNodes;
             worldNodeAndConnectorNodes.Add(worldNode, connectorNodes);

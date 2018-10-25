@@ -1,23 +1,58 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerManager : MonoBehaviour {
 
-    public BasePlayerData GetPlayerData(int playerID)
+    BasePlayerData _playerData;
+
+    public void LoadPlayerDataInToManager(int playerID)
     {
+        BasePlayerData data = null;
+
         switch (playerID)
         {
             case 0:
-                return new PlayerData_00();
+                data = new PlayerData_00();
+                break;
             case 1:
-                return new PlayerData_01();
+                data = new PlayerData_01();
+                break;
             case 2:
-                return new PlayerData_02();
+                data = new PlayerData_02();
+                break;
             case 3:
-                return new PlayerData_03();
+                data = new PlayerData_03();
+                break;
             default:
                 Debug.Log("SOMETHING WENT WRONG HERE");
                 break;
         }
-        return null;
+        _playerData = data;
+    }
+
+
+    public string GetPlayerName()
+    {
+        return _playerData.name;
+    }
+
+    public List<int[,]> GetPlayerShipSmallFloorDataPART1()
+    {
+        return _playerData.smallShipFloorsPART1;
+    }
+
+    public List<int[,]> GetPlayerShipSmallFloorDataPART2()
+    {
+        return _playerData.smallShipFloorsPART2;
+    }
+
+    public List<int[,]> GetPlayerShipSmallVentDataPART1()
+    {
+        return _playerData.smallShipVentsPART1;
+    }
+
+    public List<int[,]> GetPlayerShipSmallVentDataPART2()
+    {
+        return _playerData.smallShipVentsPART2;
     }
 }

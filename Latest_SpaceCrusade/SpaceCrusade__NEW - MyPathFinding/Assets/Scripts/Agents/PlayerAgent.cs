@@ -21,7 +21,7 @@ public class PlayerAgent : NetworkBehaviour {
     //	[HideInInspector]
     //	public UnitsAgent _unitsAgent;
 
-    BasePlayerData _playerData;
+    //BasePlayerData _playerData;
 
     public int _playerUniqueID = 0;
     public string _playerName = "???";
@@ -39,7 +39,6 @@ public class PlayerAgent : NetworkBehaviour {
 
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
 
         _playerManager = _gameManager._playerManager;
 		if(_playerManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
@@ -94,12 +93,11 @@ public class PlayerAgent : NetworkBehaviour {
         {
             _playerUniqueID = _syncedVars.PlayerCount;
             playerIDText.text = _playerUniqueID.ToString();
-            _playerData = _playerManager.GetPlayerData(_playerUniqueID);
-            playerNameText.text = _playerData.name;
+            _playerManager.LoadPlayerDataInToManager(_playerUniqueID);
+            playerNameText.text = _playerManager.GetPlayerName();
             ContinuePlayerSetUp();
         }
     }
-
 
     public void UpdatePlayerCount(int count)
     {

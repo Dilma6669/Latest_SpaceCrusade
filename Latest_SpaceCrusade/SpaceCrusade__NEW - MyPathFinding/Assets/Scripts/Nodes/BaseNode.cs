@@ -14,6 +14,13 @@ public class BaseNode : MonoBehaviour {
     protected GameObject _nodeCover;
 
     public int[] neighbours;
+    public bool entrance = false;
+    public List<int> entranceSides = new List<int>();
+
+    public bool playerShipMapPART1 = false;
+    public bool playerShipMapPART2 = false;
+
+    public bool connectorUp = false;
 
     public virtual bool ActivateMapPiece<T>(T nodeType, bool coverActive, GameObject cover) where T : BaseNode // turn on all map objects
     {

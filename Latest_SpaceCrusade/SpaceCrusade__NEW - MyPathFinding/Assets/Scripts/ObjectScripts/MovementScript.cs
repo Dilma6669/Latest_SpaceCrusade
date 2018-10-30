@@ -42,15 +42,15 @@ public class MovementScript : MonoBehaviour {
 					target._cubeOccupied = true;
 					collision = false;
 
-					if (!target.gameObject.transform.Find ("pathFindingNode(Clone)")) {
+					if (!target.pathFindingNode) {
 						target.CreatePathFindingNode (); // puts circles in path, visual reference
 					}
 
 					if (unitCurrPos != currTarget) {
 						_unit.transform.position = Vector3.MoveTowards (unitCurrPos, currTarget, _nodes.Count * Time.deltaTime);
 					} else {
-						if (target.gameObject.transform.Find ("pathFindingNode(Clone)").gameObject) {
-							Destroy (target.gameObject.transform.Find ("pathFindingNode(Clone)").gameObject);
+						if (target.pathFindingNode) {
+							Destroy (target.pathFindingNode);
 						}
 						target._cubeOccupied = false;
 						target._flagToSayIsMine = null;

@@ -13,7 +13,7 @@ public class MapNode : BaseNode {
 
     public void RemoveDoorPanels()
     {
-        Debug.Log("removing door panels");
+        //Debug.Log("removing door panels");
     }
 
 

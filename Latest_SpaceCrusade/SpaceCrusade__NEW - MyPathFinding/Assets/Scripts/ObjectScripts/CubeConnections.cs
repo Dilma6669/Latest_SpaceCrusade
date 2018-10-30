@@ -1,38 +1,39 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CubeConnections : MonoBehaviour {
 
-	LocationManager _locationManager;
+    GameManager _gameManager;
 
-	private static CubeConnections instance = null;
+    LocationManager _locationManager;
 
 	void Awake() {
-		if (instance == null)
-			instance = this;
-		else if (instance != this) {
-			Debug.LogError ("OOPSALA we have an ERROR! More than one instance bein created");
-			Destroy (gameObject);
-		}
 
-		_locationManager = GetComponentInChildren<LocationManager> ();
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _locationManager = GetComponentInChildren<LocationManager> ();
 		if(_locationManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 	}
 
+    
+    public void SetCubeNeighbours(CubeLocationScript cubeScript)
+    {
+        if (cubeScript == null)
+        {
+            Debug.LogError("cubeScript == null! not sure what this means just yet");
+        }
+        else
+        {
+            cubeScript.GetNeighbourConnections();
+            cubeScript.GetHalfNeighbourConnections();
 
-	public void SetCubeNeighbours(Dictionary<Vector3, CubeLocationScript> _LocationLookup) {
-		
-		foreach (CubeLocationScript cubeScript in _LocationLookup.Values) {
-			cubeScript.GetNeighbourConnections ();
-			cubeScript.GetHalfNeighbourConnections ();
-
-			// setup Panels in cubes
-			if (cubeScript.panelScriptChild) {
-				SetUpPanelInCube (cubeScript);
-			}
-		}
-	}
+            // setup Panels in cubes
+            if (cubeScript.panelScriptChild)
+            {
+                SetUpPanelInCube(cubeScript);
+            }
+        }
+    }
 
 
 
@@ -43,7 +44,7 @@ public class CubeConnections : MonoBehaviour {
 
 		PanelPieceScript panelScript = cubeScript.panelScriptChild;
 
-		switch(panelScript.name) 
+        switch (panelScript.name) 
 		{
 		case "Floor":
 			SetUpFloorPanel (cubeScript, panelScript);
@@ -73,7 +74,7 @@ public class CubeConnections : MonoBehaviour {
 		CubeLocationScript cubeScriptLeft = null;
 		CubeLocationScript cubeScriptRight = null;
 
-		Vector3 cubeLoc = cubeScript.cubeLoc;
+        Vector3 cubeLoc = cubeScript.cubeLoc;
 
 		leftVect = new Vector3 (cubeLoc.x, cubeLoc.y - 1, cubeLoc.z);
 		cubeScriptLeft = _locationManager.GetLocationScript(leftVect);
@@ -92,7 +93,7 @@ public class CubeConnections : MonoBehaviour {
 
 		}
 
-		rightVect = new Vector3 (cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
+        rightVect = new Vector3 (cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
 		cubeScriptRight = _locationManager.GetLocationScript(rightVect);
 		if (cubeScriptRight != null) {
 			panelScript.cubeScriptRight = cubeScriptRight;
@@ -123,12 +124,14 @@ public class CubeConnections : MonoBehaviour {
 			panelScript.cubeScriptLeft = panelScript.cubeScriptRight;
 			panelScript.cubeLeftVector = panelScript.cubeRightVector;
 			panelScript.leftPosNode = panelScript.rightPosNode;
-		}
+            Debug.LogWarning("cubeScript == null so making neighbours same cube");
+        }
 		if (cubeScriptRight == null) {
 			panelScript.cubeScriptRight = panelScript.cubeScriptLeft;
 			panelScript.cubeRightVector = panelScript.cubeLeftVector;
-			panelScript.rightPosNode = panelScript.leftPosNode; 
-		}
+			panelScript.rightPosNode = panelScript.leftPosNode;
+            Debug.LogWarning("cubeScript == null so making neighbours same cube");
+        }
 	}
 
 

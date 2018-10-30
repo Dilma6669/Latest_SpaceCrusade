@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class OuterZoneBuilder : MonoBehaviour {
 
-    public static OuterZoneBuilder instance = null;
+    GameManager _gameManager;
 
     public GameObject outerZonePrefab;
 
@@ -15,15 +13,13 @@ public class OuterZoneBuilder : MonoBehaviour {
 
     void Awake()
     {
-        if (instance == null)
-            instance = this;
-        else if (instance != this)
-        {
-            Debug.LogError("OOPSALA we have an ERROR! More than one instance bein created");
-            Destroy(gameObject);
-        }
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
-        _mapSettings = transform.parent.GetComponent<MapSettings>();
+    void Start()
+    {
+        _mapSettings = _gameManager._locationManager._mapSettings;
         if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 

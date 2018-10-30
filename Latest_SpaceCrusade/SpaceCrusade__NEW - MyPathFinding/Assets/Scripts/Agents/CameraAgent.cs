@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
 
 public class CameraAgent : NetworkBehaviour {
 
-	CameraManager _cameraManager;
-	//UIManager _uiManager;
-
-	public PlayerAgent _playerAgent;
+    GameManager _gameManager;
 
 	Camera _camera;
 
@@ -43,22 +39,19 @@ public class CameraAgent : NetworkBehaviour {
 
 	void Awake()
 	{
-		_cameraManager = FindObjectOfType<CameraManager> ();
-		if(_cameraManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-		_camera = GetComponent<Camera> ();
-		_camera.enabled = false;
 
-//		_uiManager = FindObjectOfType<UIManager> ();
-//		if(_uiManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
+        _camera = GetComponent<Camera>();
+        _camera.enabled = false;
 
-		// change layer callback event
-		UIManager.OnChangeLayerClick += ChangeCameraLayer;
-	}
+        // change layer callback event
+        UIManager.OnChangeLayerClick += ChangeCameraLayer;
 
-	void Start()
-	{
-	}
+        _gameManager._playerManager._cameraAgent = this;
+    }
+
 
 	// Mouse rotation movement
 	void Update()
@@ -110,13 +103,13 @@ public class CameraAgent : NetworkBehaviour {
 
 		_camera.enabled = true;
 	
-		KeyValuePair<Vector3, Vector3> camStartPos = _cameraManager.GetCameraStartPosition (playerID);
+		KeyValuePair<Vector3, Vector3> camStartPos = _gameManager._cameraManager.GetCameraStartPosition (playerID);
 
 		Vector3 camPos = camStartPos.Key;
 		Quaternion camRot = Quaternion.Euler (camStartPos.Value);
 
-		_currLayer = _cameraManager.LayerStart;
-        _maxLayer = _cameraManager.LayerMax;
+		_currLayer = _gameManager._cameraManager.LayerStart;
+        _maxLayer = _gameManager._cameraManager.LayerMax;
 
 		// reveal layers up to current
 		for (int i = 0; i <= _currLayer; i++) 

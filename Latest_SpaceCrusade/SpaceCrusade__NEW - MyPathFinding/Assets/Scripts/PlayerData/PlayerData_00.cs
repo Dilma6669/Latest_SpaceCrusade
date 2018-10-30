@@ -1,4 +1,7 @@
 ﻿
+using System.Collections.Generic;
+using UnityEngine;
+
 public class PlayerData_00 : BasePlayerData
 {
 
@@ -7,12 +10,18 @@ public class PlayerData_00 : BasePlayerData
         name = "Kate";
         numUnits = 2;
 
-        ///////////////////////////////
-        //////// PART 1 /////////////
-        //////////////////////////////
+        unitStartPositions = new List<Vector3>()
+        {
+            new Vector3(6, -1, 6),
+            new Vector3(2, -1, 2)
+        };
 
-        // First Floor
-        smallShipFloorsPART1.Add(new int[,] {
+    ///////////////////////////////
+    //////// PART 1 /////////////
+    //////////////////////////////
+
+    // First Floor
+    smallShipFloorsPART1.Add(new int[,] {
             { 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01 },
             { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
             { 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01 },

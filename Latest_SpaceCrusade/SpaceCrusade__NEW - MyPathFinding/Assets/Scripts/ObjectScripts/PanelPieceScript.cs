@@ -6,6 +6,8 @@ public class PanelPieceScript : MonoBehaviour {
 
 	Renderer _rend;
 
+    public Camera _camera;
+
 	public bool _panelActive = false;
 	public bool transFlag = false;
 
@@ -80,48 +82,59 @@ public class PanelPieceScript : MonoBehaviour {
 	}
 
 
-	void OnMouseDown() {
-		
-		RaycastHit hit;
-		if (Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit)) {
-			
-			int triIndex = hit.triangleIndex;
+    void OnMouseDown()
+    {
 
-			//Debug.Log ("Hit Triangle index : " + hit.triangleIndex);
+        RaycastHit hit;
+        if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hit))
+        {
 
-			if( triIndex == 0 || triIndex == 1 ||
-				triIndex == 2 || triIndex == 3 ||
-				triIndex == 8 || triIndex == 9 ) // good
-			{
-				activeCubeScript = cubeScriptLeft;
-				posActive = transform.TransformPoint(leftPosNode);
+            cubeScriptParent.AssignCubeNeighbours();
 
-			} 
-			else if(triIndex == 4 || triIndex == 5 ||
-				triIndex == 6 || triIndex == 7 ||
-				triIndex == 10 || triIndex == 11)
-			{
-				activeCubeScript = cubeScriptRight;
-				posActive = transform.TransformPoint(rightPosNode);
-			} 
-			else 
-			{
-				activeCubeScript = null;
-				Debug.Log ("Hit Triangle index NOT REGISTERED: " + hit.triangleIndex);
-			}
-		}
 
-		if (cubeScriptLeft.cubeVisible || cubeScriptRight.cubeVisible) {
-			//if (!_panelActive) {
-			activeCubeScript.CubeSelect (true, posActive, this.gameObject); // needs to stay here or will cause stack overflow
-				ActivatePanel (true);
-//			} else {
-//				cubeScript.CubeSelect (false); // needs to stay here or will cause stack overflow
-//				ActivatePanel (false);
-//			}
-		}
-	}
+            int triIndex = hit.triangleIndex;
+
+            //Debug.Log ("Hit Triangle index : " + hit.triangleIndex);
+
+            if (triIndex == 0 || triIndex == 1 ||
+                triIndex == 2 || triIndex == 3 ||
+                triIndex == 8 || triIndex == 9) // good
+            {
+                activeCubeScript = cubeScriptLeft;
+                posActive = transform.TransformPoint(leftPosNode);
+
+            }
+            else if (triIndex == 4 || triIndex == 5 ||
+                triIndex == 6 || triIndex == 7 ||
+                triIndex == 10 || triIndex == 11)
+            {
+                activeCubeScript = cubeScriptRight;
+                posActive = transform.TransformPoint(rightPosNode);
+            }
+            else
+            {
+                activeCubeScript = null;
+                Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
+            }
+        }
+        if (cubeScriptLeft.cubeVisible || cubeScriptRight.cubeVisible)
+        {
+            if (!_panelActive)
+            {
+                activeCubeScript.CubeSelect(true, posActive, this.gameObject); // needs to stay here or will cause stack overflow
+                ActivatePanel(true);
+            }
+            else
+            {
+                activeCubeScript.CubeSelect(false); // needs to stay here or will cause stack overflow
+                ActivatePanel(false);
+            }
+        }
+    }
+
+
 	void OnMouseOver() {
+        /*
 		if (cubeScriptLeft == null) {
 			Debug.Log ("ERROR cubeScriptLeft == null: " + this.gameObject.name);
 		}
@@ -139,14 +152,25 @@ public class PanelPieceScript : MonoBehaviour {
 				PanelPieceChangeColor ("Green");
 			}
 		}
-	}
+        */
+        if (!_panelActive)
+        {
+            PanelPieceChangeColor("Green");
+        }
+    }
 	void OnMouseExit() {
+        /*
 		if (cubeScriptLeft.cubeVisible || cubeScriptRight.cubeVisible) {
 			if (!_panelActive) {
 				PanelPieceChangeColor ("White");
 			}
 		}
-	}
+        */
+        if (!_panelActive)
+        {
+            PanelPieceChangeColor("White");
+        }
+    }
 	public void PanelPieceGoTransparent() {
 
 		if (_rend) {

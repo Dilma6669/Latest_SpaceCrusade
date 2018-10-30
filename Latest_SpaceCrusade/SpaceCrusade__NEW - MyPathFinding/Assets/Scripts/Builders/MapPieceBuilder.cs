@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class MapPieceBuilder : MonoBehaviour {
 
     GameManager _gameManager;
-    LocationManager _locationManager;
-    CubeBuilder _cubeBuilder;
-    MapSettings _mapSettings;
+
     PlayerManager _playerManager;
 
 
@@ -40,14 +37,6 @@ public class MapPieceBuilder : MonoBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _locationManager = transform.parent.GetComponent<LocationManager>();
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _cubeBuilder = transform.parent.GetComponentInChildren<CubeBuilder>();
-        if (_cubeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _mapSettings = transform.parent.GetComponent<MapSettings>();
-        if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _playerManager = _gameManager._playerManager;
         if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
@@ -92,9 +81,9 @@ public class MapPieceBuilder : MonoBehaviour {
 
     private void BuildMapsByIEnum<T>(T node, Vector3 nodeLoc, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
-        int startGridLocX = (int)nodeLoc.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)nodeLoc.x - (_gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ / 2);
         int startGridLocY = (int)nodeLoc.y;
-        int startGridLocZ = (int)nodeLoc.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocZ = (int)nodeLoc.z - (_gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ / 2);
 
         Vector3 GridLoc;
 
@@ -146,8 +135,8 @@ public class MapPieceBuilder : MonoBehaviour {
         }/////////////////////////////////////////////////////////////
         else
         {
-            mapPiece = (_mapPiece == -1) ? Random.Range(0, 3) : _mapPiece;
-            rotation = (_rotation == -1) ? Random.Range(0, 3) : _rotation;
+            mapPiece = _mapPiece;
+            rotation = _rotation;
 
             if (node.entrance)
             {
@@ -160,7 +149,7 @@ public class MapPieceBuilder : MonoBehaviour {
         }
 
         rotations = rotation;
-        node.nodeRotation = rotation;
+        //node.nodeRotation = rotation;
 
         int objectsCountX = startGridLocX;
         int objectsCountY = startGridLocY;
@@ -174,9 +163,16 @@ public class MapPieceBuilder : MonoBehaviour {
 
             floor = layers[y];
 
+
+            if (!floorORRoof && y == (layers.Count -1) && neighbours[5] != -1)// for the roofs of the vents only appearing if no map piece above vent
+            {
+                continue; // if so, skip last layer
+            }
+
+
             for (int r = 0; r < rotations; r++)
             {
-                floor = TransposeArray(floor, _mapSettings.sizeOfMapPiecesXZ - 1);
+                floor = TransposeArray(floor, _gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ - 1);
 
                 /*
                 if(floorORRoof) // storing the map data for serilisation and other shit still to work out
@@ -197,13 +193,13 @@ public class MapPieceBuilder : MonoBehaviour {
                 for (int x = 0; x < floor.GetLength(1); x++)
                 {
                     int cubeType = floor[z, x];
-                    cubeType = FigureOutDoors(node, _mapPiece, _mapType, cubeType, rotations);
+                    cubeType = FigureOutDoors(node, _mapType, cubeType, rotations);
 
-                    if (cubeType != 0)
-                    {
+                    //if (cubeType != 0)
+                   // {
                         GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
-                        _cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, layerCount, node.gameObject.transform); // Create the cube
-                    }
+                        _gameManager._locationManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, layerCount, node.gameObject.transform); // Create the cube
+                   // }
                     objectsCountX += 1;
                 }
                 objectsCountZ += 1;
@@ -377,7 +373,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
 
     ///////
-    private int FigureOutDoors<T>(T node, int _mapPiece, int _mapType, int _cubeType, int rotations) where T : BaseNode
+    private int FigureOutDoors<T>(T node, int _mapType, int _cubeType, int rotations) where T : BaseNode
     {
         int originalCubeType = _cubeType;
 
@@ -456,7 +452,7 @@ public class MapPieceBuilder : MonoBehaviour {
             //Debug.Log("fuceken jezus index: " + index);
 
             // stay in here
-            if (_mapType == 4) // shipYard
+            if (_mapType == MAPTYPE_SHIPPORT_FLOOR) // shipYard
             {
                 if (worldNeighbours[index] != -1) // if world neighbour present
                 {
@@ -476,9 +472,22 @@ public class MapPieceBuilder : MonoBehaviour {
             }
             ///////
 
-            if (neighbours[index] == -1)
+
+
+            if (neighbours[index] == -1) // no neighbour (Space)
             {
-                return cubeTypeAndWallType[originalCubeType]; // floor
+                return cubeTypeAndWallType[originalCubeType]; // return wall
+            }
+            else
+            {   // this is for the floors no connectors UP to cover the vents below it. kind of a special case really
+                if (_mapType == MAPTYPE_CONNECT_UP_FLOOR && _cubeType == 50) 
+                {
+                    if (worldNeighbours[0] != -1)
+                    {
+                        int neighIndex = node.worldNodeParent.neighbours[0]; // need to know the vect of neighbours
+                        //WorldNode worldBottomNeighbour = _gameManager._locationManager._LocationLookup[neighIndex];
+                    }
+                }
             }
         }
         return originalCubeType;
@@ -496,12 +505,15 @@ public class MapPieceBuilder : MonoBehaviour {
                 switch (map)
                 {
                     case 0:
-                        mapPiece = ScriptableObject.CreateInstance<MapPiece_Entrance_01>();
-                        break;
-                    case 1:
                         mapPiece = ScriptableObject.CreateInstance<MapPiece_Corridor_01>();
                         break;
+                    case 1:
+                        mapPiece = ScriptableObject.CreateInstance<MapPiece_Corridor_02>();
+                        break;
                     case 2:
+                        mapPiece = ScriptableObject.CreateInstance<MapPiece_Corridor_03>();
+                        break;
+                    case 3:
                         mapPiece = ScriptableObject.CreateInstance<MapPiece_Room_01>();
                         break;
                     default:
@@ -523,6 +535,9 @@ public class MapPieceBuilder : MonoBehaviour {
                     case 2:
                         ventPiece = ScriptableObject.CreateInstance<MapPiece_Vents_Room_01>();
                         break;
+                    case 3:
+                        ventPiece = ScriptableObject.CreateInstance<MapPiece_Vents_Room_01>();
+                        break;
                     default:
                         Debug.LogError("OPSALA SOMETHING WRONG HERE!");
                         break;
@@ -534,12 +549,6 @@ public class MapPieceBuilder : MonoBehaviour {
                 switch (map)
                 {
                     case 0:
-                        connectFloor = ScriptableObject.CreateInstance<ConnectorPiece_01>();
-                        break;
-                    case 1:
-                        connectFloor = ScriptableObject.CreateInstance<ConnectorPiece_01>();
-                        break;
-                    case 2:
                         connectFloor = ScriptableObject.CreateInstance<ConnectorPiece_01>();
                         break;
                     default:
@@ -555,12 +564,6 @@ public class MapPieceBuilder : MonoBehaviour {
                     case 0:
                         connectRoof = ScriptableObject.CreateInstance<ConnectorPiece_Roof_01>();
                         break;
-                    case 1:
-                        connectRoof = ScriptableObject.CreateInstance<ConnectorPiece_Roof_01>();
-                        break;
-                    case 2:
-                        connectRoof = ScriptableObject.CreateInstance<ConnectorPiece_Roof_01>();
-                        break;
                     default:
                         Debug.LogError("OPSALA SOMETHING WRONG HERE! map: " + map);
                         break;
@@ -574,12 +577,6 @@ public class MapPieceBuilder : MonoBehaviour {
                     case 0:
                         connectFloorUP = ScriptableObject.CreateInstance<MapPiece_Corridor_Up_01>();
                         break;
-                    case 1:
-                        connectFloorUP = ScriptableObject.CreateInstance<MapPiece_Corridor_Up_01>();
-                        break;
-                    case 2:
-                        connectFloorUP = ScriptableObject.CreateInstance<MapPiece_Corridor_Up_01>();
-                        break;
                     default:
                         Debug.LogError("OPSALA SOMETHING WRONG HERE! map: " + map);
                         break;
@@ -591,12 +588,6 @@ public class MapPieceBuilder : MonoBehaviour {
                 switch (map)
                 {
                     case 0:
-                        connectRoofUP = ScriptableObject.CreateInstance<MapPiece_Vents_Up_01>();
-                        break;
-                    case 1:
-                        connectRoofUP = ScriptableObject.CreateInstance<MapPiece_Vents_Up_01>();
-                        break;
-                    case 2:
                         connectRoofUP = ScriptableObject.CreateInstance<MapPiece_Vents_Up_01>();
                         break;
                     default:

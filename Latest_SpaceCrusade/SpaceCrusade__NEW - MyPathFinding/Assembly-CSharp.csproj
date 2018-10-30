@@ -67,8 +67,8 @@
      <Compile Include="Assets\Scripts\Builders\MapsData\BaseMapPiece.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Corridor_01.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Corridor_02.cs" />
+     <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Corridor_03.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Corridor_Up_01.cs" />
-     <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Entrance_01.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Room_01.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Vents_Room_01.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Vents_Up_01.cs" />

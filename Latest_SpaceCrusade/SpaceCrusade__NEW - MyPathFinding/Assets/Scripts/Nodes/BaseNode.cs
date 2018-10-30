@@ -5,11 +5,15 @@ public class BaseNode : MonoBehaviour {
 
     public LocationManager _locationBuilder;
 
+    public WorldNode worldNodeParent;
+
     public NodeTypes thisNodeType;
     public Vector3Int nodeLocation;
     public int nodeSize;
     public int nodeRotation;
     public int nodeLayerCount;
+    public int nodeMapType = -1;
+    public int nodeMapPiece = -1;
 
     protected GameObject _nodeCover;
 

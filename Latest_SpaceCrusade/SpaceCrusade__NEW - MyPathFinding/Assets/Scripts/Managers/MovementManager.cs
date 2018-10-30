@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class MovementManager : GamePlayManager {
-
-	private static MovementManager instance = null;
+public class MovementManager : MonoBehaviour {
 
 	PathFinding _pathFinding;
 
@@ -12,13 +9,6 @@ public class MovementManager : GamePlayManager {
 
 
 	void Awake() {
-
-		if (instance == null)
-			instance = this;
-		else if (instance != this) {
-			Debug.LogError ("OOPSALA we have an ERROR! More than one instance bein created");
-			Destroy (gameObject);
-		}
 
 		_pathFinding = GetComponent<PathFinding> ();
 		if(_pathFinding == null){Debug.LogError ("OOPSALA we have an ERROR!");}
@@ -33,16 +23,16 @@ public class MovementManager : GamePlayManager {
 		UnitScript unitScript = objToMove.GetComponent<UnitScript> ();
 
 		List<CubeLocationScript> nodes = unitScript.movePath;
-		Debug.Log ("unitScript.movePath.Count: " + unitScript.movePath.Count);
 		if(unitScript.movePath.Count != 0) {
 			foreach (CubeLocationScript node in nodes) {
 				if (node.pathFindingNode) {
-					Destroy (node.pathFindingNode);
+                    Destroy (node.pathFindingNode);
 				}
 			}
 		}
 		unitScript.movePath.Clear ();
-		unitScript.movePath = _pathFinding.FindPath (unitScript._unitStats[0], canClimbWalls, start, end, posOffset);
+        int unitsMovementStat = unitScript._unitStats[0];
+        unitScript.movePath = _pathFinding.FindPath (unitsMovementStat, canClimbWalls, start, end, posOffset);
 	}
 
 

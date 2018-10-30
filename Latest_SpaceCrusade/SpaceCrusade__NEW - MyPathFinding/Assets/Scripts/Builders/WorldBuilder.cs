@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WorldBuilder : MonoBehaviour
 {
+    GameManager _gameManager;
+
     MapSettings _mapSettings;
     NodeBuilder _nodeBuilder;
 
@@ -24,13 +26,21 @@ public class WorldBuilder : MonoBehaviour
 
     bool LOADPREBUILT_STRUCTURE = true;
 
+    int MAPTYPE_OUTER = -1;
+    int MAPTYPE_MAP = 0;
+    int MAPTYPE_CONNECTOR = 2;
+    int MAPTYPE_CONNECTOR_UP = 4;
+    int MAPTYPE_SHIPPORT = 6;
 
     void Awake()
     {
-        _mapSettings = transform.parent.GetComponent<MapSettings>();
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _mapSettings = _gameManager._locationManager._mapSettings;
         if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _nodeBuilder = transform.parent.GetComponentInChildren<NodeBuilder>();
+        _nodeBuilder = _gameManager._locationManager._nodeBuilder;
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
@@ -305,8 +315,8 @@ public class WorldBuilder : MonoBehaviour
         }
         else
         {
-            Debug.LogError("SOMETHING WRONG HERE direction: " + direction);
-            Debug.LogFormat("initialSmaller: {0} -node0: {1} -node1: {2}", initialSmaller, node0.nodeLocation, node1.nodeLocation);
+            //Debug.LogError("SOMETHING WRONG HERE direction: " + direction);
+            //Debug.LogFormat("initialSmaller: {0} -node0: {1} -node1: {2}", initialSmaller, node0.nodeLocation, node1.nodeLocation);
             return new KeyValuePair<Vector3Int, int>(new Vector3Int(-1, -1, -1), -1);
         }
 
@@ -344,7 +354,10 @@ public class WorldBuilder : MonoBehaviour
         foreach (Vector3Int vect in nodeVects)
         {
             int rotation = 0;
-            WorldNode nodeScript = CreateNode<WorldNode>(this.transform, vect, rotation, NodeTypes.WorldNode);
+            int mapType = -1;
+            int mapPiece = -1;
+
+            WorldNode nodeScript = CreateNode<WorldNode>(this.transform, vect, rotation, mapType, mapPiece, NodeTypes.WorldNode);
             nodeScript.worldNodeCount = (count - 1);
 
             // for the specified map structures
@@ -414,22 +427,25 @@ public class WorldBuilder : MonoBehaviour
             foreach (Vector3Int vect in mapVects)
             {
                 int rotation = 0;
+                int mapType = -1;
+                if (shipEntrance)
+                {
+                    mapType = MAPTYPE_SHIPPORT;
+                }
+                else
+                {
+                    mapType = MAPTYPE_MAP;
+                }
+                int mapPiece = Random.Range(0, 4); // 3 is the number of availble map pieces
 
-                MapNode mapNode = CreateNode<MapNode>(worldNode.gameObject.transform, vect, rotation, NodeTypes.MapNode);
+                MapNode mapNode = CreateNode<MapNode>(worldNode.gameObject.transform, vect, rotation, mapType, mapPiece, NodeTypes.MapNode);
                 mapNode.nodeSize = 1;
                 mapNode.neighbours = new int[6];
                 for (int i = 0; i < mapNode.neighbours.Length; i++)
                 {
-                    /*
-                    if (!shipEntrance)
-                    {*/
-                        mapNode.neighbours[i] = 1;
-                  /*  }
-                    else
-                    {
-                        mapNode.neighbours[i] = -1; // less connections in the shipEntrance, mostly open
-                    }*/
+                    mapNode.neighbours[i] = 1;
                 }
+                mapNode.worldNodeParent = worldNode;
 
                 mapNodes.Add(mapNode);
                 if (!shipEntrance)
@@ -452,7 +468,9 @@ public class WorldBuilder : MonoBehaviour
             worldNode.mapNodes = mapNodes;
             worldNodeAndWrapperNodes.Add(worldNode, mapNodes);
 
-            //////// Map Neighbours
+            ////////////////
+
+            //// Map Neighbours
             int[] worldNodeNeighbours = worldNode.neighbours;
 
             if (worldNode.nodeSize == 1)
@@ -557,18 +575,54 @@ public class WorldBuilder : MonoBehaviour
             {
                 Vector3Int vector = pair.Key;
                 int rotation = pair.Value;
+                int mapType = MAPTYPE_CONNECTOR;
+                int mapPiece = 0; // only 1 connector map piece atm for both vertical and horizontal pieces
 
-                ConnectorNode node = CreateNode<ConnectorNode>(worldNode.gameObject.transform, vector, rotation, NodeTypes.ConnectorNode);
-                _nodeBuilder.AttachCoverToNode(node, node.gameObject, CoverTypes.ConnectorCover);
-                node.nodeSize = 1;
-                connectorNodes.Add(node);
+                ConnectorNode connectorNode = CreateNode<ConnectorNode>(worldNode.gameObject.transform, vector, rotation, mapType, mapPiece, NodeTypes.ConnectorNode);
+                _nodeBuilder.AttachCoverToNode(connectorNode, connectorNode.gameObject, CoverTypes.ConnectorCover);
+                connectorNode.nodeSize = 1;
+                connectorNode.neighbours = new int[6];
+                for (int i = 0; i < connectorNode.neighbours.Length; i++)
+                {
+                    connectorNode.neighbours[i] = 1;
+                }
+                connectorNode.worldNodeParent = worldNode;
+
+                connectorNodes.Add(connectorNode);
                 if(rotation == 4)
                 {
-                    node.connectorUp = true;
+                    connectorNode.connectorUp = true;
+                    connectorNode.nodeMapType = MAPTYPE_CONNECTOR_UP;
                 }
             }
             worldNode.connectorNodes = connectorNodes;
             worldNodeAndConnectorNodes.Add(worldNode, connectorNodes);
+
+
+            ///// Connector Neighbours << This is a bit annoying is only using worldnode neighbours atm, might be cool to just use map neighbours instead... something to do
+            int[] worldNodeNeighbours = worldNode.neighbours;
+
+            if (worldNode.nodeSize == 1)
+            {
+                foreach (ConnectorNode connectorNode in worldNode.connectorNodes)
+                {
+                    int[] connectorNeighbours = connectorNode.neighbours;
+
+                    for (int i = 0; i < worldNodeNeighbours.Length; i++)
+                    {
+                        if (worldNodeNeighbours[i] != -1)
+                        {
+                            connectorNeighbours[i] = 1;
+                        }
+                        else
+                        {
+                            connectorNeighbours[i] = -1;
+                            connectorNode.entranceSides.Add(i);
+                        }
+                    }
+                }
+            }
+            ////////
         }
         return worldNodeAndConnectorNodes;
    }
@@ -581,7 +635,10 @@ public class WorldBuilder : MonoBehaviour
         foreach (Vector3Int vect in outerVects)
         {
             int rotation = 0;
-            outerNodes.Add(CreateNode<MapNode>(parent, vect, rotation, NodeTypes.OuterNode));
+            int mapType = MAPTYPE_OUTER;
+            int mapPiece = 0;
+
+            outerNodes.Add(CreateNode<MapNode>(parent, vect, rotation, mapType, mapPiece, NodeTypes.OuterNode));
         }
         return outerNodes;
     }
@@ -594,7 +651,10 @@ public class WorldBuilder : MonoBehaviour
         foreach (Vector3Int vect in dockingVects)
         {
             int rotation = 0;
-            dockingNodes.Add(CreateNode<MapNode>(parent, vect, rotation, NodeTypes.DockingNode));
+            int mapType = -1;
+            int mapPiece = -1;
+
+            dockingNodes.Add(CreateNode<MapNode>(parent, vect, rotation, mapType, mapPiece, NodeTypes.DockingNode));
         }
         return dockingNodes;
     }
@@ -608,13 +668,15 @@ public class WorldBuilder : MonoBehaviour
 
 
     // Create Generic Node /////////////////////////////////////////////////////
-    private T CreateNode<T>(Transform parentNode, Vector3Int vect, int rotation, NodeTypes nodeType) where T : BaseNode
+    private T CreateNode<T>(Transform parentNode, Vector3Int vect, int rotation, int mapType, int mapPiece, NodeTypes nodeType) where T : BaseNode
     {
         //Debug.Log("Vector3 (gridLoc): x: " + vect.x + " y: " + vect.y + " z: " + vect.z);
         GameObject node = _nodeBuilder.InstantiateNodeObject(vect, nodeType, parentNode);
         T nodeScript = node.GetComponent<T>();
         nodeScript.nodeLocation = vect;
         nodeScript.nodeRotation = rotation;
+        nodeScript.nodeMapType = mapType;
+        nodeScript.nodeMapPiece = mapPiece;
         nodeScript.nodeLayerCount = GetLayerCountForNodePos(vect);
         return nodeScript;
     }

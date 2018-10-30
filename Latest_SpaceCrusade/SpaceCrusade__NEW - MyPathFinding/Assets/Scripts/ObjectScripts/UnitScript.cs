@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class UnitScript : MonoBehaviour {
 
+    GameManager _gameManager;
+
 	UnitsAgent _unitsAgent;
 
 	// Data
@@ -23,9 +25,12 @@ public class UnitScript : MonoBehaviour {
 
 
 	void Awake() {
-		
-		_unitsAgent = transform.parent.GetComponent<UnitsAgent> ();
-		if(_unitsAgent == null){Debug.LogError ("OOPSALA we have an ERROR!");}
+
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _unitsAgent = _gameManager._playerManager._unitsAgent;
+        if (_unitsAgent == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 	}
 
 	// Use this for initialization
@@ -57,21 +62,25 @@ public class UnitScript : MonoBehaviour {
 				break;
 			}
 		}
-
 	}
+
+
 
 
 	public void ActivateUnit(bool onOff) {
-//
-//		if (onOff) {
-//			_unitsAgent.SetUnitActive (true, this.gameObject);
-//			PanelPieceChangeColor ("Red");
-//		} else {
-//			_unitsAgent.SetUnitActive (false);
-//			PanelPieceChangeColor ("White");
-//		}
-//		_unitActive = onOff;
-	}
+
+        if (onOff)
+        {
+            _unitsAgent.SetUnitActive(true, this.gameObject);
+            PanelPieceChangeColor("Red");
+        }
+        else
+        {
+            _unitsAgent.SetUnitActive(false);
+            PanelPieceChangeColor("White");
+        }
+        _unitActive = onOff;
+    }
 
 
 	void OnMouseDown() {

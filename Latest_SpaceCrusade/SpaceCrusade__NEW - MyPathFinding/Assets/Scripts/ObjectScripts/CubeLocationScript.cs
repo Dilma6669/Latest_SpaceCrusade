@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CubeLocationScript : MonoBehaviour {
 
+
+    public LocationManager _locationManager;
+
 	public Vector3 cubeLoc;
 
 
@@ -37,6 +40,7 @@ public class CubeLocationScript : MonoBehaviour {
 	public List<Vector3> neighVects = new List<Vector3>();
 	public List<Vector3> neighHalfVects = new List<Vector3>();
 
+    public bool neighboursSet = false;
 	public bool[] neighBools = new bool[27];
 
 	public GameObject pathFindingNode = null;
@@ -49,8 +53,18 @@ public class CubeLocationScript : MonoBehaviour {
 		cubeLoc = new Vector3 (-1, -1, -1);
 	}
 
+    public void AssignCubeNeighbours()
+    {
+        if(!neighboursSet)
+        {
+            _locationManager._cubeConnections.SetCubeNeighbours(this);
+            neighboursSet = true;
+        }
+    }
 
-	public void CubeActive(bool onOff) {
+
+
+    public void CubeActive(bool onOff) {
 		
 		if (onOff) {
 			cubSelected = true;
@@ -67,11 +81,12 @@ public class CubeLocationScript : MonoBehaviour {
 		if (onOff) {
 			CubeActive (true);
 			_activePanel = panelSelected;
-			//_cubeManager.SetCubeActive (true, new Vector3(cubeLoc.x, cubeLoc.y, cubeLoc.z), nodePos);
-		} else {
+            _locationManager.SetCubeActive (true, new Vector3(cubeLoc.x, cubeLoc.y, cubeLoc.z), nodePos); // not sure if this should be here yet
+        }
+        else
+        {
 			CubeActive (false);
-			_activePanel = null;
-			//_cubeManager.SetCubeActive (false);
+            _locationManager.SetCubeActive (false);
 		}
 	}
 
@@ -145,11 +160,6 @@ public class CubeLocationScript : MonoBehaviour {
 		//neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 1, ownVect.z + 1)); // 25
 		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 1, ownVect.z + 1)); // 26
 
-		for( int i = 0; i < neighHalfVects.Count; i++) {
-			if (neighHalfVects[i].x <= -1 || neighHalfVects[i].y <= -1 || neighHalfVects[i].z <= -1) {
-				neighHalfVects[i] = new Vector3 (-6, -6, -6);
-			}
-		}
 		/////////////////////////////////
 
 	}
@@ -196,11 +206,6 @@ public class CubeLocationScript : MonoBehaviour {
 		//neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 2, ownVect.z + 2)); // 25
 		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 2, ownVect.z + 2)); // 26
 
-		for( int i = 0; i < neighVects.Count; i++) {
-			if (neighVects[i].x <= -1 || neighVects[i].y <= -1 || neighVects[i].z <= -1) {
-				neighVects[i] = new Vector3 (-6, -6, -6);
-			}
-		}
 		/////////////////////////////////
 
 	}
@@ -210,7 +215,9 @@ public class CubeLocationScript : MonoBehaviour {
 		GameObject nodeObject = Instantiate (_pathFindingPrefab, transform, false); // empty cube
 		nodeObject.transform.SetParent (transform);
 		nodeObject.transform.position = transform.position;
-	}
+        pathFindingNode = nodeObject;
+
+    }
 
 	////////////////////////////////////////////////
 	// If player canNOT see this cube

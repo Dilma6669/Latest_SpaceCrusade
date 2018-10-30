@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class GridBuilder : MonoBehaviour {
 
+    GameManager _gameManager;
+
     MapSettings _mapSettings;
     NodeBuilder _nodeBuilder;
 
@@ -10,38 +12,55 @@ public class GridBuilder : MonoBehaviour {
     public bool _debugGridObjects; // debugging purposes
     public bool _debugNodeSpheres = false;
 
+    private BaseNode _node;
 
-	public Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup; 	// making a lookUp table for objects located at Vector3 Grid locations
+    private Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup; 	// making a lookUp table for objects located at Vector3 Grid locations
 
 	private List<Vector3Int> _GridNodePositions;
 
-    public static GridBuilder instance = null;
-
-    private int worldNodeSize = 0;
+    private int _worldNodeSize = 0;
 
     void Awake() {
 
-        if (instance == null)
-            instance = this;
-        else if (instance != this)
-        {
-            Debug.LogError("OOPSALA we have an ERROR! More than one instance bein created");
-            Destroy(gameObject);
-        }
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _mapSettings = transform.parent.GetComponent<MapSettings>();
+        _mapSettings = _gameManager._locationManager._mapSettings;
         if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _nodeBuilder = transform.parent.GetComponentInChildren<NodeBuilder>();
+        _nodeBuilder = _gameManager._locationManager._nodeBuilder;
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
 
         _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
     }
 
+    public void SetCubeScriptToGridLocation(Vector3 vect, CubeLocationScript script)
+    {
+        if (_GridLocToScriptLookup.ContainsKey(vect))
+        {
+            if (_GridLocToScriptLookup[vect] == null)
+            {
+                //Debug.Log("fucken adding to vect: " + vect + " script: " + script);
+                _GridLocToScriptLookup[vect] = script;
+            }
+            else
+            {
+                Debug.LogError("GOT a same location trying to have script assigned too");
+            }
+        }
+        else
+        {
+            Debug.LogError("_GridLocToScriptLookup.ContainsKey(vect) does not exist");
+        }
+    }
 
+    public CubeLocationScript GetGridLocationScript(Vector3 vect)
+    {
+        return _GridLocToScriptLookup[vect];
+    }
 
-
-	public Dictionary <Vector3, CubeLocationScript> GetGridLocations() {
+    public Dictionary <Vector3, CubeLocationScript> GetGridLocations() {
 		return _GridLocToScriptLookup;
 	}
 
@@ -51,16 +70,20 @@ public class GridBuilder : MonoBehaviour {
 
 
 
-    public void BuildLocationGrid(Vector3 mapNode, int _worldNodeSize)
+    public void BuildLocationGrid<T>(T node, int worldNodeSize) where T : BaseNode
     {
-        worldNodeSize = _worldNodeSize;
+        _node = node as T;
+
+        _worldNodeSize = worldNodeSize;
+
 
         _GridNodePositions = new List<Vector3Int>();
+        _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
 
         // these are the bottom left corner axis for EACH map node
-        int startGridLocX = (int)mapNode.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
-        int startGridLocY = (int)mapNode.y - (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) / 2;
-        int startGridLocZ = (int)mapNode.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = node.nodeLocation.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocY = node.nodeLocation.y - (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) / 2;
+        int startGridLocZ = node.nodeLocation.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
 
         BuildGridLocations(startGridLocX, startGridLocY, startGridLocZ);
 
@@ -123,7 +146,16 @@ public class GridBuilder : MonoBehaviour {
 
         startY += _mapSettings.sizeOfMapPiecesY;
 
-		for (int y = startY; y < (startY + _mapSettings.sizeOfMapVentsY) ; y++) {
+        int offset = 0;
+
+        Debug.Log("fuck _node.neighbours.Length: " + _node.neighbours.Length);
+
+        if (_node.neighbours[5] == -1) // for the roofs of the vents only appearing if no map piece above vent
+        {
+            offset = 1;
+        }
+
+        for (int y = startY; y < (startY + _mapSettings.sizeOfMapVentsY) + offset; y++) {
 
 			gridLocX = startX;
 			gridLocZ = startZ;
@@ -170,7 +202,7 @@ public class GridBuilder : MonoBehaviour {
     private void MakeMapNodeObject(Vector3Int vect, int startY)
     {
         //////////////////////////////////////////
-        int multiple = (worldNodeSize * _mapSettings.sizeOfMapPiecesXZ) / worldNodeSize;
+        int multiple = (_worldNodeSize * _mapSettings.sizeOfMapPiecesXZ) / _worldNodeSize;
 
         if (vect.x % multiple == 0 && vect.z % multiple == 0 && vect.y == startY)
         {

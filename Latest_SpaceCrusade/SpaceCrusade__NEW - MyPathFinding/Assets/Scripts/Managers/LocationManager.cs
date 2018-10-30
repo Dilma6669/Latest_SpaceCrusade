@@ -1,28 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
 
 public class LocationManager : MonoBehaviour {
 
     GameManager _gameManager;
 
-    WorldBuilder _worldBuilder;
-	GridBuilder _gridBuilder;
-	MapPieceBuilder _mapPieceBuilder;
-    OuterZoneBuilder _outerZoneBuilder;
-    PlayerShipBuilder _playerShipBuilder;
+    [HideInInspector]
+    public WorldBuilder     _worldBuilder;
+    [HideInInspector]
+    public GridBuilder      _gridBuilder;
+    [HideInInspector]
+    public CubeBuilder      _cubeBuilder;
+    [HideInInspector]
+    public MapPieceBuilder  _mapPieceBuilder;
+    [HideInInspector]
+    public OuterZoneBuilder _outerZoneBuilder;
+    [HideInInspector]
+    public PlayerShipBuilder _playerShipBuilder;
+    [HideInInspector]
+    public NodeBuilder      _nodeBuilder;
 
-    CubeConnections _cubeConnections;
+    [HideInInspector]
+    public CubeConnections  _cubeConnections;
+    [HideInInspector]
+    public MapSettings      _mapSettings;
 
-	MapSettings _mapSettings;
+
 
     public List<WorldNode> _worldNodes;
 
     public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
 
-	void Awake() {
+    public CubeLocationScript _activeCube = null; // hmmm dont know if should be here
+
+    void Awake() {
 
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
@@ -34,14 +47,17 @@ public class LocationManager : MonoBehaviour {
         _gridBuilder = GetComponentInChildren<GridBuilder> ();
 		if(_gridBuilder == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 
-		_mapPieceBuilder = GetComponentInChildren<MapPieceBuilder> ();
+        _cubeBuilder = GetComponentInChildren<CubeBuilder>();
+        if (_cubeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _mapPieceBuilder = GetComponentInChildren<MapPieceBuilder> ();
 		if(_mapPieceBuilder == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 
         _outerZoneBuilder = GetComponentInChildren<OuterZoneBuilder>();
         if (_outerZoneBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _playerShipBuilder = GetComponentInChildren<PlayerShipBuilder>();
-        if (_playerShipBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _nodeBuilder = GetComponentInChildren<NodeBuilder>();
+        if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
 
 
@@ -52,6 +68,26 @@ public class LocationManager : MonoBehaviour {
 		if(_mapSettings == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 
 	}
+
+
+
+    private void AddGridLocationsToMap(Dictionary<Vector3, CubeLocationScript> locs)
+    {
+        foreach (Vector3 vect in locs.Keys)
+        {
+            if (!_LocationLookup.ContainsKey(vect))
+            {
+                //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
+                _LocationLookup.Add(vect, locs[vect]);
+            }
+            else
+            {
+                Debug.LogError("trying to use already taking location!!!");
+            }
+        }
+    }
+
+
 
     //////////////////////////////////////////
     /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
@@ -88,7 +124,7 @@ public class LocationManager : MonoBehaviour {
             int mapSize = mapNode.nodeSize;
             int layerCount = mapNode.nodeLayerCount;
             int rotation = mapNode.nodeRotation;
-            int mapType = 6;
+            int mapType = mapNode.nodeMapType;
             int mapPiece = mapCount;
             // for the players small ship
             if(mapCount == 4)
@@ -99,15 +135,16 @@ public class LocationManager : MonoBehaviour {
             {
                 mapNode.playerShipMapPART2 = true;
             }
-            _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+            _gridBuilder.BuildLocationGrid(mapNode, mapSize);
             List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
             _mapPieceBuilder.SetWorldNodeNeighboursForDock(worldNode.neighbours); // for the ship docks
             _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
-            mapNode.RemoveDoorPanels();
             mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
             mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+            AddGridLocationsToMap(_gridBuilder.GetGridLocations());
             mapCount++;
         }
+        _gameManager._gamePlayManager.StartGame(worldNode.nodeLocation); // this is not best place for this!! dont like this
     }
 
     //////////////////////////////////////////
@@ -118,14 +155,16 @@ public class LocationManager : MonoBehaviour {
         int mapSize = mapNode.nodeSize;
         int layerCount = mapNode.nodeLayerCount;
         int rotation = mapNode.nodeRotation;
-        int mapType = 0;
-        int mapPiece = -1; // Random
-        _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+        int mapType = mapNode.nodeMapType;
+        int mapPiece = mapNode.nodeMapPiece;
+
+        _gridBuilder.BuildLocationGrid(mapNode, mapSize);
         List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
         _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
         mapNode.RemoveDoorPanels();
         mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
         mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+        AddGridLocationsToMap(_gridBuilder.GetGridLocations());
     }
 
     //////////////////////////////////////////
@@ -136,26 +175,18 @@ public class LocationManager : MonoBehaviour {
         int mapSize = connectNode.nodeSize;
         int layerCount = connectNode.nodeLayerCount;
         int rotation = connectNode.nodeRotation;
-        int mapType = -1;
-        if (connectNode.connectorUp)
-        {
-            mapType = 4;
-        }
-        else
-        {
-            mapType = 2;
-        }
-        int mapPiece = -1; // Random
-        _gridBuilder.BuildLocationGrid(nodeVect, mapSize);
+        int mapType = connectNode.nodeMapType;
+        int mapPiece = connectNode.nodeMapPiece;
+
+        _gridBuilder.BuildLocationGrid(connectNode, mapSize);
         List<Vector3Int> mapPieceNodes = _gridBuilder.GetGridNodePositions();
         _mapPieceBuilder.AttachMapPieceToMapNode(connectNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
-        //connectNode.RemoveDoorPanels();
         //connectNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
         //connectNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+        AddGridLocationsToMap(_gridBuilder.GetGridLocations());
     }
 
     /////////////////////////////////////////////////
-
 
 
     public void BuildMapForClient () {
@@ -257,7 +288,8 @@ public class LocationManager : MonoBehaviour {
     public bool CheckIfLocationExists(Vector3 loc) {
 
 		if (_LocationLookup.ContainsKey (loc)) {
-			return true;
+            //Debug.Log("fuck _LocationLookup.ContainsKey true: script >>>: " + _LocationLookup[loc]);
+            return true;
 		}
 		return false;
 	}
@@ -266,9 +298,9 @@ public class LocationManager : MonoBehaviour {
 	public CubeLocationScript GetLocationScript(Vector3 loc) {
 
 		if (CheckIfLocationExists(loc)) {
-			return _LocationLookup[loc];
+            //Debug.Log("fuck _LocationLookup[loc]: " + _LocationLookup[loc]);
+            return _LocationLookup[loc];
 		}
-		//Debug.LogError ("Returning a null Location for: " + loc);
 		return null;
 	}
 
@@ -281,13 +313,30 @@ public class LocationManager : MonoBehaviour {
 				cubeScript = null;
 			}
 		}
+        else
+        {
+            Debug.LogError("cubeScript == null");
+            return null;
+        }
 		return cubeScript;
 	}
 
 
-	public void SetCubeNeighbours() {
 
-		_cubeConnections.SetCubeNeighbours (_LocationLookup);
+    ////// Dont think this should be here
+    public void SetCubeActive(bool onOff, Vector3 cubeVect = new Vector3(), Vector3 nodePosOffset = new Vector3())
+    {
+        if (_activeCube)
+        {
+            _activeCube.GetComponent<CubeLocationScript>().CubeActive(false);
+            _activeCube = null;
+        }
 
-	}
+        if (onOff)
+        {
+            _activeCube = GetLocationScript(cubeVect);
+            _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
+            _gameManager._playerManager._unitsAgent.MakeActiveUnitMove(cubeVect, nodePosOffset);
+        }
+    }
 }

@@ -1,8 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraManager : MonoBehaviour {
+
+    [HideInInspector]
+    public CameraAgent _cameraAgent;
 
     // Layer INfo
     int startLayer = 0;
@@ -25,13 +27,6 @@ public class CameraManager : MonoBehaviour {
         get { return minLayer; }
         set { minLayer = value; }
     }
-
-
-    void Awake() {
-
-	}
-
-
 
 
 	public KeyValuePair<Vector3, Vector3> GetCameraStartPosition(int playerID) {

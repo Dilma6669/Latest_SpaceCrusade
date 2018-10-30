@@ -1,26 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class PanelBuilder : MonoBehaviour {
 
-	public static PanelBuilder instance = null;
+    GameManager _gameManager;
 
-	public GameObject panelPrefab;
+    public GameObject panelPrefab;
 
 	private List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript> ();
 
-	void Awake() {
-		if (instance == null)
-			instance = this;
-		else if (instance != this) {
-			Debug.LogError ("OOPSALA we have an ERROR! More than one instance bein created");
-			Destroy (gameObject);
-		}
-	}
+    void Awake()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
 
-	public void CreatePanelForCube(string panel, Transform cubeTrans, int layerCount, int angle, int rotations) {
+    public void CreatePanelForCube(string panel, Transform cubeTrans, int layerCount, int angle, int rotations) {
 
 		GameObject panelObject = Instantiate (panelPrefab, cubeTrans, false); // empty cube
 		panelObject.transform.SetParent (cubeTrans);
@@ -31,8 +27,9 @@ public class PanelBuilder : MonoBehaviour {
 		CubeLocationScript cubeScript = cubeTrans.gameObject.GetComponent<CubeLocationScript> ();
 		cubeScript.panelScriptChild = panelScript;
 		panelScript.cubeScriptParent = cubeScript;
+        panelScript._camera = _gameManager._playerManager._playerAgent.GetComponent<Camera>();
 
-		switch (panel) {
+        switch (panel) {
 		case "Floor":
 			panelObject.transform.localPosition = new Vector3 (0, 0, 0);
 			panelObject.transform.localEulerAngles = new Vector3 (90, angle, 0);

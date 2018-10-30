@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
@@ -11,15 +9,11 @@ public class PlayerAgent : NetworkBehaviour {
     GameManager _gameManager;
 
     PlayerManager _playerManager;
+
     UIManager _uiManager;
     LocationManager _locationManager;
 
     SyncedVars _syncedVars;
-
-	CameraAgent _cameraAgent;
-    //
-    //	[HideInInspector]
-    //	public UnitsAgent _unitsAgent;
 
     //BasePlayerData _playerData;
 
@@ -40,36 +34,23 @@ public class PlayerAgent : NetworkBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
+        _gameManager._playerManager._playerAgent = this;
+    }
+
+    // Need this Start()
+    void Start()
+    {
         _playerManager = _gameManager._playerManager;
-		if(_playerManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
+        if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _uiManager = _gameManager._uiManager;
-        if (_uiManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
-        _locationManager = _gameManager._locationManager;
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-
-        _cameraAgent = GetComponent<CameraAgent> ();
-		if(_cameraAgent == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
-
-
-        //unitsAgent = _gameManager._playerManager;
-        //if(_unitsAgent == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
-
+        if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         playerIDText = _uiManager.transform.FindDeepChild("PlayerNum").GetComponent<Text>();
         playerNameText = _uiManager.transform.FindDeepChild("PlayerName").GetComponent<Text>();
         totalPlayerText = _uiManager.transform.FindDeepChild("TotalPlayersNum").GetComponent<Text>();
         seedNumText = _uiManager.transform.FindDeepChild("SeedNum").GetComponent<Text>();
 
-    }
-
-    // Need this Start()
-    void Start()
-    {
         Debug.Log("A network Player object has been created");
         CreatePlayerAgent();
     }
@@ -81,7 +62,7 @@ public class PlayerAgent : NetworkBehaviour {
         if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         transform.SetParent (_playerManager.transform);
-		_uiManager.GetComponent<Canvas>().enabled = true;
+        _gameManager._uiManager.GetComponent<Canvas>().enabled = true;
 
         _seed = _syncedVars.GlobalSeed;
         seedNumText.text = _seed.ToString();
@@ -109,9 +90,9 @@ public class PlayerAgent : NetworkBehaviour {
 
     void ContinuePlayerSetUp()
 	{
-	    _cameraAgent.SetUpCameraAndLayers (_playerUniqueID);
+	    _gameManager._playerManager._cameraAgent.SetUpCameraAndLayers (_playerUniqueID);
 
-        _locationManager.BuildMapForClient();
+        _gameManager._locationManager.BuildMapForClient();
 
     }
 	

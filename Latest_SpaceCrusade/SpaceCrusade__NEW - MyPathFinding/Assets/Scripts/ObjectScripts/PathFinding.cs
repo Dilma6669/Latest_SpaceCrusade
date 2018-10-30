@@ -2,52 +2,50 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PathFinding : GamePlayManager {
+public class PathFinding : MonoBehaviour
+{
+    GameManager _gameManager;
 
-	public static PathFinding instance = null;
+    bool _unitCanClimbWalls = true;
+
+    void Awake()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
 
-	bool _unitCanClimbWalls = true;
+    // My personal checks for pathfinding
+    private bool PathFindingChecks(CubeLocationScript neightbourScript, CubeLocationScript neightbourHalfScript) {
 
+        if (neightbourHalfScript == null || neightbourScript == null) {
+            return false;
+        }
 
-	void Awake() {
-		if (instance == null)
-			instance = this;
-		else if (instance != this) {
-			Debug.LogError ("OOPSALA we have an ERROR! More than one instance bein created");
-			Destroy (gameObject);
-		}
-	}
+        if (neightbourScript._isPanel) // this might cause problems
+        { 
+            return false;
+        }
 
-	// My personal checks for pathfinding
-	private bool PathFindingChecks(CubeLocationScript neightbourScript, Vector3 neighbourHalfVect) {
+        if (neightbourHalfScript._isPanel)
+        {
+            return false;
+        }
 
-		CubeLocationScript neightbourHalfScript = _locationManager.GetLocationScript(neighbourHalfVect);
-		if (neightbourHalfScript != null) {
+        if (neightbourScript._cubeOccupied)
+        {
+            return false;
+        }
 
-	//		if (neightbourScript._isPanel) { // this might cause problems
-	//			return false;
-	//		}
+        if (!_unitCanClimbWalls)  // if human
+        {
+            if (!neightbourScript._isHumanWalkable && !neightbourScript._isHumanClimbable && !neightbourScript._isHumanJumpable)
+            {
+                return false;
+            }
+        }
 
-			if (neightbourHalfScript._isPanel) {
-				return false;
-			}
-
-			if (neightbourScript._cubeOccupied) {
-				return false;
-			}
-
-			if (!_unitCanClimbWalls) { // if human
-				if (!neightbourScript._isHumanWalkable && !neightbourScript._isHumanClimbable && !neightbourScript._isHumanJumpable) {
-					return false;
-				}
-			}
-				
-			//////////
-		
-			return true;
-		}
-		return false;
+		return true;
 	}
 		
 
@@ -55,17 +53,20 @@ public class PathFinding : GamePlayManager {
 
 		_unitCanClimbWalls = canClimbWalls;
 
-		CubeLocationScript cubeStartScript = _locationManager.GetLocationScript(startVect);
-		CubeLocationScript cubeTargetScript = _locationManager.GetLocationScript(targetVect);
+		CubeLocationScript cubeStartScript = _gameManager._locationManager.GetLocationScript(startVect);
+		CubeLocationScript cubeTargetScript = _gameManager._locationManager.GetLocationScript(targetVect);
 
-		List<CubeLocationScript> openSet = new List<CubeLocationScript>();
+        List<CubeLocationScript> openSet = new List<CubeLocationScript>();
 		openSet.Clear ();
 		HashSet<CubeLocationScript> closedSet = new HashSet<CubeLocationScript>();
 		closedSet.Clear ();
 
 		openSet.Add(cubeStartScript);
 
-		while (openSet.Count > 0) {
+        cubeStartScript.AssignCubeNeighbours();
+        cubeTargetScript.AssignCubeNeighbours();
+
+        while (openSet.Count > 0) {
 			CubeLocationScript node = openSet [0];
 			for (int i = 0; i < openSet.Count; i++) {
 				if (openSet [i].fCost < node.fCost || openSet [i].fCost == node.fCost) {
@@ -78,10 +79,12 @@ public class PathFinding : GamePlayManager {
 			closedSet.Add (node);
 
 			if (node == cubeTargetScript) {
-				return RetracePath (movement, cubeStartScript, cubeTargetScript);
+                return RetracePath (movement, cubeStartScript, cubeTargetScript);
 			}
 
-			List<Vector3> neighVects = node.neighVects;
+            node.AssignCubeNeighbours();
+
+            List<Vector3> neighVects = node.neighVects;
 			List<Vector3> neighHalfVects = node.neighHalfVects;
 
 			for (int i = 0; i < neighVects.Count; i++) {
@@ -89,18 +92,24 @@ public class PathFinding : GamePlayManager {
 				Vector3 neighbourVect = neighVects [i];
 				Vector3 neighbourHalfVect = neighHalfVects [i];
 
-				if (_locationManager.CheckIfLocationExists(neighbourVect) == null) {
-					continue;
+				if (!_gameManager._locationManager.CheckIfLocationExists(neighbourVect)) {
+                    continue;
 				}
-				CubeLocationScript neightbourScript = _locationManager.GetLocationScript(neighbourVect);
+				CubeLocationScript neightbourScript = _gameManager._locationManager.GetLocationScript(neighbourVect);
+                neightbourScript.AssignCubeNeighbours();
+                CubeLocationScript neighbourHalfScript = _gameManager._locationManager.GetLocationScript(neighbourHalfVect);
+                if (neighbourHalfScript != null)
+                {
+                    neighbourHalfScript.AssignCubeNeighbours();
+                }
 
-				if (closedSet.Contains (neightbourScript)) {
-					continue;
+                if (closedSet.Contains (neightbourScript)) {
+                    continue;
 				}
 
-				// presonal checks
-				if (!PathFindingChecks (neightbourScript, neighbourHalfVect)) {
-					continue;
+				// personal checks
+				if (!PathFindingChecks (neightbourScript, neighbourHalfScript)) {
+                    continue;
 				}
 						
 				int newCostToNeighbour = node.gCost + GetDistance (node, neightbourScript);
@@ -136,11 +145,11 @@ public class PathFinding : GamePlayManager {
 		}
 
 		for(int i = 0; i < movement; i++) {
-			_finalPath.Add (path [i]);
-		}
+            _finalPath.Add(path[i]);
+        }
 			
 		foreach (CubeLocationScript script in _finalPath) {
-			script.CreatePathFindingNode(); // puts circles in path, visual reference
+            script.CreatePathFindingNode(); // puts circles in path, visual reference
 		}
 		return _finalPath;
 

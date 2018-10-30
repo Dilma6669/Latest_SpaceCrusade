@@ -3,6 +3,14 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour {
 
+    [HideInInspector]
+    public PlayerAgent _playerAgent;
+    [HideInInspector]
+    public CameraAgent _cameraAgent;
+    [HideInInspector]
+    public UnitsAgent _unitsAgent;
+
+
     BasePlayerData _playerData;
 
     public void LoadPlayerDataInToManager(int playerID)
@@ -54,5 +62,10 @@ public class PlayerManager : MonoBehaviour {
     public List<int[,]> GetPlayerShipSmallVentDataPART2()
     {
         return _playerData.smallShipVentsPART2;
+    }
+
+    public List<Vector3> GetPlayerUnitStartPositions()
+    {
+        return _playerData.unitStartPositions;
     }
 }

@@ -1,22 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CubeBuilder : MonoBehaviour {
 
+    GameManager _gameManager;
+
+    [HideInInspector]
+    public PanelBuilder _panelBuilder;
+    [HideInInspector]
+    public ObjectBuilder _objectBuilder;
+
+
     public GameObject _defaultCubePrefab; // Debugging purposes
-
-    GridBuilder _gridBuilder;
-
-    PanelBuilder _panelBuilder;
-	ObjectBuilder _objectBuilder;
 
 	private int rotationY = 0;
 
-	void Awake() {
-
-        _gridBuilder = transform.parent.GetComponentInChildren<GridBuilder>();
-        if (_gridBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+	void Awake()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _panelBuilder = GetComponentInChildren<PanelBuilder> ();
 		if(_panelBuilder == null){Debug.LogError ("OOPSALA we have an ERROR!");}
@@ -34,8 +35,8 @@ public class CubeBuilder : MonoBehaviour {
         cubeObject.transform.SetParent(parent);
         cubeObject.transform.position = gridLoc;
         CubeLocationScript cubeScript = cubeObject.GetComponent<CubeLocationScript>();
-
-        _gridBuilder._GridLocToScriptLookup[gridLoc] = cubeScript;
+        _gameManager._locationManager._gridBuilder.SetCubeScriptToGridLocation(gridLoc,cubeScript);
+        cubeScript._locationManager = _gameManager._locationManager;
 
         cubeScript.cubeLoc = gridLoc;
 		cubeObject.transform.eulerAngles = new Vector3 (0, rotationY, 0);

@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 using UnityEngine;
 
 
 public class UIManager : MonoBehaviour {
 
-	public delegate void ChangeLayerEvent(int change);
+    GameManager _gameManager;
+
+    public delegate void ChangeLayerEvent(int change);
 	public static event ChangeLayerEvent OnChangeLayerClick;
 
 	public PlayerAgent _playerAgent;
@@ -16,11 +16,11 @@ public class UIManager : MonoBehaviour {
 	public Text _playerTotalGUINum;
 
 
-
 	// Use this for initialization
 	void Awake () {
-
-	}
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
 
 	public void ChangeLayer(bool UpDown) {

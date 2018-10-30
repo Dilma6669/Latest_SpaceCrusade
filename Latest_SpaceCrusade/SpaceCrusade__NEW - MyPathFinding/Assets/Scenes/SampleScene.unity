@@ -265,6 +265,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87177ed789cf7104a9ba2924ed813388, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerAgent: {fileID: 0}
+  _cameraAgent: {fileID: 0}
+  _unitsAgent: {fileID: 0}
 --- !u!1 &261701606
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,9 +434,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: MoveUnits
-        m_Mode: 6
+      - m_Target: {fileID: 998308343}
+        m_MethodName: SetTurnToMoveUnits
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -751,46 +754,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 323812434}
   m_CullTransparentMesh: 0
---- !u!1 &386409868
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 386409869}
-  - component: {fileID: 386409870}
-  m_Layer: 0
-  m_Name: ShipPieceBuilder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &386409869
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 386409868}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1205384530}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &386409870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 386409868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c87fe25c610d0b44918fc0f19ca7ae7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &389299671
 GameObject:
   m_ObjectHideFlags: 0
@@ -870,46 +833,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 389299671}
   m_CullTransparentMesh: 0
---- !u!1 &416892256
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 416892257}
-  - component: {fileID: 416892258}
-  m_Layer: 0
-  m_Name: ConnectorPieceBuilder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &416892257
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 416892256}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1205384530}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &416892258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 416892256}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8189f8fe357b4e54b944d9eebfafcada, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &440388845
 GameObject:
   m_ObjectHideFlags: 0
@@ -1231,7 +1154,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1205384530}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &589249650
 MonoBehaviour:
@@ -1775,6 +1698,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22195d4f429731e4bbd76345f57d56c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _movementManager: {fileID: 0}
+  _combatManager: {fileID: 0}
 --- !u!1 &1021382340
 GameObject:
   m_ObjectHideFlags: 0
@@ -2090,8 +2015,6 @@ Transform:
   - {fileID: 1873233520}
   - {fileID: 1850626085}
   - {fileID: 1664088926}
-  - {fileID: 416892257}
-  - {fileID: 386409869}
   - {fileID: 589249649}
   - {fileID: 1392971632}
   m_Father: {fileID: 1369759043}
@@ -2133,7 +2056,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a58f1b97beb5fe4da08bda188b1fe25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _worldBuilder: {fileID: 0}
+  _gridBuilder: {fileID: 0}
+  _cubeBuilder: {fileID: 0}
+  _mapPieceBuilder: {fileID: 0}
+  _outerZoneBuilder: {fileID: 0}
+  _playerShipBuilder: {fileID: 0}
+  _nodeBuilder: {fileID: 0}
+  _cubeConnections: {fileID: 0}
+  _mapSettings: {fileID: 0}
   _worldNodes: []
+  _activeCube: {fileID: 0}
 --- !u!1 &1206058945
 GameObject:
   m_ObjectHideFlags: 0
@@ -2425,11 +2358,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerManager: {fileID: 0}
   _cameraManager: {fileID: 0}
-  _locationManager: {fileID: 0}
   _uiManager: {fileID: 0}
+  _locationManager: {fileID: 0}
   _networkManager: {fileID: 0}
-  _unitsManager: {fileID: 0}
   _gamePlayManager: {fileID: 0}
+  _unitsManager: {fileID: 0}
 --- !u!4 &1369759043
 Transform:
   m_ObjectHideFlags: 0
@@ -2478,7 +2411,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1205384530}
-  m_RootOrder: 7
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1392971633
 MonoBehaviour:
@@ -3244,6 +3177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8408df4ab332c4384877ec55c6da29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _panelBuilder: {fileID: 0}
+  _objectBuilder: {fileID: 0}
   _defaultCubePrefab: {fileID: 1019329122095010, guid: 68525f412ae875344949e15cb66c6be7,
     type: 2}
 --- !u!1 &1873233519
@@ -3367,7 +3302,8 @@ MonoBehaviour:
   m_PlayerSpawnMethod: 0
   m_OfflineScene: MutliplayScreen
   m_OnlineScene: SampleScene
-  m_SpawnPrefabs: []
+  m_SpawnPrefabs:
+  - {fileID: 1233077309448978, guid: 94ebeb194668a76449ae5f1d660fae7e, type: 2}
   m_CustomConfig: 0
   m_MaxConnections: 4
   m_ConnectionConfig:
@@ -3410,7 +3346,7 @@ MonoBehaviour:
     m_MaxTimerTimeout: 12000
     m_MinNetSimulatorTimeout: 1
     m_MaxNetSimulatorTimeout: 12000
-  m_Channels: 
+  m_Channels: 0500000000000000
   m_UseWebSockets: 0
   m_UseSimulator: 0
   m_SimulatedLatency: 1
@@ -3750,3 +3686,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b32f1de8eb3c6c145a83a3c4b9b0da2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cameraAgent: {fileID: 0}

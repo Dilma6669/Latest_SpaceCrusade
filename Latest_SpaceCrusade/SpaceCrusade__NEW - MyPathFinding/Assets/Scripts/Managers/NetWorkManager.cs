@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 
 public class NetWorkManager : NetworkManager {
@@ -31,6 +29,5 @@ public class NetWorkManager : NetworkManager {
 
         _syncedVars.PlayerCount = 1;
 	}
-
 
 }

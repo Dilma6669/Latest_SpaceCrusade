@@ -148,8 +148,6 @@ public class GridBuilder : MonoBehaviour {
 
         int offset = 0;
 
-        Debug.Log("fuck _node.neighbours.Length: " + _node.neighbours.Length);
-
         if (_node.neighbours[5] == -1) // for the roofs of the vents only appearing if no map piece above vent
         {
             offset = 1;

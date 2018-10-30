@@ -12,6 +12,7 @@ public class UnitsAgent : NetworkBehaviour {
 
     public GameObject _activeUnit = null;
 
+    public List<GameObject> unitObjects = new List<GameObject>();
     public List<UnitScript> unitScripts = new List<UnitScript>();
 
     // Use this for initialization
@@ -48,21 +49,28 @@ public class UnitsAgent : NetworkBehaviour {
 
         if (cubeScript != null)
         {
-            var unit = Instantiate(_unitPrefab, _gameManager._unitsManager.gameObject.transform, false);
-            NetworkServer.Spawn(unit);
-            unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
+         //   var unit = Instantiate(_unitPrefab, _gameManager._unitsManager.gameObject.transform, false);
+
+            _gameManager._networkManager._syncedVars.CmdTellServerToSpawnPlayerUnits(_unitPrefab, startingLoc);
+
+          /*  unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
             UnitScript unitscript = unit.gameObject.GetComponent<UnitScript>();
             unitScripts.Add(unitscript);
 
-            unit.transform.position = startingLoc;
-            unitscript._cubeUnitIsOn = cubeScript;
+           // unit.transform.position = startingLoc;
+           unitscript._cubeUnitIsOn = cubeScript;
+           */
             return true;
-
         }
         else
         {
             return false;
         }
+    }
+
+    public void SetUpUnitForPlayer(GameObject unit)
+    {
+        Debug.Log("fucken unit 3: " + unit);
     }
 
 

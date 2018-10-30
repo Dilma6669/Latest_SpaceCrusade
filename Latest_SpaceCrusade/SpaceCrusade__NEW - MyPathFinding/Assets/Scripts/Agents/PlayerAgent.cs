@@ -1,21 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
 
-public class PlayerAgent : NetworkBehaviour {
-
-
+public class PlayerAgent : NetworkBehaviour
+{
     GameManager _gameManager;
 
     PlayerManager _playerManager;
-
     UIManager _uiManager;
     LocationManager _locationManager;
 
     SyncedVars _syncedVars;
-
-    //BasePlayerData _playerData;
 
     public int _playerUniqueID = 0;
     public string _playerName = "???";
@@ -29,17 +27,11 @@ public class PlayerAgent : NetworkBehaviour {
 
 
     // Use this for initialization
-    void Awake () {
-
+    void Awake()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _gameManager._playerManager._playerAgent = this;
-    }
-
-    // Need this Start()
-    void Start()
-    {
         _playerManager = _gameManager._playerManager;
         if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
@@ -51,18 +43,25 @@ public class PlayerAgent : NetworkBehaviour {
         totalPlayerText = _uiManager.transform.FindDeepChild("TotalPlayersNum").GetComponent<Text>();
         seedNumText = _uiManager.transform.FindDeepChild("SeedNum").GetComponent<Text>();
 
+    }
+
+    // Need this Start()
+    void Start()
+    {
         Debug.Log("A network Player object has been created");
+        _gameManager._playerManager._playerAgent = this;
         CreatePlayerAgent();
     }
 
     // DONT FUCKING TOUCH THIS FUNCTION
-    void CreatePlayerAgent() {
+    void CreatePlayerAgent()
+    {
 
         _syncedVars = FindObjectOfType<SyncedVars>();
         if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        transform.SetParent (_playerManager.transform);
-        _gameManager._uiManager.GetComponent<Canvas>().enabled = true;
+        transform.SetParent(_playerManager.transform);
+        _uiManager.GetComponent<Canvas>().enabled = true;
 
         _seed = _syncedVars.GlobalSeed;
         seedNumText.text = _seed.ToString();
@@ -89,11 +88,11 @@ public class PlayerAgent : NetworkBehaviour {
 
 
     void ContinuePlayerSetUp()
-	{
-	    _gameManager._playerManager._cameraAgent.SetUpCameraAndLayers (_playerUniqueID);
+    {
+        _playerManager._cameraAgent.SetUpCameraAndLayers(_playerUniqueID);
 
         _gameManager._locationManager.BuildMapForClient();
 
     }
-	
+
 }

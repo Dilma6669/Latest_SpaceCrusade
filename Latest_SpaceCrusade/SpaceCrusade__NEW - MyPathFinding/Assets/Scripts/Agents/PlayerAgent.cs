@@ -15,10 +15,16 @@ public class PlayerAgent : NetworkBehaviour
 
     SyncedVars _syncedVars;
 
-    public int _playerUniqueID = 0;
+    int _playerUniqueID = 0;
     public string _playerName = "???";
     public int _totalPlayers = -1;
     public int _seed = -1;
+
+    public int PlayerUniqueID
+    {
+        get { return _playerUniqueID; }
+        set { _playerUniqueID = value; }
+    }
 
     Text playerIDText;
     Text playerNameText;
@@ -56,7 +62,6 @@ public class PlayerAgent : NetworkBehaviour
     // DONT FUCKING TOUCH THIS FUNCTION
     void CreatePlayerAgent()
     {
-
         _syncedVars = FindObjectOfType<SyncedVars>();
         if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
@@ -67,13 +72,13 @@ public class PlayerAgent : NetworkBehaviour
         seedNumText.text = _seed.ToString();
         Random.InitState(_seed);
 
-        _syncedVars.CmdTellServerToUpdatePlayerCount();
+        GetComponent<NetworkAgent>().CmdTellServerToUpdatePlayerCount();
 
         if (isLocalPlayer)
         {
-            _playerUniqueID = _syncedVars.PlayerCount;
-            playerIDText.text = _playerUniqueID.ToString();
-            _playerManager.LoadPlayerDataInToManager(_playerUniqueID);
+            PlayerUniqueID = _syncedVars.PlayerCount;
+            playerIDText.text = PlayerUniqueID.ToString();
+            _playerManager.LoadPlayerDataInToManager(PlayerUniqueID);
             playerNameText.text = _playerManager.GetPlayerName();
             ContinuePlayerSetUp();
         }
@@ -89,7 +94,7 @@ public class PlayerAgent : NetworkBehaviour
 
     void ContinuePlayerSetUp()
     {
-        _playerManager._cameraAgent.SetUpCameraAndLayers(_playerUniqueID);
+        _playerManager._cameraAgent.SetUpCameraAndLayers(PlayerUniqueID);
 
         _gameManager._locationManager.BuildMapForClient();
 

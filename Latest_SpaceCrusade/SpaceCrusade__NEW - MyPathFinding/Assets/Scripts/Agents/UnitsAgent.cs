@@ -7,8 +7,10 @@ public class UnitsAgent : NetworkBehaviour {
 
     GameManager _gameManager;
 
+    NetworkManager _networkManager;
 
-    public GameObject _unitPrefab;
+    PlayerManager _playerManager;
+
 
     public GameObject _activeUnit = null;
 
@@ -21,70 +23,12 @@ public class UnitsAgent : NetworkBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
+        _playerManager = _gameManager._playerManager;
+        if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
         _gameManager._playerManager._unitsAgent = this;
     }
 
-    public void LoadPlayersUnits(Vector3 worldNodeLoc)
-    {
-        List<Vector3> unitsLocations = _gameManager._playerManager.GetPlayerUnitStartPositions();
-
-        foreach (Vector3 loc in unitsLocations)
-        {
-            Vector3 location = new Vector3(loc.x + worldNodeLoc.x, loc.y + worldNodeLoc.y, loc.z + worldNodeLoc.z);
-            if (CreateUnit(location))
-            {
-               // AssignUniqueLayerToUnits();
-            }
-            else
-            {
-                Debug.LogError("Cant Place Unit on startUp: " + location);
-            }
-        }
-    }
-
-
-    private bool CreateUnit(Vector3 startingLoc)
-    {
-        CubeLocationScript cubeScript = _gameManager._locationManager.CheckIfCanMoveToCube(startingLoc);
-
-        if (cubeScript != null)
-        {
-         //   var unit = Instantiate(_unitPrefab, _gameManager._unitsManager.gameObject.transform, false);
-
-            _gameManager._networkManager._syncedVars.CmdTellServerToSpawnPlayerUnits(_unitPrefab, startingLoc);
-
-          /*  unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
-            UnitScript unitscript = unit.gameObject.GetComponent<UnitScript>();
-            unitScripts.Add(unitscript);
-
-           // unit.transform.position = startingLoc;
-           unitscript._cubeUnitIsOn = cubeScript;
-           */
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public void SetUpUnitForPlayer(GameObject unit)
-    {
-        Debug.Log("fucken unit 3: " + unit);
-    }
-
-
-    public void AssignUniqueLayerToUnits()
-    {
-        string layerStr = "Player0" + _gameManager._playerManager._playerAgent._playerUniqueID.ToString() + "Units";
-        gameObject.layer = LayerMask.NameToLayer(layerStr);
-
-        Transform[] children = gameObject.GetComponentsInChildren<Transform>();
-        foreach (Transform child in children)
-        {
-            child.gameObject.layer = LayerMask.NameToLayer(layerStr);
-        }
-    }
 
 
     public void SetUnitActive(bool onOff, GameObject unit = null)
@@ -109,7 +53,24 @@ public class UnitsAgent : NetworkBehaviour {
         if (_activeUnit)
         {
             UnitScript unitScript = _activeUnit.GetComponent<UnitScript>();
-            _gameManager._gamePlayManager._movementManager.SetUnitsPath(_activeUnit, unitScript._unitCanClimbWalls, unitScript._cubeUnitIsOn.cubeLoc, vectorToMoveTo, offsetPosToMoveTo);
+            Debug.Log("_activeUnit: " + _activeUnit);
+            _gameManager._gamePlayManager._movementManager.SetUnitsPath(_activeUnit, unitScript.UnitCanClimbWalls, unitScript.CubeUnitIsOn.cubeLoc, vectorToMoveTo, offsetPosToMoveTo);
         }
     }
+
+
+
+    public void SetUpUnitForPlayer(GameObject unit)
+    {
+        if (isLocalPlayer)
+        {
+            Debug.Log("fucken unit 3: " + unit);
+            UnitScript unitScript = unit.GetComponent<UnitScript>();
+            unitScript.CubeUnitIsOn = _gameManager._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
+            unitScript.PlayerControllerID = GetComponent<PlayerAgent>().PlayerUniqueID;
+            Debug.Log("fucken unitScript.PlayerControllerID 1: " + unitScript.PlayerControllerID);
+        }
+    }
+
+
 }

@@ -15,7 +15,6 @@ public class GamePlayManager : MonoBehaviour {
 
 	void Awake()
     {
-        Debug.Log("fucken 1 _movementManager: " + _movementManager);
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
@@ -29,7 +28,7 @@ public class GamePlayManager : MonoBehaviour {
 
     public void StartGame(Vector3 worldNodeLoc)
     {
-        _gameManager._playerManager._unitsAgent.LoadPlayersUnits(worldNodeLoc); // this is not best place for this!! dont like this
+        _gameManager._unitsManager.LoadPlayersUnits(worldNodeLoc); // this is not best place for this!! dont like this
     }
 
     public void SetTurnToMoveUnits()

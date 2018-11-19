@@ -1,44 +1,91 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class UnitScript : MonoBehaviour {
+public class UnitScript : NetworkBehaviour {
 
     GameManager _gameManager;
 
-	UnitsAgent _unitsAgent;
-
-	// Data
-	public List<CubeLocationScript> movePath = new List<CubeLocationScript>();
-
-	bool _unitActive = false;
-
-	public bool _unitCanClimbWalls = false;
-
-	public int[] _unitStats = new int[1];
-
-	public CubeLocationScript _cubeUnitIsOn = null;
-
-
+    // GamePlay data
+	public List<CubeLocationScript> movePath;
+	bool _unitActive;
 	// Visual
 	Renderer[] _rends;
 
 
-	void Awake() {
+    // Unit stats
+    int _unitModel;
+    bool _unitCanClimbWalls;
+    int[] _unitCombatStats;
+    Vector3 _startingLocalLoc;
+    Vector3 _startingWorldLoc;
+    public int playerControllerId = -1;
+    CubeLocationScript _cubeUnitIsOn;
 
+    public int UnitModel
+    {
+        get { return _unitModel; }
+        set { _unitModel = value; }
+    }
+
+    public bool UnitCanClimbWalls
+    {
+        get { return _unitCanClimbWalls; }
+        set { _unitCanClimbWalls = value; }
+    }
+
+    public int[] UnitCombatStats
+    {
+        get { return _unitCombatStats; }
+        set { _unitCombatStats = value; }
+    }
+
+    public Vector3 UnitStartingLocalLoc
+    {
+        get { return _startingLocalLoc; }
+        set { _startingLocalLoc = value; }
+    }
+
+    public Vector3 UnitStartingWorldLoc
+    {
+        get { return _startingWorldLoc; }
+        set { _startingWorldLoc = value; }
+    }
+
+    public CubeLocationScript CubeUnitIsOn
+    {
+        get { return _cubeUnitIsOn; }
+        set { _cubeUnitIsOn = value; }
+    }
+
+    public int PlayerControllerID
+    {
+        get { return playerControllerId; }
+        set { playerControllerId = value; }
+    }
+
+
+    void Awake()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
-        _unitsAgent = _gameManager._playerManager._unitsAgent;
-        if (_unitsAgent == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-	}
+
+    // Fake constructor
+    public void UnitScriptConstructor(int unitModel, bool canClimbWalls, int[] unitStats, Vector3 startingLocalLoc)
+    {
+        UnitModel = unitModel;
+        UnitCanClimbWalls = canClimbWalls;
+        UnitCombatStats = unitStats;
+        UnitStartingLocalLoc = startingLocalLoc;
+    }
+
 
 	// Use this for initialization
 	void Start () {
 		_rends = GetComponentsInChildren<Renderer> ();
-
-		_unitCanClimbWalls = true;
-		_unitStats [0] = 4;// Movement
 	}
 		
 
@@ -71,12 +118,12 @@ public class UnitScript : MonoBehaviour {
 
         if (onOff)
         {
-            _unitsAgent.SetUnitActive(true, this.gameObject);
+            _gameManager._playerManager._unitsAgent.SetUnitActive(true, this.gameObject);
             PanelPieceChangeColor("Red");
         }
         else
         {
-            _unitsAgent.SetUnitActive(false);
+            _gameManager._playerManager._unitsAgent.SetUnitActive(false);
             PanelPieceChangeColor("White");
         }
         _unitActive = onOff;
@@ -107,14 +154,15 @@ public class UnitScript : MonoBehaviour {
 	//	}
 		}
 	}
+   
 
-//	public void PanelPieceGoTransparent() {
-//
-//		if (_rend) {
-//			_rend.material.shader = Shader.Find ("Transparent/Diffuse");
-//			Color tempColor = _rend.material.color;
-//			tempColor.a = 0.3F;
-//			_rend.material.color = tempColor;
-//		}
-//	}
+    //	public void PanelPieceGoTransparent() {
+    //
+    //		if (_rend) {
+    //			_rend.material.shader = Shader.Find ("Transparent/Diffuse");
+    //			Color tempColor = _rend.material.color;
+    //			tempColor.a = 0.3F;
+    //			_rend.material.color = tempColor;
+    //		}
+    //	}
 }

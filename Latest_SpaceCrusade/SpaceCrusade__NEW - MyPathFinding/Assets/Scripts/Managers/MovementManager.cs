@@ -31,7 +31,7 @@ public class MovementManager : MonoBehaviour {
 			}
 		}
 		unitScript.movePath.Clear ();
-        int unitsMovementStat = unitScript._unitStats[0];
+        int unitsMovementStat = unitScript.UnitCombatStats[0];
         unitScript.movePath = _pathFinding.FindPath (unitsMovementStat, canClimbWalls, start, end, posOffset);
 	}
 

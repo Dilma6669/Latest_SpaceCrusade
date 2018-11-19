@@ -10,18 +10,21 @@ public class PlayerData_00 : BasePlayerData
         name = "Kate";
         numUnits = 2;
 
-        unitStartPositions = new List<Vector3>()
-        {
-            new Vector3(6, -1, 6),
-            new Vector3(2, -1, 2)
-        };
+        UnitScript script1 = new UnitScript();
+        script1.UnitScriptConstructor(0, true, new int[1] { 4 }, new Vector3(8, -1, 8));
+        UnitScript script2 = new UnitScript();
+        script2.UnitScriptConstructor(0, true, new int[1] { 4 }, new Vector3(6, -1, 6));
+
+        unitScripts = new List<UnitScript>();
+        unitScripts.Add(script1);
+        unitScripts.Add(script2);
 
     ///////////////////////////////
     //////// PART 1 /////////////
     //////////////////////////////
 
-    // First Floor
-    smallShipFloorsPART1.Add(new int[,] {
+        // First Floor
+        smallShipFloorsPART1.Add(new int[,] {
             { 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01 },
             { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 },
             { 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01, 00, 01 },

@@ -11,6 +11,6 @@ public class BasePlayerData
 
     public int numUnits;
 
-    public List<Vector3> unitStartPositions = new List<Vector3>(){};
+    public List<UnitScript> unitScripts = new List<UnitScript>(){};
 }
 

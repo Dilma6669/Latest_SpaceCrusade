@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour {
 
+public class PlayerManager : MonoBehaviour
+{
     [HideInInspector]
     public PlayerAgent _playerAgent;
     [HideInInspector]
     public CameraAgent _cameraAgent;
+    [HideInInspector]
+    public NetworkAgent _networkAgent;
     [HideInInspector]
     public UnitsAgent _unitsAgent;
 
@@ -32,7 +35,7 @@ public class PlayerManager : MonoBehaviour {
                 data = new PlayerData_03();
                 break;
             default:
-                Debug.Log("SOMETHING WENT WRONG HERE");
+                Debug.Log("SOMETHING WENT WRONG HERE: playerID: " + playerID);
                 break;
         }
         _playerData = data;
@@ -64,8 +67,8 @@ public class PlayerManager : MonoBehaviour {
         return _playerData.smallShipVentsPART2;
     }
 
-    public List<Vector3> GetPlayerUnitStartPositions()
+    public List<UnitScript> GetPlayerUnitScripts()
     {
-        return _playerData.unitStartPositions;
+        return _playerData.unitScripts;
     }
 }

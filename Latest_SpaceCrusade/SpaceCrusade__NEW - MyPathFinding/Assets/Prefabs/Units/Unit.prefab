@@ -37,7 +37,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4265191577384908}
   - component: {fileID: 65797661292951632}
-  - component: {fileID: 114526262904180150}
+  - component: {fileID: 114580462991515778}
   - component: {fileID: 114705856245749856}
   - component: {fileID: 114297731938771502}
   - component: {fileID: 114453364070473362}
@@ -430,7 +430,7 @@ MonoBehaviour:
   m_SnapThreshold: 5
   m_InterpolateRotation: 1
   m_InterpolateMovement: 1
---- !u!114 &114526262904180150
+--- !u!114 &114580462991515778
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -442,8 +442,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movePath: []
-  _unitCanClimbWalls: 1
-  _unitStats: 00000000
   _cubeUnitIsOn: {fileID: 0}
 --- !u!114 &114705856245749856
 MonoBehaviour:

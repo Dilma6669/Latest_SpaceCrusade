@@ -76,8 +76,8 @@ public class PlayerAgent : NetworkBehaviour
 
         if (isLocalPlayer)
         {
-            PlayerUniqueID = _syncedVars.PlayerCount;
-            playerIDText.text = PlayerUniqueID.ToString();
+            _playerUniqueID = _syncedVars.PlayerCount;
+            playerIDText.text = _playerUniqueID.ToString();
             _playerManager.LoadPlayerDataInToManager(PlayerUniqueID);
             playerNameText.text = _playerManager.GetPlayerName();
             ContinuePlayerSetUp();
@@ -86,6 +86,7 @@ public class PlayerAgent : NetworkBehaviour
 
     public void UpdatePlayerCount(int count)
     {
+        Debug.Log("fucken UpdatePlayerCount: " + count);
         _totalPlayers = count;
         totalPlayerText.text = _totalPlayers.ToString();
     }

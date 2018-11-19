@@ -24,21 +24,23 @@ public class NetworkAgent : NetworkBehaviour
     [Command] //Commands - which are called from the client and run on the server;
     public void CmdTellServerToUpdatePlayerCount()
     {
-        RpcUpdatePlayerCountOnClient();
+        RpcUpdatePlayerCountOnClient(_syncedvars.PlayerCount + 1);
     }
     [ClientRpc] //ClientRpc calls - which are called on the server and run on clients
-    void RpcUpdatePlayerCountOnClient()
+    void RpcUpdatePlayerCountOnClient(int count)
     {
-        PlayerAgent _playerAgent = FindObjectOfType<PlayerAgent>();
-        _playerAgent.UpdatePlayerCount(_syncedvars.PlayerCount + 1);
+        GetComponent<PlayerAgent>().UpdatePlayerCount(count);
     }
 
 
 
     public void TellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
     {
-        Debug.Log("fucken unitScript 1 server: ");
-        CmdTellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
+        if (isLocalPlayer)
+        {
+            Debug.Log("fucken unitScript 1 server: ");
+            CmdTellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
+        }
     }
 
 

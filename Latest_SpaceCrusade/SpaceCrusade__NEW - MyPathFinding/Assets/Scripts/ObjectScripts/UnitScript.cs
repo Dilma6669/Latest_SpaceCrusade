@@ -118,12 +118,12 @@ public class UnitScript : NetworkBehaviour {
 
         if (onOff)
         {
-            _gameManager._playerManager._unitsAgent.SetUnitActive(true, this.gameObject);
+            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this.gameObject);
             PanelPieceChangeColor("Red");
         }
         else
         {
-            _gameManager._playerManager._unitsAgent.SetUnitActive(false);
+            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(false);
             PanelPieceChangeColor("White");
         }
         _unitActive = onOff;

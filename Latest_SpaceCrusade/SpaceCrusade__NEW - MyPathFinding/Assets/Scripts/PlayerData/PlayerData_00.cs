@@ -10,14 +10,22 @@ public class PlayerData_00 : BasePlayerData
         name = "Kate";
         numUnits = 2;
 
-        UnitScript script1 = new UnitScript();
-        script1.UnitScriptConstructor(0, true, new int[1] { 4 }, new Vector3(8, -1, 8));
-        UnitScript script2 = new UnitScript();
-        script2.UnitScriptConstructor(0, true, new int[1] { 4 }, new Vector3(6, -1, 6));
-
-        unitScripts = new List<UnitScript>();
-        unitScripts.Add(script1);
-        unitScripts.Add(script2);
+        unitScripts = new List<UnitScript>()
+        {
+            // can Climb walls, unitCombat Stats, starting Local loc
+            new UnitScript(){
+                UnitModel = 0,
+                UnitCanClimbWalls = true,
+                UnitCombatStats = new int[1]{ 4 },
+                UnitStartingLocalLoc = new Vector3(8, -1, 8)
+            },
+            new UnitScript(){
+                UnitModel = 0,
+                UnitCanClimbWalls = true,
+                UnitCombatStats = new int[1]{ 4 },
+                UnitStartingLocalLoc = new Vector3(6, -1, 6)
+            }
+        };
 
     ///////////////////////////////
     //////// PART 1 /////////////

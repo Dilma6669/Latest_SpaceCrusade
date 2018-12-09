@@ -17,7 +17,11 @@ public class NetworkAgent : NetworkBehaviour
         _syncedvars = _gameManager._networkManager._syncedVars;
         if (_syncedvars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _gameManager._playerManager._networkAgent = this;
+    }
+
+    // Need this Start()
+    void Start()
+    {
     }
 
 
@@ -36,38 +40,36 @@ public class NetworkAgent : NetworkBehaviour
 
     public void TellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
     {
-        if (isLocalPlayer)
-        {
-            Debug.Log("fucken unitScript 1 server: ");
-            CmdTellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
-        }
+        if (!isLocalPlayer) return;
+
+        Debug.Log("BEFORE <<<<<<<<<<<<<<<<<, ");
+        CmdTellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
     }
 
 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    void CmdTellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
+    public void CmdTellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
     {
-        if (isServer)
-        {
-            Debug.Log("fucken unitScript 1 server: ");
+        if (!isServer) return;
 
-            GameObject prefab = _gameManager._unitsManager._unitBuilder.GetUnitModel(unitModel);
-            GameObject unit = Instantiate(prefab, _gameManager._unitsManager.gameObject.transform, false);
-            NetworkServer.Spawn(unit);
-            UnitScript unitScript = unit.GetComponent<UnitScript>();
-            unitScript.UnitScriptConstructor(unitModel, unitCanClimbwalls, unitCombatStats, startLocation);
-            unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
-            unit.transform.position = startLocation;
+        Debug.Log("fucken unitScript 1 server: ");
 
-            GetComponent<UnitsAgent>().SetUpUnitForPlayer(unit);
+        GameObject prefab = _gameManager._unitsManager._unitBuilder.GetUnitModel(unitModel);
+        GameObject unit = Instantiate(prefab, _gameManager._unitsManager.gameObject.transform, false);
+        NetworkServer.Spawn(unit);
+        UnitScript unitScript = unit.GetComponent<UnitScript>();
+        unitScript.UnitScriptConstructor(unitModel, unitCanClimbwalls, unitCombatStats, startLocation);
+        unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
+        unit.transform.position = startLocation;
 
-           // RpcSpawnPlayerUnitsOnClient(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
-        }
+        GetComponent<UnitsAgent>().SetUpUnitForPlayer(unit);
+
+        RpcSpawnPlayerUnitsOnClient(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
     }
     [ClientRpc] //ClientRpc calls - which are called on the server and run on clients
     void RpcSpawnPlayerUnitsOnClient(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
     {
-
+        Debug.Log("AFTER <<<<<<<<<<<<<<<<<<<<<< ");
     }
 
 }

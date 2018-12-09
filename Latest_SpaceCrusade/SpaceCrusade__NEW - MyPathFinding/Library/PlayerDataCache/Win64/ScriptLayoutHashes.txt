@@ -158,7 +158,7 @@ fa2be40b35903a5011122c5d549cfe0a Assembly-CSharp.dll:.SyncedVars
 c1510ecc0251ef9339d1080d1e201a23 Assembly-CSharp.dll:.NetWorkManager
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.BaseMapPiece
 486cd95c82d8305219c352c06b776e1f Unity.TextMeshPro.dll:TMPro.TMP_SpriteAnimator
-4ee22a01857c7e55f5e9f4dec4c04864 Assembly-CSharp.dll:.PlayerManager
+4cc43a3b97e63f57ae7bee23af4c2f9e Assembly-CSharp.dll:.PlayerManager
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.MapPiece_Corridor_02
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.NetworkAgent
 2ec82a924f0f00bc5bf4686ecf51bee2 Assembly-CSharp.dll:.WorldNode
@@ -228,3 +228,5 @@ a8900d8f084773c9c258883d7e1ba9e0 Assembly-CSharp.dll:.UnitBuilder
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.MapPiece_Corridor_03
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.ConnectorPiece_01
 c13e1fc8b8aae8efd63ccdfaf530b5c4 Assembly-CSharp.dll:.CubeBuilder
+ddcae71b3f91386237efd012a9eef2be UnityEngine.TestRunner.dll:UnityEngine.TestTools.EnumerableSetUpTearDownCommandState
+486cd95c82d8305219c352c06b776e1f UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.Callbacks.TestResultRendererCallback

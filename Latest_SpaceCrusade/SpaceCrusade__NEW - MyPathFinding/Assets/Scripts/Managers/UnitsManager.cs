@@ -55,7 +55,7 @@ public class UnitsManager : MonoBehaviour {
             bool unitCanClimbwalls = unit.UnitCanClimbWalls; 
             Vector3 startLocation = unit.UnitStartingWorldLoc;
             int[] unitCombatStats = unit.UnitCombatStats;
-            _gameManager._playerManager._networkAgent.TellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
+            _gameManager._playerManager._playerObject.GetComponent<NetworkAgent>().TellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
             return true;
         }
         else
@@ -64,7 +64,7 @@ public class UnitsManager : MonoBehaviour {
         }
     }
 
-
+    /*
     public void AssignUniqueLayerToUnits()
     {
         string layerStr = "Player0" + _gameManager._playerManager._playerAgent.PlayerUniqueID.ToString() + "Units";
@@ -76,6 +76,7 @@ public class UnitsManager : MonoBehaviour {
             child.gameObject.layer = LayerMask.NameToLayer(layerStr);
         }
     }
+    */
 
 
 }

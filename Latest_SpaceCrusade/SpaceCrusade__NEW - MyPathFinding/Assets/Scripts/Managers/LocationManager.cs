@@ -336,7 +336,7 @@ public class LocationManager : MonoBehaviour {
         {
             _activeCube = GetLocationScript(cubeVect);
             _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
-            _gameManager._playerManager._unitsAgent.MakeActiveUnitMove(cubeVect, nodePosOffset);
+            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeActiveUnitMove(cubeVect, nodePosOffset);
         }
     }
 }

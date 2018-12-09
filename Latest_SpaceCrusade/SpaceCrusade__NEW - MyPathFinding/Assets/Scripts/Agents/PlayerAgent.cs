@@ -55,8 +55,12 @@ public class PlayerAgent : NetworkBehaviour
     void Start()
     {
         Debug.Log("A network Player object has been created");
-        _gameManager._playerManager._playerAgent = this;
         CreatePlayerAgent();
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        _playerManager._playerObject = this.gameObject;
     }
 
     // DONT FUCKING TOUCH THIS FUNCTION
@@ -95,7 +99,7 @@ public class PlayerAgent : NetworkBehaviour
 
     void ContinuePlayerSetUp()
     {
-        _playerManager._cameraAgent.SetUpCameraAndLayers(PlayerUniqueID);
+        GetComponent<CameraAgent>().SetUpCameraAndLayers(PlayerUniqueID);
 
         _gameManager._locationManager.BuildMapForClient();
 

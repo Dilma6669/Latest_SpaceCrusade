@@ -27,7 +27,7 @@ public class PanelBuilder : MonoBehaviour {
 		CubeLocationScript cubeScript = cubeTrans.gameObject.GetComponent<CubeLocationScript> ();
 		cubeScript.panelScriptChild = panelScript;
 		panelScript.cubeScriptParent = cubeScript;
-        panelScript._camera = _gameManager._playerManager._playerAgent.GetComponent<Camera>();
+        panelScript._camera = _gameManager._playerManager._playerObject.GetComponent<Camera>();
 
         switch (panel) {
 		case "Floor":

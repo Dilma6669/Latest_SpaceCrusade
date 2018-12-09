@@ -25,8 +25,6 @@ public class UnitsAgent : NetworkBehaviour {
 
         _playerManager = _gameManager._playerManager;
         if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _gameManager._playerManager._unitsAgent = this;
     }
 
 

@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movePath: []
-  _cubeUnitIsOn: {fileID: 0}
+  playerControllerId: -1
 --- !u!114 &114705856245749856
 MonoBehaviour:
   m_ObjectHideFlags: 1

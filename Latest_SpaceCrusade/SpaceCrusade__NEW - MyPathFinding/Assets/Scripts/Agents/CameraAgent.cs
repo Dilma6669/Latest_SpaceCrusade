@@ -47,9 +47,8 @@ public class CameraAgent : NetworkBehaviour {
         _camera.enabled = false;
 
         // change layer callback event
-        UIManager.OnChangeLayerClick += ChangeCameraLayer;
-
-        _gameManager._playerManager._cameraAgent = this;
+       // UIManager.OnChangeLayerClick += ChangeCameraLayer;
+    
     }
 
 
@@ -108,6 +107,7 @@ public class CameraAgent : NetworkBehaviour {
 		Vector3 camPos = camStartPos.Key;
 		Quaternion camRot = Quaternion.Euler (camStartPos.Value);
 
+        /*
 		_currLayer = _gameManager._cameraManager.LayerStart;
         _maxLayer = _gameManager._cameraManager.LayerMax;
 
@@ -116,6 +116,7 @@ public class CameraAgent : NetworkBehaviour {
 		{
 			_camera.cullingMask |= 1 << LayerMask.NameToLayer("Floor" + i.ToString ());
 		}
+        */
 
 		gameObject.transform.position = camPos;
 		gameObject.transform.rotation = camRot;
@@ -128,7 +129,7 @@ public class CameraAgent : NetworkBehaviour {
 		//_camera.cullingMask |= 1 << LayerMask.NameToLayer (layerStr);
 	}
 		
-
+    /*
 	public void ChangeCameraLayer(int change) {
 
 		if (change == 1) {
@@ -151,4 +152,5 @@ public class CameraAgent : NetworkBehaviour {
 			}
 		}
 	}
+    */
 }

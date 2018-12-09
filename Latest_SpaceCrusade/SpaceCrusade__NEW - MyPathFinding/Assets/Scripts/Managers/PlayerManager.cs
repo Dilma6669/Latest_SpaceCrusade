@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
-    [HideInInspector]
-    public PlayerAgent _playerAgent;
-    [HideInInspector]
-    public CameraAgent _cameraAgent;
-    [HideInInspector]
-    public NetworkAgent _networkAgent;
-    [HideInInspector]
-    public UnitsAgent _unitsAgent;
-
+    public GameObject _playerObject;
 
     BasePlayerData _playerData;
 

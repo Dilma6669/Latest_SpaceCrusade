@@ -50,9 +50,8 @@ public class UnitsAgent : NetworkBehaviour {
     {
         if (_activeUnit)
         {
-            UnitScript unitScript = _activeUnit.GetComponent<UnitScript>();
-            Debug.Log("_activeUnit: " + _activeUnit);
-            _gameManager._gamePlayManager._movementManager.SetUnitsPath(_activeUnit, unitScript.UnitCanClimbWalls, unitScript.CubeUnitIsOn.cubeLoc, vectorToMoveTo, offsetPosToMoveTo);
+            NetworkInstanceId unitNetID = _activeUnit.GetComponent<UnitScript>().NetID;
+            GetComponent<NetworkAgent>().CmdTellServerToMoveUnit(unitNetID, vectorToMoveTo, offsetPosToMoveTo);
         }
     }
 
@@ -65,7 +64,7 @@ public class UnitsAgent : NetworkBehaviour {
             Debug.Log("fucken unit 3: " + unit);
             UnitScript unitScript = unit.GetComponent<UnitScript>();
             unitScript.CubeUnitIsOn = _gameManager._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
-            unitScript.PlayerControllerID = GetComponent<PlayerAgent>().PlayerUniqueID;
+            unitScript.PlayerControllerID = GetComponent<PlayerAgent>().PlayerID;
             Debug.Log("fucken unitScript.PlayerControllerID 1: " + unitScript.PlayerControllerID);
         }
     }

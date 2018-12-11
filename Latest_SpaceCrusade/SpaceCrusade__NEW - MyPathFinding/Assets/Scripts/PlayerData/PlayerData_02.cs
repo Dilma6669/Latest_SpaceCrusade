@@ -9,20 +9,20 @@ public class PlayerData_02 : BasePlayerData {
         name = "Fred";
         numUnits = 2;
 
-        unitScripts = new List<UnitScript>()
+        allUnitData = new List<UnitData>()
         {
             // can Climb walls, unitCombat Stats, starting Local loc
-            new UnitScript(){
+            new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },
-                UnitStartingLocalLoc = new Vector3(5, -1, 5)
+                UnitStartingLocalLoc = new Vector3(-6, -1, -6)
             },
-            new UnitScript(){
+            new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },
-                UnitStartingLocalLoc = new Vector3(6, -1, 6)
+                UnitStartingLocalLoc = new Vector3(-4, -1, -4)
             },
         };
 

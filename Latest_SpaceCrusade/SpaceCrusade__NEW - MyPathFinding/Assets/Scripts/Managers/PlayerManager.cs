@@ -33,6 +33,10 @@ public class PlayerManager : MonoBehaviour
         _playerData = data;
     }
 
+    public int GetPlayerID()
+    {
+        return _playerObject.GetComponent<PlayerAgent>().PlayerID;
+    }
 
     public string GetPlayerName()
     {
@@ -59,8 +63,8 @@ public class PlayerManager : MonoBehaviour
         return _playerData.smallShipVentsPART2;
     }
 
-    public List<UnitScript> GetPlayerUnitScripts()
+    public List<UnitData> GetPlayerUnitData()
     {
-        return _playerData.unitScripts;
+        return _playerData.allUnitData;
     }
 }

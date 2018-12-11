@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Networking;
 
 public class NetworkAgent : NetworkBehaviour
@@ -6,6 +7,8 @@ public class NetworkAgent : NetworkBehaviour
     GameManager _gameManager;
 
     SyncedVars _syncedvars;
+
+    Dictionary<NetworkInstanceId, GameObject> network_Unit_Objects;
 
 
     // Use this for initialization
@@ -17,7 +20,9 @@ public class NetworkAgent : NetworkBehaviour
         _syncedvars = _gameManager._networkManager._syncedVars;
         if (_syncedvars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
+        network_Unit_Objects = new Dictionary<NetworkInstanceId, GameObject>();
     }
+
 
     // Need this Start()
     void Start()
@@ -37,39 +42,82 @@ public class NetworkAgent : NetworkBehaviour
     }
 
 
+    /////////////////////////////////////////////////////
 
-    public void TellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
-    {
-        if (!isLocalPlayer) return;
-
-        Debug.Log("BEFORE <<<<<<<<<<<<<<<<<, ");
-        CmdTellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
-    }
-
+    /////////////////////////////////////////////////////
 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    public void CmdTellServerToSpawnPlayerUnit(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
+    public void CmdTellServerToSpawnPlayerUnit(UnitData unitData, int playerID, Vector3 worldStart)
     {
+        //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
         if (!isServer) return;
 
-        Debug.Log("fucken unitScript 1 server: ");
+        unitData.UnitStartingWorldLoc = worldStart;
 
-        GameObject prefab = _gameManager._unitsManager._unitBuilder.GetUnitModel(unitModel);
+        GameObject prefab = _gameManager._unitsManager._unitBuilder.GetUnitModel(unitData.UnitModel);
         GameObject unit = Instantiate(prefab, _gameManager._unitsManager.gameObject.transform, false);
-        NetworkServer.Spawn(unit);
-        UnitScript unitScript = unit.GetComponent<UnitScript>();
-        unitScript.UnitScriptConstructor(unitModel, unitCanClimbwalls, unitCombatStats, startLocation);
-        unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
-        unit.transform.position = startLocation;
+        GameObject fullUnit = AssignUnitDataToUnitScript(unit, playerID, unitData);
 
-        GetComponent<UnitsAgent>().SetUpUnitForPlayer(unit);
+        NetworkServer.Spawn(fullUnit);
 
-        RpcSpawnPlayerUnitsOnClient(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
+        if (fullUnit != null)
+        {
+            network_Unit_Objects.Add(unit.GetComponent<NetworkIdentity>().netId, fullUnit);
+            fullUnit.transform.position = unitData.UnitStartingWorldLoc;
+            NetworkInstanceId unitNetID = unit.GetComponent<NetworkIdentity>().netId;
+            RpcUpdatePlayerUnitsOnAllClients(unit, unitNetID, playerID, unitData);
+        }
+        else
+        {
+            Debug.LogError("Unit cannot be created on SERVER");
+        }
     }
+
+
     [ClientRpc] //ClientRpc calls - which are called on the server and run on clients
-    void RpcSpawnPlayerUnitsOnClient(int unitModel, bool unitCanClimbwalls, Vector3 startLocation, int[] unitCombatStats)
+    void RpcUpdatePlayerUnitsOnAllClients(GameObject unit, NetworkInstanceId netID, int playerID, UnitData unitData)
     {
-        Debug.Log("AFTER <<<<<<<<<<<<<<<<<<<<<< ");
+        GameObject fullUnit = AssignUnitDataToUnitScript(unit, playerID, unitData);
+
+        if (unit != null)
+        {
+            Debug.Log("Unit SUCCESSFULLY created on CLIENT netID: " + netID);
+        }
+        else
+        {
+            Debug.LogError("Unit cannot be created on CLIENT");
+        }
+    }
+
+
+    GameObject AssignUnitDataToUnitScript(GameObject unit, int playerID, UnitData unitData)
+    {
+        UnitScript unitScript = unit.GetComponent<UnitScript>();
+        unitScript.UnitData = unitData;
+        unitScript.NetID = unit.GetComponent<NetworkIdentity>().netId;
+        unitScript.PlayerControllerID = playerID;
+        unitScript.UnitModel = unitData.UnitModel;
+        unitScript.UnitCanClimbWalls = unitData.UnitCanClimbWalls;
+        Debug.Log("AFTER unitData[1]: " + unitData.UnitCanClimbWalls);
+        unitScript.UnitStartingWorldLoc = unitData.UnitStartingWorldLoc;
+        unitScript.UnitCombatStats = unitData.UnitCombatStats;
+        unitScript.CubeUnitIsOn = _gameManager._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
+        unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
+
+        return unit;
+    }
+
+
+    // Server Move Unit
+    [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
+    public void CmdTellServerToMoveUnit(NetworkInstanceId unitNetworkID, Vector3 vectorToMoveTo, Vector3 offsetPosToMoveTo)
+    {
+        //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
+        if (!isServer) return;
+
+        GameObject unit = network_Unit_Objects[unitNetworkID];
+        UnitScript unitScript = unit.GetComponent<UnitScript>();
+        _gameManager._gamePlayManager._movementManager.SetUnitsPath(unit, unitScript.UnitCanClimbWalls, unitScript.CubeUnitIsOn.cubeLoc, vectorToMoveTo, offsetPosToMoveTo);
     }
 
 }

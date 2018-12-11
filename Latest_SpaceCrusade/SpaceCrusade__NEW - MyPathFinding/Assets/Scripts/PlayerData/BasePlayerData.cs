@@ -11,6 +11,6 @@ public class BasePlayerData
 
     public int numUnits;
 
-    public List<UnitScript> unitScripts = new List<UnitScript>(){};
+    public List<UnitData> allUnitData = new List<UnitData>(){};
 }
 

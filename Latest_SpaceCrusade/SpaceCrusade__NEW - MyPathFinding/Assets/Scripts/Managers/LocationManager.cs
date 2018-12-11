@@ -288,7 +288,7 @@ public class LocationManager : MonoBehaviour {
     public bool CheckIfLocationExists(Vector3 loc) {
 
 		if (_LocationLookup.ContainsKey (loc)) {
-            //Debug.Log("fuck _LocationLookup.ContainsKey true: script >>>: " + _LocationLookup[loc]);
+           // Debug.Log("fuck _LocationLookup.ContainsKey true: script >>>: " + _LocationLookup[loc]);
             return true;
 		}
 		return false;
@@ -298,7 +298,7 @@ public class LocationManager : MonoBehaviour {
 	public CubeLocationScript GetLocationScript(Vector3 loc) {
 
 		if (CheckIfLocationExists(loc)) {
-            //Debug.Log("fuck _LocationLookup[loc]: " + _LocationLookup[loc]);
+           // Debug.Log("fuck _LocationLookup[loc]: " + _LocationLookup[loc]);
             return _LocationLookup[loc];
 		}
 		return null;

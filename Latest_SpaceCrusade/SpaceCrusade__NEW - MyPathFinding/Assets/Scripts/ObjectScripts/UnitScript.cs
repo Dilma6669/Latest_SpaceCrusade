@@ -18,10 +18,12 @@ public class UnitScript : NetworkBehaviour {
     int _unitModel;
     bool _unitCanClimbWalls;
     int[] _unitCombatStats;
-    Vector3 _startingLocalLoc;
     Vector3 _startingWorldLoc;
-    public int playerControllerId = -1;
+    int playerControllerId;
+    NetworkInstanceId _netID;
     CubeLocationScript _cubeUnitIsOn;
+
+    UnitData _unitData;
 
     public int UnitModel
     {
@@ -39,12 +41,6 @@ public class UnitScript : NetworkBehaviour {
     {
         get { return _unitCombatStats; }
         set { _unitCombatStats = value; }
-    }
-
-    public Vector3 UnitStartingLocalLoc
-    {
-        get { return _startingLocalLoc; }
-        set { _startingLocalLoc = value; }
     }
 
     public Vector3 UnitStartingWorldLoc
@@ -65,21 +61,22 @@ public class UnitScript : NetworkBehaviour {
         set { playerControllerId = value; }
     }
 
+    public NetworkInstanceId NetID
+    {
+        get { return _netID; }
+        set { _netID = value; }
+    }
+
+    public UnitData UnitData
+    {
+        get { return _unitData; }
+        set { _unitData = value; }
+    }
 
     void Awake()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
-
-    // Fake constructor
-    public void UnitScriptConstructor(int unitModel, bool canClimbWalls, int[] unitStats, Vector3 startingLocalLoc)
-    {
-        UnitModel = unitModel;
-        UnitCanClimbWalls = canClimbWalls;
-        UnitCombatStats = unitStats;
-        UnitStartingLocalLoc = startingLocalLoc;
     }
 
 
@@ -130,12 +127,20 @@ public class UnitScript : NetworkBehaviour {
     }
 
 
-	void OnMouseDown() {
-		if (!_unitActive) {
-			ActivateUnit (true);
-		} else {
-			ActivateUnit (false);
-		}
+    void OnMouseDown()
+    {
+        //if (!isLocalPlayer) return;
+        if (PlayerControllerID == _gameManager._playerManager._playerObject.GetComponent<PlayerAgent>().PlayerID)
+        {
+            if (!_unitActive)
+            {
+                ActivateUnit(true);
+            }
+            else
+            {
+                ActivateUnit(false);
+            }
+        }
 	}
 
 	void OnMouseOver() {

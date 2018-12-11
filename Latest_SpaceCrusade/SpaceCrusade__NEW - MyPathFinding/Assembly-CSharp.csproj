@@ -92,6 +92,7 @@
      <Compile Include="Assets\Scripts\Builders\ShipsData\ShipRoom_01.cs" />
      <Compile Include="Assets\Scripts\Builders\ShipsData\ShipRoom_02.cs" />
      <Compile Include="Assets\Scripts\Builders\UnitBuilder.cs" />
+     <Compile Include="Assets\Scripts\Builders\UnitData\UnitData.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldNodeData\WorldNodeBase.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldNodeData\WorldNodeData_01.cs" />

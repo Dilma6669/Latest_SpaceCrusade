@@ -8,7 +8,6 @@ public class MovementScript : MonoBehaviour {
 
 	private bool moveInProgress = false;
 
-	private GameObject _unit = null;
 	private List<CubeLocationScript> _nodes;
 
 	private bool collision = false;
@@ -26,7 +25,9 @@ public class MovementScript : MonoBehaviour {
 
 	private void StartMoving() {
 
-		Vector3 unitCurrPos = _unit.transform.position;
+        _nodes = GetComponent<UnitScript>().movePath;
+
+        Vector3 unitCurrPos = transform.position;
 
 		if (locCount < _nodes.Count) {
 				
@@ -47,7 +48,7 @@ public class MovementScript : MonoBehaviour {
 					}
 
 					if (unitCurrPos != currTarget) {
-						_unit.transform.position = Vector3.MoveTowards (unitCurrPos, currTarget, _nodes.Count * Time.deltaTime);
+						transform.position = Vector3.MoveTowards (unitCurrPos, currTarget, _nodes.Count * Time.deltaTime);
 					} else {
 						if (target.pathFindingNode) {
 							Destroy (target.pathFindingNode);
@@ -75,16 +76,15 @@ public class MovementScript : MonoBehaviour {
 	private void FinishMoving() {
 		Debug.Log ("FINFISHED!");
 		moveInProgress = false;
-		GetComponent<UnitScript> ().movePath.Clear ();
+        GetComponent<UnitScript>().movePath.Clear();
 		_nodes.Clear ();
 	}
 
 
-	public void MoveUnit(GameObject unit, List<CubeLocationScript> nodes) {
-		
-		_unit = unit;
-		_nodes = nodes;
+	public void MoveUnit() {
 
-		moveInProgress = true;
-	}
+        moveInProgress = true;
+        StartMoving();
+
+    }
 }

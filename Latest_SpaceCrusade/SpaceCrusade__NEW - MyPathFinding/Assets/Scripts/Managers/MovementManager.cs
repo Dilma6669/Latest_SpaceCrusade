@@ -18,7 +18,7 @@ public class MovementManager : MonoBehaviour {
 
 	public void SetUnitsPath(GameObject objToMove, bool canClimbWalls, Vector3 start, Vector3 end, Vector3 posOffset) {
 
-		unitsToMove.Add (objToMove);
+        unitsToMove.Add (objToMove);
 
 		UnitScript unitScript = objToMove.GetComponent<UnitScript> ();
 
@@ -33,7 +33,8 @@ public class MovementManager : MonoBehaviour {
 		unitScript.movePath.Clear ();
         int unitsMovementStat = unitScript.UnitCombatStats[0];
         unitScript.movePath = _pathFinding.FindPath (unitsMovementStat, canClimbWalls, start, end, posOffset);
-	}
+        objToMove.GetComponent<MovementScript>().MoveUnit();
+    }
 
 
 
@@ -46,13 +47,12 @@ public class MovementManager : MonoBehaviour {
 					Destroy (node.pathFindingNode);
 				}
 			}
-			unit.GetComponent<MovementScript>().MoveUnit (unit, nodes);
+			unit.GetComponent<MovementScript>().MoveUnit ();
 		}
 		unitsToMove.Clear ();
 	}
 
-
-	public void StopUnits() {
+    public void StopUnits() {
 
 
 	}

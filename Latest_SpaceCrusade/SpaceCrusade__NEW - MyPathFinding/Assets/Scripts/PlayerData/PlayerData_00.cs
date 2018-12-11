@@ -10,16 +10,16 @@ public class PlayerData_00 : BasePlayerData
         name = "Kate";
         numUnits = 2;
 
-        unitScripts = new List<UnitScript>()
+        allUnitData = new List<UnitData>()
         {
             // can Climb walls, unitCombat Stats, starting Local loc
-            new UnitScript(){
+            new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },
                 UnitStartingLocalLoc = new Vector3(8, -1, 8)
             },
-            new UnitScript(){
+            new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },

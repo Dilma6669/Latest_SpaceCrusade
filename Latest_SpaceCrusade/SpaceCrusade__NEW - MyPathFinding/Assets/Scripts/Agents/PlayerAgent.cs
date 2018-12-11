@@ -8,22 +8,47 @@ using UnityEngine.Networking;
 public class PlayerAgent : NetworkBehaviour
 {
     GameManager _gameManager;
-
     PlayerManager _playerManager;
     UIManager _uiManager;
     LocationManager _locationManager;
 
     SyncedVars _syncedVars;
 
-    int _playerUniqueID = 0;
-    public string _playerName = "???";
-    public int _totalPlayers = -1;
-    public int _seed = -1;
+    int _playerID = 0;
+    NetworkInstanceId _netID;
+    string _playerName = "???";
+    int _totalPlayers = -1;
+    int _seed = -1;
 
-    public int PlayerUniqueID
+
+    public NetworkInstanceId NetID
     {
-        get { return _playerUniqueID; }
-        set { _playerUniqueID = value; }
+        get { return _netID; }
+        set { _netID = value; }
+    }
+
+    public int PlayerID
+    {
+        get { return _playerID; }
+        set { _playerID = value; }
+    }
+
+    public string PlayerName
+    {
+        get { return _playerName; }
+        set { _playerName = value; }
+    }
+
+    public int TotalPlayers
+    {
+        get { return _totalPlayers; }
+        set { _totalPlayers = value; }
+    }
+
+    public int GlobalSeed
+    {
+        get { return _seed; }
+        set { _seed = value; }
     }
 
     Text playerIDText;
@@ -44,6 +69,9 @@ public class PlayerAgent : NetworkBehaviour
         _uiManager = _gameManager._uiManager;
         if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
+        _syncedVars = FindObjectOfType<SyncedVars>();
+        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
         playerIDText = _uiManager.transform.FindDeepChild("PlayerNum").GetComponent<Text>();
         playerNameText = _uiManager.transform.FindDeepChild("PlayerName").GetComponent<Text>();
         totalPlayerText = _uiManager.transform.FindDeepChild("TotalPlayersNum").GetComponent<Text>();
@@ -54,55 +82,53 @@ public class PlayerAgent : NetworkBehaviour
     // Need this Start()
     void Start()
     {
-        Debug.Log("A network Player object has been created");
-        CreatePlayerAgent();
     }
 
     public override void OnStartLocalPlayer()
     {
-        _playerManager._playerObject = this.gameObject;
-    }
+        if (!isLocalPlayer) return;
+        Debug.Log("A network Player object has been created");
 
-    // DONT FUCKING TOUCH THIS FUNCTION
-    void CreatePlayerAgent()
-    {
-        _syncedVars = FindObjectOfType<SyncedVars>();
-        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _playerManager._playerObject = this.gameObject;
 
         transform.SetParent(_playerManager.transform);
-        _uiManager.GetComponent<Canvas>().enabled = true;
 
-        _seed = _syncedVars.GlobalSeed;
-        seedNumText.text = _seed.ToString();
-        Random.InitState(_seed);
+        GlobalSeed = _syncedVars.GlobalSeed;
+        Random.InitState(GlobalSeed);
 
+        NetID = GetComponent<NetworkIdentity>().netId;
+
+        PlayerID = _syncedVars.PlayerCount;
+        _playerManager.LoadPlayerDataInToManager(PlayerID);
         GetComponent<NetworkAgent>().CmdTellServerToUpdatePlayerCount();
 
-        if (isLocalPlayer)
-        {
-            _playerUniqueID = _syncedVars.PlayerCount;
-            playerIDText.text = _playerUniqueID.ToString();
-            _playerManager.LoadPlayerDataInToManager(PlayerUniqueID);
-            playerNameText.text = _playerManager.GetPlayerName();
-            ContinuePlayerSetUp();
-        }
+        SetUpPlayersGUI();
+
+        GetComponent<CameraAgent>().SetUpCameraAndLayers(PlayerID);
+
+        _gameManager._locationManager.BuildMapForClient();
     }
+
+    // The players personal GUI
+    void SetUpPlayersGUI()
+    {
+        if (!isLocalPlayer) return;
+
+        _uiManager.GetComponent<Canvas>().enabled = true;
+
+        playerIDText.text = PlayerID.ToString();
+        playerNameText.text = _playerManager.GetPlayerName();
+        seedNumText.text = GlobalSeed.ToString();
+    }
+
+
 
     public void UpdatePlayerCount(int count)
     {
         Debug.Log("fucken UpdatePlayerCount: " + count);
-        _totalPlayers = count;
-        totalPlayerText.text = _totalPlayers.ToString();
+        TotalPlayers = count;
+        totalPlayerText.text = TotalPlayers.ToString();
     }
 
-
-
-    void ContinuePlayerSetUp()
-    {
-        GetComponent<CameraAgent>().SetUpCameraAndLayers(PlayerUniqueID);
-
-        _gameManager._locationManager.BuildMapForClient();
-
-    }
 
 }

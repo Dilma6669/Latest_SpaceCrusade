@@ -1,9 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.Networking;
+﻿using UnityEngine.Networking;
 
 public class SyncedVars : NetworkBehaviour {
-
-    GameManager _gameManager;
 
     [SyncVar]
 	public int globalSeed = -1;
@@ -23,11 +20,4 @@ public class SyncedVars : NetworkBehaviour {
 		get { return playerCount; }
 		set { playerCount = playerCount + value; }
 	}
-
-    // Use this for initialization
-    void Awake()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
 }

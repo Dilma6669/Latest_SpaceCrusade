@@ -26,14 +26,14 @@ public class UnitsManager : MonoBehaviour {
 
     public void LoadPlayersUnits(Vector3 worldNodeLoc)
     {
-        List<UnitScript> units = _gameManager._playerManager.GetPlayerUnitScripts();
+        List<UnitData> units = _gameManager._playerManager.GetPlayerUnitData();
 
-        foreach (UnitScript unit in units)
+        foreach (UnitData unit in units)
         {
             Vector3 localStart = unit.UnitStartingLocalLoc;
             Vector3 worldStart = new Vector3(localStart.x + worldNodeLoc.x, localStart.y + worldNodeLoc.y, localStart.z + worldNodeLoc.z);
-            unit.UnitStartingWorldLoc = worldStart;
-            if (CreateUnitOnNetwork(unit))
+
+            if (CreateUnitOnNetwork(unit, worldStart))
             {
                 // AssignUniqueLayerToUnits();
             }
@@ -45,17 +45,14 @@ public class UnitsManager : MonoBehaviour {
     }
 
 
-    private bool CreateUnitOnNetwork(UnitScript unit)
+    private bool CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
     {
-        CubeLocationScript cubeScript = _gameManager._locationManager.CheckIfCanMoveToCube(unit.UnitStartingWorldLoc);
+        CubeLocationScript cubeScript = _gameManager._locationManager.CheckIfCanMoveToCube(worldStart);
 
         if (cubeScript != null)
         {
-            int unitModel = unit.UnitModel;
-            bool unitCanClimbwalls = unit.UnitCanClimbWalls; 
-            Vector3 startLocation = unit.UnitStartingWorldLoc;
-            int[] unitCombatStats = unit.UnitCombatStats;
-            _gameManager._playerManager._playerObject.GetComponent<NetworkAgent>().TellServerToSpawnPlayerUnit(unitModel, unitCanClimbwalls, startLocation, unitCombatStats);
+            int playerID = _gameManager._playerManager.GetPlayerID();
+            _gameManager._playerManager._playerObject.GetComponent<NetworkAgent>().CmdTellServerToSpawnPlayerUnit(unitData, playerID , worldStart);
             return true;
         }
         else

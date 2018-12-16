@@ -110,14 +110,13 @@ public class NetworkAgent : NetworkBehaviour
 
     // Server Move Unit
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    public void CmdTellServerToMoveUnit(NetworkInstanceId unitNetworkID, Vector3 vectorToMoveTo, Vector3 offsetPosToMoveTo)
+    public void CmdTellServerToMoveUnit(NetworkInstanceId unitNetworkID, int[] pathArray) // need a struct of int[]'s to go in here
     {
-        //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
         if (!isServer) return;
 
         GameObject unit = network_Unit_Objects[unitNetworkID];
-        UnitScript unitScript = unit.GetComponent<UnitScript>();
-        _gameManager._gamePlayManager._movementManager.SetUnitsPath(unit, unitScript.UnitCanClimbWalls, unitScript.CubeUnitIsOn.cubeLoc, vectorToMoveTo, offsetPosToMoveTo);
+        MovementScript unitScript = unit.GetComponent<MovementScript>();
+        unitScript.MoveUnit(pathArray);
     }
 
 }

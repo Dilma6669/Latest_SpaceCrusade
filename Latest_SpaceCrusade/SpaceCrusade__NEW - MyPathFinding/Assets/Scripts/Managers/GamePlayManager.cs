@@ -33,7 +33,7 @@ public class GamePlayManager : MonoBehaviour {
 
     public void SetTurnToMoveUnits()
     {
-        _movementManager.MoveUnits();
+       // _movementManager.MoveUnits();
     }
 
     public bool SetUnitOnCube(UnitScript unitScript, Vector3 loc)

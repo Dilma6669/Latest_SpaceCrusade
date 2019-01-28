@@ -4,61 +4,163 @@ using UnityEngine;
 
 public class CubeLocationScript : MonoBehaviour {
 
-
     public LocationManager _locationManager;
 
-	public Vector3 cubeLoc;
+    // Cube info
+    int _cubeUniqueID;
+    public Vector3 _cubeLoc;
+    int _cubeAngle;
+
+    bool _cubeVisible;
+    bool _cubSelected;
+    public bool _cubeOccupied; // If a guy is on square
+    public MovementScript _flagToSayIsMine;
+
+    bool _isHumanWalkable;
+    bool _isHumanClimbable;
+    bool _isHumanJumpable;
+    bool _isAlienWalkable;
+    bool _isAlienClimbable;
+    bool _isAlienJumpable;
+
+    // panel objects
+    public bool _isPanel = false;
+    public GameObject _activePanel;
+    public PanelPieceScript _panelScriptChild = null;
+
+    // Pathfinding
+    public GameObject _pathFindingPrefab;
+    public GameObject _pathFindingNode;
+    public CubeLocationScript _parentPathFinding;
+    public int fCost;
+    public int hCost;
+    public int gCost;
+
+    // neighbour Cubes
+    public List<Vector3> _neighVects = new List<Vector3>();
+    public List<Vector3> _neighHalfVects = new List<Vector3>();
+    public bool _neighboursSet = false;
+    bool[] _neighBools = new bool[27];
 
 
-	public int cubeUniqueID;
+    public int CubeUniqueID
+    {
+        get { return _cubeUniqueID; }
+        set { _cubeUniqueID = value; }
+    }
 
-	public GameObject _pathFindingPrefab;
+    public Vector3 CubeLocVector
+    {
+        get { return _cubeLoc; }
+        set { _cubeLoc = value; }
+    }
 
-	public bool _cubeOccupied = false; // If a guy is on square
-	public MovementScript _flagToSayIsMine = null;
+    public int CubeAngle
+    {
+        get { return _cubeAngle; }
+        set { _cubeAngle = value; }
+    }
 
-	public bool _isPanel = false;
+    public bool CubeIsVisible
+    {
+        get { return _cubeVisible; }
+        set { _cubeVisible = value; }
+    }
 
-	public int cubeAngle = 0;
+    public bool CubeSelected
+    {
+        get { return _cubSelected; }
+        set { _cubSelected = value; }
+    }
 
-	public bool _isHumanWalkable = false;
-	public bool _isHumanClimbable = false;
-	public bool _isHumanJumpable = false;
+    public bool CubeOccupied
+    {
+        get { return _cubeOccupied; }
+        set { _cubeOccupied = value; }
+    }
 
-	public int fCost;
-	public int hCost;
-	public int gCost;
+    public MovementScript FlagToSayIsMine
+    {
+        get { return _flagToSayIsMine; }
+        set { _flagToSayIsMine = value; }
+    }
 
+    // Human
+    public bool IsHumanWalkable
+    {
+        get { return _isHumanWalkable; }
+        set { _isHumanWalkable = value; }
+    }
+    public bool IsHumanClimbable
+    {
+        get { return _isHumanClimbable; }
+        set { _isHumanClimbable = value; }
+    }
+    public bool IsHumanJumpable
+    {
+        get { return _isHumanJumpable; }
+        set { _isHumanJumpable = value; }
+    }
+    // Alien
+    public bool IsAlienWalkable
+    {
+        get { return _isAlienWalkable; }
+        set { _isAlienWalkable = value; }
+    }
+    public bool IsAlienClimbable
+    {
+        get { return _isAlienClimbable; }
+        set { _isAlienClimbable = value; }
+    }
+    public bool IsAlienJumpable
+    {
+        get { return _isAlienJumpable; }
+        set { _isAlienJumpable = value; }
+    }
 
-	public PanelPieceScript panelScriptChild = null;
+    // Neighbours
+    public bool NeighboursSet
+    {
+        get { return _neighboursSet; }
+        set { _neighboursSet = value; }
+    }
 
-	public GameObject _activePanel;
+    public List<Vector3> NeighbourVects
+    {
+        get { return _neighVects; }
+        set { _neighVects = value; }
+    }
 
-	[HideInInspector]
-	public CubeLocationScript parentPathFinding;
+    public List<Vector3> NeighbourHalfVects
+    {
+        get { return _neighHalfVects; }
+        set { _neighHalfVects = value; }
+    }
 
-	public List<Vector3> neighVects = new List<Vector3>();
-	public List<Vector3> neighHalfVects = new List<Vector3>();
+    
+    void Awake() {
 
-    public bool neighboursSet = false;
-	public bool[] neighBools = new bool[27];
+        CubeIsVisible = true;
+        CubeSelected = false;
+        CubeOccupied = false;
+        IsHumanWalkable = false;
+        IsHumanClimbable = false;
+        IsHumanJumpable = false;
+        IsAlienWalkable = false;
+        IsAlienClimbable = false;
+        IsAlienJumpable = false;
+        CubeLocVector = new Vector3 (-1, -1, -1);
 
-	public GameObject pathFindingNode = null;
-
-	public bool cubeVisible = true;
-	public bool cubSelected = false;
-
-	void Awake() {
-
-		cubeLoc = new Vector3 (-1, -1, -1);
-	}
+    }
 
     public void AssignCubeNeighbours()
     {
-        if(!neighboursSet)
+        if(!NeighboursSet)
         {
+            SetHalfNeighbourVects();
+            SetNeighbourVects();
             _locationManager._cubeConnections.SetCubeNeighbours(this);
-            neighboursSet = true;
+            NeighboursSet = true;
         }
     }
 
@@ -67,21 +169,21 @@ public class CubeLocationScript : MonoBehaviour {
     public void CubeActive(bool onOff) {
 		
 		if (onOff) {
-			cubSelected = true;
+			CubeSelected = true;
 		} else {
-			cubSelected = false;
+            CubeSelected = false;
 			_activePanel.GetComponent<PanelPieceScript> ().ActivatePanel (false);
 		}
 	}
 
 	///////////////////////////////
 	/// this is for when panel is clicked
-	public void CubeSelect(bool onOff, Vector3 nodePos = new Vector3(), GameObject panelSelected = null) {
+	public void CubeSelect(bool onOff, GameObject panelSelected = null) {
 
 		if (onOff) {
 			CubeActive (true);
 			_activePanel = panelSelected;
-            _locationManager.SetCubeActive (true, new Vector3(cubeLoc.x, cubeLoc.y, cubeLoc.z), nodePos); // not sure if this should be here yet
+            _locationManager.SetCubeActive (true, new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z)); // not sure if this should be here yet
         }
         else
         {
@@ -90,70 +192,43 @@ public class CubeLocationScript : MonoBehaviour {
 		}
 	}
 
-	////////////////////////////////////////////////
-	// Special green box highlighting cube 
-//	public void CubeHighlight(string selectType) {
-//	//	if (cubeWalkable && cubeVisible) {
-//			if (transform.Find ("CubeSelect")) {
-//				switch (selectType) { 
-//				case "Move":
-//					cubeSelectTrans.SetActive (true);
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//	//	}
-//	}
-//	public void CubeUnHighlight(string selectType) {
-//	//	if (transform.Find ("CubeSelect")) {
-//			switch (selectType) { 
-//			case "Move":
-//				cubeSelectTrans.SetActive (false);
-//				break;
-//			default:
-//				break;
-//			}
-//		//}
-//	}
-	////////////////////////////////////////////////
 
-	public void GetHalfNeighbourConnections() {
+	public void SetHalfNeighbourVects() {
 
-		Vector3 ownVect = new Vector3(cubeLoc.x, cubeLoc.y, cubeLoc.z);
+        Vector3 ownVect = new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z);
 
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z - 1)); // 0
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z - 1)); // 1
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z - 1)); // 2
-		//
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z + 0)); // 3
-		neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z + 0)); // 4 directly below
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z + 0)); // 5
-		//
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z + 1)); // 6
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z + 1)); // 7
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z + 1)); // 8
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z - 1)); // 0
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z - 1)); // 1
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z - 1)); // 2
+        //
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z + 0)); // 3
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z + 0)); // 4 directly below
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z + 0)); // 5
+                                                                                        //
+         //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z + 1)); // 6
+         //neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z + 1)); // 7
+         //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y - 1, ownVect.z + 1)); // 8
 
-		/////////////////////////////////
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z - 1)); // 9
-		neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z - 1)); // 10 infront (south)
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z - 1)); // 11
+        /////////////////////////////////
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z - 1)); // 9
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z - 1)); // 10 infront (south)
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z - 1)); // 11
 
-		neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
-		neighHalfVects.Add(ownVect);												   // 13 //// MIDDLE
-		neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
+        NeighbourHalfVects.Add(ownVect);                                                  // 13 //// MIDDLE
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
 
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 1)); // 15
-		neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z + 1)); // 16 back (North)
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z + 1)); // 17 
-		/////////////////////////////////
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 1)); // 15
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z + 1)); // 16 back (North)
+       //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z + 1)); // 17 
+                                                                                        /////////////////////////////////
 
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 1, ownVect.z - 1)); // 18
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 1, ownVect.z - 1)); // 19
-		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 1, ownVect.z - 1)); // 20
-		//
-		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 1, ownVect.z + 0)); // 21
-		neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 1, ownVect.z + 0)); // 22 directly above
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 1, ownVect.z - 1)); // 18
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 1, ownVect.z - 1)); // 19
+        //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 1, ownVect.z - 1)); // 20
+        //
+        //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 1, ownVect.z + 0)); // 21
+        NeighbourHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 1, ownVect.z + 0)); // 22 directly above
 		//neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 1, ownVect.z + 0)); // 23
 		//
 		//neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 1, ownVect.z + 1)); // 24
@@ -164,42 +239,42 @@ public class CubeLocationScript : MonoBehaviour {
 
 	}
 
-	public void GetNeighbourConnections() {
+	public void SetNeighbourVects() {
 
-		Vector3 ownVect = new Vector3(cubeLoc.x, cubeLoc.y, cubeLoc.z);
+        Vector3 ownVect = new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z);
 
 		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y - 2, ownVect.z - 2)); // 0
 		//neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z - 2)); // 1
 		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y - 2, ownVect.z - 2)); // 2
 		//
 		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y - 2, ownVect.z + 0)); // 3
-		neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z + 0)); // 4 directly below
-		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y - 2, ownVect.z + 0)); // 5
-		//
-		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y - 2, ownVect.z + 2)); // 6
-		//neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z + 2)); // 7
-		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y - 2, ownVect.z + 2)); // 8
+		NeighbourVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z + 0)); // 4 directly below
+        //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y - 2, ownVect.z + 0)); // 5
+                                                                                    //
+         //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y - 2, ownVect.z + 2)); // 6
+          //neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z + 2)); // 7
+          //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y - 2, ownVect.z + 2)); // 8
 
-		/////////////////////////////////
-		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z - 2)); // 9
-		neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z - 2)); // 10 infront (south)
-		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z - 2)); // 11
+        /////////////////////////////////
+        //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z - 2)); // 9
+        NeighbourVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z - 2)); // 10 infront (south)
+         //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z - 2)); // 11
 
-		neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
-		neighVects.Add(ownVect);												   // 13 //// MIDDLE
-		neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
+        NeighbourVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
+        NeighbourVects.Add(ownVect);                                                   // 13 //// MIDDLE
+        NeighbourVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
 
-		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 2)); // 15
-		neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z + 2)); // 16 back (North)
-		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z + 2)); // 17 
-		/////////////////////////////////
+        //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 2)); // 15
+        NeighbourVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 0, ownVect.z + 2)); // 16 back (North)
+        //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z + 2)); // 17 
+        /////////////////////////////////
 
-		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 2, ownVect.z - 2)); // 18
-		//neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 2, ownVect.z - 2)); // 19
-		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 2, ownVect.z - 2)); // 20
-		//
-		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 2, ownVect.z + 0)); // 21
-		neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 2, ownVect.z + 0)); // 22 directly above
+        //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 2, ownVect.z - 2)); // 18
+        //neighVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 2, ownVect.z - 2)); // 19
+        //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 2, ownVect.z - 2)); // 20
+        //
+        //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 2, ownVect.z + 0)); // 21
+        NeighbourVects.Add(new Vector3 (ownVect.x + 0, ownVect.y + 2, ownVect.z + 0)); // 22 directly above
 		//neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 2, ownVect.z + 0)); // 23
 		//
 		//neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 2, ownVect.z + 2)); // 24
@@ -210,20 +285,41 @@ public class CubeLocationScript : MonoBehaviour {
 
 	}
 
-	public void CreatePathFindingNode() {
-
-		GameObject nodeObject = Instantiate (_pathFindingPrefab, transform, false); // empty cube
-		nodeObject.transform.SetParent (transform);
-		nodeObject.transform.position = transform.position;
-        pathFindingNode = nodeObject;
-
+    public void ResetPathFindingValues()
+    {
+        _pathFindingNode = null;
+        _parentPathFinding = null;
+        fCost = 0;
+        hCost = 0;
+        gCost = 0;
     }
 
-	////////////////////////////////////////////////
-	// If player canNOT see this cube
-	public void CubeNotVisible() {
+
+	public void CreatePathFindingNode(int unitID) {
+        GameObject nodeObject = Instantiate (_pathFindingPrefab, transform, false); // empty cube
+		nodeObject.transform.SetParent (transform);
+		nodeObject.transform.position = transform.position;
+        _pathFindingNode = nodeObject;
+        _pathFindingNode.GetComponent<PathFindingNode>().UnitControllerID = unitID;
+    }
+
+    public void DestroyPathFindingNode()
+    {
+        if (_pathFindingNode != null)
+        {
+            _pathFindingNode.GetComponent<PathFindingNode>().DestroyNode();
+        }
+        ResetPathFindingValues();
+    }
+
+
+
+
+    ////////////////////////////////////////////////
+    // If player canNOT see this cube
+    public void CubeNotVisible() {
 		Debug.Log ("CubeNotVisible");
-		cubeVisible = false;
+		CubeIsVisible = false;
 //		foreach (Transform child in transform) {
 //			if (child.gameObject.activeSelf && child.GetComponent<PanelPieceScript> ()) {
 //				child.GetComponent<PanelPieceScript> ().PanelPieceChangeColor ("Black");
@@ -232,7 +328,7 @@ public class CubeLocationScript : MonoBehaviour {
 	}
 	// If player can see this cube
 	public void CubeVisible() {
-		cubeVisible = true;
+        CubeIsVisible = true;
 //		foreach (Transform child in transform) {
 //			if (child.gameObject.activeSelf && child.GetComponent<PanelPieceScript> ()) {
 //				child.GetComponent<PanelPieceScript> ().PanelPieceChangeColor ("White");

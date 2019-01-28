@@ -3,23 +3,26 @@
 public class GameManager : MonoBehaviour {
 
     [HideInInspector]
-    public PlayerManager    _playerManager;
+    public WorldManager _worldManager;
     [HideInInspector]
-    public CameraManager    _cameraManager;
+    public PlayerManager _playerManager;
     [HideInInspector]
-    public UIManager        _uiManager;
+    public CameraManager _cameraManager;
+    [HideInInspector]
+    public UIManager _uiManager;
     [HideInInspector]
     public LocationManager _locationManager;
     [HideInInspector]
-    public NetWorkManager   _networkManager;
+    public NetWorkManager _networkManager;
     [HideInInspector]
-    public GamePlayManager _gamePlayManager;
-    [HideInInspector]
-    public UnitsManager     _unitsManager;
+    public UnitsManager _unitsManager;
 
 
 
     void Awake() {
+
+        _worldManager = GetComponentInChildren<WorldManager>();
+        if (_worldManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _playerManager = GetComponentInChildren<PlayerManager>();
         if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
@@ -36,12 +39,14 @@ public class GameManager : MonoBehaviour {
         _networkManager = GetComponentInChildren<NetWorkManager>();
         if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _gamePlayManager = GetComponentInChildren<GamePlayManager>();
-        if (_gamePlayManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
         _unitsManager = GetComponentInChildren<UnitsManager> ();
 		if(_unitsManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 
+    }
+
+    public void StartGame(Vector3 worldNodeLoc)
+    {
+        _unitsManager.LoadPlayersUnits(worldNodeLoc);
     }
 
 }

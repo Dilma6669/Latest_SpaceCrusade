@@ -13,6 +13,8 @@ public class MapPieceBuilder : MonoBehaviour {
     public List<int[,]> floorDataToReturn = new List<int[,]>();
     public List<int[,]> ventDataToReturn = new List<int[,]>();
 
+    List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript>(); 
+
     private bool loadVents = false;
 
     private int worldNodeSize = 0;
@@ -52,12 +54,36 @@ public class MapPieceBuilder : MonoBehaviour {
         return ventDataToReturn;
     }
 
+    // trying to connection neighbours early so this is here
+
+    public void SetPanelsNeighbours()
+    {
+        foreach (CubeLocationScript script in cubesWithPanels)
+        {
+            script.AssignCubeNeighbours();
+
+            CubeLocationScript leftscript = script._panelScriptChild.cubeScriptLeft;
+            if (leftscript != null)
+            {
+                leftscript.AssignCubeNeighbours();
+            }
+
+            CubeLocationScript rightscript = script._panelScriptChild.cubeScriptRight;
+            if (rightscript != null)
+            {
+                rightscript.AssignCubeNeighbours();
+            }
+
+        }
+        cubesWithPanels.Clear();
+    }
+
     public void SetWorldNodeNeighboursForDock(int[] worldNodes)
     {
         worldNeighbours = worldNodes;
     }
 
-    public void AttachMapPieceToMapNode<T>(T node, List<Vector3Int> nodes, int _LayerCount, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
+    public void AttachMapPieceToMapNode<T>(T node, List<Vector3> nodes, int _LayerCount, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
         floorDataToReturn.Clear(); // storing data for serialzatino
         ventDataToReturn.Clear();
@@ -65,6 +91,7 @@ public class MapPieceBuilder : MonoBehaviour {
         worldNodeSize = _worldNodeSize;
         sizeSquared = (worldNodeSize * worldNodeSize);
 
+        cubesWithPanels.Clear();
 
         neighbours = node.neighbours;
         layerCount = node.nodeLayerCount;
@@ -81,9 +108,9 @@ public class MapPieceBuilder : MonoBehaviour {
 
     private void BuildMapsByIEnum<T>(T node, Vector3 nodeLoc, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
-        int startGridLocX = (int)nodeLoc.x - (_gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)nodeLoc.x - (_gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ / 2);
         int startGridLocY = (int)nodeLoc.y;
-        int startGridLocZ = (int)nodeLoc.z - (_gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocZ = (int)nodeLoc.z - (_gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ / 2);
 
         Vector3 GridLoc;
 
@@ -164,7 +191,7 @@ public class MapPieceBuilder : MonoBehaviour {
             floor = layers[y];
 
 
-            if (!floorORRoof && y == (layers.Count -1) && neighbours[5] != -1)// for the roofs of the vents only appearing if no map piece above vent
+            if (!floorORRoof && y == (layers.Count - 1) && neighbours[5] != -1)// for the roofs of the vents only appearing if no map piece above vent
             {
                 continue; // if so, skip last layer
             }
@@ -172,7 +199,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
             for (int r = 0; r < rotations; r++)
             {
-                floor = TransposeArray(floor, _gameManager._locationManager._mapSettings.sizeOfMapPiecesXZ - 1);
+                floor = TransposeArray(floor, _gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ - 1);
 
                 /*
                 if(floorORRoof) // storing the map data for serilisation and other shit still to work out
@@ -195,11 +222,13 @@ public class MapPieceBuilder : MonoBehaviour {
                     int cubeType = floor[z, x];
                     cubeType = FigureOutDoors(node, _mapType, cubeType, rotations);
 
-                    //if (cubeType != 0)
-                   // {
-                        GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
-                        _gameManager._locationManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, layerCount, node.gameObject.transform); // Create the cube
-                   // }
+                    GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
+                    // A test to see if cube has panel to try make connecting neighbours easier
+                    CubeLocationScript cubeHasPanel = _gameManager._worldManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, layerCount, node.gameObject.transform); // Create the cube
+                    if (cubeHasPanel != null)
+                    {
+                        cubesWithPanels.Add(cubeHasPanel);
+                    }
                     objectsCountX += 1;
                 }
                 objectsCountZ += 1;

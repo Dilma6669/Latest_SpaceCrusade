@@ -10,9 +10,28 @@ public class MovementScript : MonoBehaviour {
 
 	private List<CubeLocationScript> _nodes;
 
-	private bool collision = false;
+    CubeLocationScript _currTarget;
+    Vector3 _currTargetVect;
+    CubeLocationScript _finalTarget;
+    Vector3 _finalTargetVect;
+    private bool collision = false;
 
-	public int locCount = 0;
+	public int locCount;
+
+    private int _unitsSpeed;
+
+    bool _newPath = false;
+    private List<CubeLocationScript> _tempNodes;
+    bool _unitInterrupted = false;
+
+    void Awake()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _nodes = new List<CubeLocationScript>();
+        _tempNodes = new List<CubeLocationScript>();
+    }
 
 	// Use this for initialization
 	void Update () {
@@ -25,66 +44,153 @@ public class MovementScript : MonoBehaviour {
 
 	private void StartMoving() {
 
-        _nodes = GetComponent<UnitScript>().movePath;
+        if (locCount < _nodes.Count)
+        {
 
-        Vector3 unitCurrPos = transform.position;
+            Vector3 unitCurrPos = transform.position;
 
-		if (locCount < _nodes.Count) {
-				
-			CubeLocationScript target = _nodes [locCount];
-				
-			if (target != null) {
-				
-				Vector3 currTarget = new Vector3 (target.cubeLoc.x, target.cubeLoc.y, target.cubeLoc.z);
+            if (_currTarget != null)
+            {
+                _currTarget.FlagToSayIsMine = this;
+                collision = false;
 
-				if (!target._cubeOccupied || target._flagToSayIsMine == this || target._flagToSayIsMine == null) {
-						
-					target._flagToSayIsMine = this;
-					target._cubeOccupied = true;
-					collision = false;
-
-					if (!target.pathFindingNode) {
-						target.CreatePathFindingNode (); // puts circles in path, visual reference
-					}
-
-					if (unitCurrPos != currTarget) {
-						transform.position = Vector3.MoveTowards (unitCurrPos, currTarget, _nodes.Count * Time.deltaTime);
-					} else {
-						if (target.pathFindingNode) {
-							Destroy (target.pathFindingNode);
-						}
-						target._cubeOccupied = false;
-						target._flagToSayIsMine = null;
-						_nodes [locCount] = null;
-						locCount += 1;
-						if (locCount == _nodes.Count) {
-							FinishMoving ();
-						}
-					}
-				} else if (target._flagToSayIsMine != this && target._flagToSayIsMine != false) {
-
-					if (collision == false) {
-						collision = true;
-						CubeLocationScript nodeToRemove = _nodes [_nodes.Count - 1];
-						_nodes.Remove (nodeToRemove);
-					}
-				}
-			}
-		}
+                if (unitCurrPos != _currTargetVect)
+                {
+                    UnitMoveTowardsTarget(unitCurrPos, _currTargetVect);
+                }
+                else
+                {
+                    UnitReachedTarget(_currTargetVect);
+                }
+            }
+            else if (_currTarget.FlagToSayIsMine != this && _currTarget.FlagToSayIsMine != false)
+            {
+                if (collision == false)
+                {
+                    collision = true;
+                }
+            }
+        }
 	}
+
+
+    private void UnitMoveTowardsTarget(Vector3 unitCurrPos, Vector3 _vectTarget)
+    {
+        transform.position = Vector3.MoveTowards(unitCurrPos, _vectTarget, Time.deltaTime * _unitsSpeed);
+    }
+
+
+    private void UnitReachedTarget(Vector3 _vectTarget)
+    {
+        locCount += 1;
+        if (locCount == _nodes.Count)
+        {
+            FinishMoving();
+        }
+        else
+        {
+            SetTarget();
+        }
+    }
 
 	private void FinishMoving() {
-		Debug.Log ("FINFISHED!");
-		moveInProgress = false;
-        GetComponent<UnitScript>().movePath.Clear();
-		_nodes.Clear ();
-	}
+		Debug.Log ("FINISHED MOVING!");
+        if (_tempNodes.Count > 0)
+        {
+            SetNewpath();
+        }
+        else
+        {
+            Reset();
+            moveInProgress = false;
+        }
+    }
+
+    private void SetTarget()
+    {
+        if(_unitInterrupted)
+        {
+            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+            _unitInterrupted = false;
+        }
+
+        if (_nodes.Count > 0)
+        {
+            if (!_newPath)
+            {
+                _currTarget = _nodes[locCount];
+                _currTargetVect = new Vector3(_currTarget.CubeLocVector.x, _currTarget.CubeLocVector.y, _currTarget.CubeLocVector.z);
+                if (!_gameManager._locationManager.SetUnitOnCube(GetComponent<UnitScript>(), _currTargetVect))
+                {
+                    Debug.LogWarning("units movement interrupted >> recalculating");
+                    _unitInterrupted = true;
+                    Reset();
+                    StartCoroutine(RecalculateMove(3.0f));
+                }
+            }
+            else
+            {
+                SetNewpath();
+            }
+        }
+    }
 
 
-	public void MoveUnit() {
+    private void Reset()
+    {
+        locCount = 0;
+        //_currTarget = null;
+        //_finalTarget = null;
+        //moveInProgress = false;
+        _newPath = false;
+        foreach(CubeLocationScript node in _nodes)
+        {
+            node.DestroyPathFindingNode();
+        }
+        _nodes.Clear();
+        //_tempNodes.Clear();
+    }
 
-        moveInProgress = true;
-        StartMoving();
 
+    public void MoveUnit(List<CubeLocationScript> _pathNodes)
+    {
+        Debug.Log("MoveUnit!");
+
+        int[] stats = GetComponent<UnitScript>()._unitCombatStats;
+        _unitsSpeed = stats[0];
+
+        if (_pathNodes.Count > 0)
+        {
+            _finalTarget = _pathNodes[_pathNodes.Count - 1];
+            _finalTargetVect = _finalTarget.CubeLocVector;
+
+            if (moveInProgress)
+            {
+                _tempNodes = _pathNodes;
+                _newPath = true;
+            }
+            else
+            {
+                Reset();
+                _nodes = _pathNodes;
+                moveInProgress = true;
+                SetTarget();
+            }
+        }
+    }
+
+
+    void SetNewpath()
+    {
+        Reset();
+        _nodes = _tempNodes;
+        SetTarget();
+    }
+
+    private IEnumerator RecalculateMove(float waitTime)
+    {
+        Debug.Log("IEnumerator RecalculateMove");
+        yield return new WaitForSeconds(waitTime);
+        _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
     }
 }

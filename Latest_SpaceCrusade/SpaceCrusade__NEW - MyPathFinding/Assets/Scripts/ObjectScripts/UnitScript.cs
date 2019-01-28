@@ -8,7 +8,7 @@ public class UnitScript : NetworkBehaviour {
     GameManager _gameManager;
 
     // GamePlay data
-	public List<CubeLocationScript> movePath;
+    List<CubeLocationScript> _pathFindingNodes;
 	bool _unitActive;
 	// Visual
 	Renderer[] _rends;
@@ -17,11 +17,11 @@ public class UnitScript : NetworkBehaviour {
     // Unit stats
     int _unitModel;
     bool _unitCanClimbWalls;
-    int[] _unitCombatStats;
+    public int[] _unitCombatStats;
     Vector3 _startingWorldLoc;
-    int playerControllerId;
+    int _playerControllerId;
     NetworkInstanceId _netID;
-    CubeLocationScript _cubeUnitIsOn;
+    public CubeLocationScript _cubeUnitIsOn;
 
     UnitData _unitData;
 
@@ -37,11 +37,13 @@ public class UnitScript : NetworkBehaviour {
         set { _unitCanClimbWalls = value; }
     }
 
+    /*
     public int[] UnitCombatStats
     {
         get { return _unitCombatStats; }
         set { _unitCombatStats = value; }
     }
+    */
 
     public Vector3 UnitStartingWorldLoc
     {
@@ -57,8 +59,8 @@ public class UnitScript : NetworkBehaviour {
 
     public int PlayerControllerID
     {
-        get { return playerControllerId; }
-        set { playerControllerId = value; }
+        get { return _playerControllerId; }
+        set { _playerControllerId = value; }
     }
 
     public NetworkInstanceId NetID
@@ -82,7 +84,8 @@ public class UnitScript : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		_rends = GetComponentsInChildren<Renderer> ();
+        _pathFindingNodes = new List<CubeLocationScript>();
+        _rends = GetComponentsInChildren<Renderer> ();
 	}
 		
 
@@ -115,7 +118,7 @@ public class UnitScript : NetworkBehaviour {
 
         if (onOff)
         {
-            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this.gameObject);
+            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this);
             PanelPieceChangeColor("Red");
         }
         else
@@ -159,15 +162,20 @@ public class UnitScript : NetworkBehaviour {
 	//	}
 		}
 	}
-   
 
-    //	public void PanelPieceGoTransparent() {
-    //
-    //		if (_rend) {
-    //			_rend.material.shader = Shader.Find ("Transparent/Diffuse");
-    //			Color tempColor = _rend.material.color;
-    //			tempColor.a = 0.3F;
-    //			_rend.material.color = tempColor;
-    //		}
-    //	}
+
+    public void AssignPathFindingNodes(List<CubeLocationScript> nodes)
+    {
+        //ClearPathFindingNodes();
+        _pathFindingNodes = nodes;
+    }
+
+    public void ClearPathFindingNodes()
+    {
+        foreach(CubeLocationScript node in _pathFindingNodes)
+        {
+            node.DestroyPathFindingNode();
+        }
+        _pathFindingNodes.Clear();
+    }
 }

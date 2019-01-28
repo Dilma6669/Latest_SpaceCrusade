@@ -31,14 +31,14 @@ public class CameraManager : MonoBehaviour {
 
 	public KeyValuePair<Vector3, Vector3> GetCameraStartPosition(int playerID) {
 
-        Debug.Log("Finding Camera for player: " + playerID);
+        //Debug.Log("Finding Camera for player: " + playerID);
 
 		List<KeyValuePair<Vector3, Vector3>> cameraPositions = new List<KeyValuePair<Vector3, Vector3>> ();
 
-		KeyValuePair<Vector3, Vector3> cam0 = new KeyValuePair<Vector3, Vector3> (new Vector3 (11, 9, -10), new Vector3 (26, 0, 0));
-		KeyValuePair<Vector3, Vector3> cam1 = new KeyValuePair<Vector3, Vector3> (new Vector3 (11, 9, 34), new Vector3 (26, 180, 0));
-		KeyValuePair<Vector3, Vector3> cam2 = new KeyValuePair<Vector3, Vector3> (new Vector3 (31, 9, 11.5f), new Vector3 (26, 267, 0));
-		KeyValuePair<Vector3, Vector3> cam3 = new KeyValuePair<Vector3, Vector3> (new Vector3 (-9, 9, 11), new Vector3 (26, 90, 0));
+		KeyValuePair<Vector3, Vector3> cam0 = new KeyValuePair<Vector3, Vector3> (new Vector3 (-124.3f, 475, 895.9f), new Vector3 (0, 90, 0));
+		KeyValuePair<Vector3, Vector3> cam1 = new KeyValuePair<Vector3, Vector3> (new Vector3 (11, 572, -879), new Vector3 (0, 90, 0));
+		KeyValuePair<Vector3, Vector3> cam2 = new KeyValuePair<Vector3, Vector3> (new Vector3 (-955, 489.4f, -71), new Vector3 (0, 0, 0));
+		KeyValuePair<Vector3, Vector3> cam3 = new KeyValuePair<Vector3, Vector3> (new Vector3 (738, 344, -210), new Vector3 (0, 0, 0));
 
 		cameraPositions.Add (cam0);
 		cameraPositions.Add (cam1);

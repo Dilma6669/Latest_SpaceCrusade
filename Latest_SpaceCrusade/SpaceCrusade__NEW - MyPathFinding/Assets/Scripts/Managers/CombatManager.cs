@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class CombatManager : MonoBehaviour {
+public class CombatManager : NetworkBehaviour
+{
 
 	// Use this for initialization
 	void Start () {

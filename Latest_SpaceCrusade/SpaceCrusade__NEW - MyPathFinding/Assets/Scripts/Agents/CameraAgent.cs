@@ -63,15 +63,15 @@ public class CameraAgent : NetworkBehaviour {
 			
 			// Mouse rotation
 			if (Input.GetMouseButton (2)) {
-                /*
+             
                 if(Input.GetKey(KeyCode.LeftShift))
                 {
-                    keysMovementSpeed = 1.0f;
+                    keysMovementSpeed = 5.0f;
                 }
                 else
                 {
-                    keysMovementSpeed = 0.4f;
-                }*/
+                    keysMovementSpeed = 1.0f;
+                }
 
 				// mouse look around
 				x = Input.GetAxis ("Mouse X");

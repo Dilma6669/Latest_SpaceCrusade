@@ -6,54 +6,24 @@ public class PathFinding : MonoBehaviour
 {
     GameManager _gameManager;
 
+    public bool _debugPathfindingNodes;
+
     bool _unitCanClimbWalls = true;
+
+    List<CubeLocationScript> _previousNodes = new List<CubeLocationScript>();
 
     void Awake()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
-
-
-    // My personal checks for pathfinding
-    private bool PathFindingChecks(CubeLocationScript neightbourScript, CubeLocationScript neightbourHalfScript) {
-
-        if (neightbourHalfScript == null || neightbourScript == null) {
-            return false;
-        }
-
-        if (neightbourScript._isPanel) // this might cause problems
-        { 
-            return false;
-        }
-
-        if (neightbourHalfScript._isPanel)
-        {
-            return false;
-        }
-
-        if (neightbourScript._cubeOccupied)
-        {
-            return false;
-        }
-
-        if (!_unitCanClimbWalls)  // if human
-        {
-            if (!neightbourScript._isHumanWalkable && !neightbourScript._isHumanClimbable && !neightbourScript._isHumanJumpable)
-            {
-                return false;
-            }
-        }
-
-		return true;
-	}
 		
 
-	public List<CubeLocationScript> FindPath(int movement, bool canClimbWalls, Vector3 startVect, Vector3 targetVect, Vector3 posOffset) {
+	public List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
 
-		_unitCanClimbWalls = canClimbWalls;
+        Debug.Log("FindPath startVect: " + startVect);
 
-		CubeLocationScript cubeStartScript = _gameManager._locationManager.GetLocationScript(startVect);
+        CubeLocationScript cubeStartScript = _gameManager._locationManager.GetLocationScript(startVect);
 		CubeLocationScript cubeTargetScript = _gameManager._locationManager.GetLocationScript(targetVect);
 
         List<CubeLocationScript> openSet = new List<CubeLocationScript>();
@@ -62,9 +32,7 @@ public class PathFinding : MonoBehaviour
 		closedSet.Clear ();
 
 		openSet.Add(cubeStartScript);
-
-        cubeStartScript.AssignCubeNeighbours();
-        cubeTargetScript.AssignCubeNeighbours();
+        _previousNodes.Add(cubeStartScript);
 
         while (openSet.Count > 0) {
 			CubeLocationScript node = openSet [0];
@@ -79,44 +47,36 @@ public class PathFinding : MonoBehaviour
 			closedSet.Add (node);
 
 			if (node == cubeTargetScript) {
-                return RetracePath (movement, cubeStartScript, cubeTargetScript);
+                return RetracePath (cubeStartScript, cubeTargetScript);
 			}
 
-            node.AssignCubeNeighbours();
+            List<Vector3> neighVects = node.NeighbourVects;
 
-            List<Vector3> neighVects = node.neighVects;
-			List<Vector3> neighHalfVects = node.neighHalfVects;
+			foreach (Vector3 vect in neighVects) {
 
-			for (int i = 0; i < neighVects.Count; i++) {
-
-				Vector3 neighbourVect = neighVects [i];
-				Vector3 neighbourHalfVect = neighHalfVects [i];
-
-				if (!_gameManager._locationManager.CheckIfLocationExists(neighbourVect)) {
-                    continue;
-				}
-				CubeLocationScript neightbourScript = _gameManager._locationManager.GetLocationScript(neighbourVect);
-                neightbourScript.AssignCubeNeighbours();
-                CubeLocationScript neighbourHalfScript = _gameManager._locationManager.GetLocationScript(neighbourHalfVect);
-                if (neighbourHalfScript != null)
+                // personal checks
+                if (_gameManager._locationManager.CheckIfCanMoveToCube(unit, node, vect) == null)
                 {
-                    neighbourHalfScript.AssignCubeNeighbours();
+                    continue;
                 }
+
+                CubeLocationScript neightbourScript = _gameManager._locationManager.GetLocationScript(vect);
 
                 if (closedSet.Contains (neightbourScript)) {
                     continue;
 				}
 
-				// personal checks
-				if (!PathFindingChecks (neightbourScript, neighbourHalfScript)) {
-                    continue;
-				}
-						
-				int newCostToNeighbour = node.gCost + GetDistance (node, neightbourScript);
+                if (_debugPathfindingNodes)
+                {
+                    neightbourScript.CreatePathFindingNode(unit.PlayerControllerID);
+                }
+                _previousNodes.Add(neightbourScript);
+
+                int newCostToNeighbour = node.gCost + GetDistance (node, neightbourScript);
 				if (newCostToNeighbour < neightbourScript.gCost || !openSet.Contains (neightbourScript)) {
 					neightbourScript.gCost = newCostToNeighbour;
 					neightbourScript.hCost = GetDistance (neightbourScript, cubeTargetScript);
-					neightbourScript.parentPathFinding = node;
+					neightbourScript._parentPathFinding = node;
 
 					if (!openSet.Contains (neightbourScript))
 						openSet.Add (neightbourScript);
@@ -127,40 +87,37 @@ public class PathFinding : MonoBehaviour
 		return null;
 	}
 
-	private List<CubeLocationScript> RetracePath(int movement, CubeLocationScript startNode, CubeLocationScript endNode) {
+	private List<CubeLocationScript> RetracePath(CubeLocationScript startNode, CubeLocationScript endNode) {
 		List<CubeLocationScript> path = new List<CubeLocationScript>();
 		CubeLocationScript currentNode = endNode;
 
 		while (currentNode != startNode) {
 			path.Add(currentNode);
-			currentNode = currentNode.parentPathFinding;
+			currentNode = currentNode._parentPathFinding;
 		}
 		path.Reverse();
-
-		List<CubeLocationScript> _finalPath = new List<CubeLocationScript>();
-
-		int pathLength = movement;
-		if (movement > path.Count) {
-			movement = path.Count;
-		}
-
-		for(int i = 0; i < movement; i++) {
-            _finalPath.Add(path[i]);
-        }
-			
-		foreach (CubeLocationScript script in _finalPath) {
-            script.CreatePathFindingNode(); // puts circles in path, visual reference
-		}
-		return _finalPath;
-
+        ResetPath();
+        return path;
 	}
 
+
+
 	int GetDistance(CubeLocationScript nodeA, CubeLocationScript nodeB) {
-		int dstX = (int)Mathf.Abs(nodeA.cubeLoc.x - nodeB.cubeLoc.x);
-		int dstY = (int)Mathf.Abs(nodeA.cubeLoc.y - nodeB.cubeLoc.y);
+		int dstX = (int)Mathf.Abs(nodeA.CubeLocVector.x - nodeB.CubeLocVector.x);
+		int dstY = (int)Mathf.Abs(nodeA.CubeLocVector.y - nodeB.CubeLocVector.y);
 
 		if (dstX > dstY)
 			return 14*dstY + 10* (dstX-dstY);
 		return 14*dstX + 10 * (dstY-dstX);
 	}
+
+    void ResetPath()
+    {
+        foreach (CubeLocationScript node in _previousNodes)
+        {
+            //Debug.Log("pathfinding DestroyPathFindingNode: ");
+            node.DestroyPathFindingNode();
+        }
+        _previousNodes.Clear();
+    }
 }

@@ -17,10 +17,10 @@ public class PanelPieceScript : MonoBehaviour {
 	public Vector3 cubeRightVector;
 
 	public CubeLocationScript cubeScriptParent = null;
-	public CubeLocationScript cubeScriptLeft = null;
-	public CubeLocationScript cubeScriptRight = null;
+	public CubeLocationScript cubeScriptRight = null; // Ontop (Floor)
+    public CubeLocationScript cubeScriptLeft = null; // Underneath (Floor)
 
-	private CubeLocationScript activeCubeScript = null;
+    private CubeLocationScript activeCubeScript = null;
 
 
 	public bool _isLadder = false;
@@ -28,13 +28,13 @@ public class PanelPieceScript : MonoBehaviour {
 	public Vector3 leftPosNode = new Vector3();
 	public Vector3 rightPosNode = new Vector3();
 
-	public Vector3 posActive;
+	//public Vector3 posActive;
 
 	public bool cubeVisible = true;
 
 	// Use this for initialization
 	void Start () {
-		_rend = GetComponent<Renderer> ();
+		_rend = GetComponent<Renderer> (); 
 	//	_rend.material.color = Color.black;
 	}
 
@@ -89,8 +89,7 @@ public class PanelPieceScript : MonoBehaviour {
         if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hit))
         {
 
-            cubeScriptParent.AssignCubeNeighbours();
-
+            //cubeScriptParent.AssignCubeNeighbours();
 
             int triIndex = hit.triangleIndex;
 
@@ -101,7 +100,7 @@ public class PanelPieceScript : MonoBehaviour {
                 triIndex == 8 || triIndex == 9) // good
             {
                 activeCubeScript = cubeScriptLeft;
-                posActive = transform.TransformPoint(leftPosNode);
+                //posActive = transform.TransformPoint(leftPosNode);
 
             }
             else if (triIndex == 4 || triIndex == 5 ||
@@ -109,7 +108,7 @@ public class PanelPieceScript : MonoBehaviour {
                 triIndex == 10 || triIndex == 11)
             {
                 activeCubeScript = cubeScriptRight;
-                posActive = transform.TransformPoint(rightPosNode);
+                //posActive = transform.TransformPoint(rightPosNode);
             }
             else
             {
@@ -117,11 +116,11 @@ public class PanelPieceScript : MonoBehaviour {
                 Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
             }
         }
-        if (cubeScriptLeft.cubeVisible || cubeScriptRight.cubeVisible)
+        if (cubeScriptLeft.CubeIsVisible || cubeScriptRight.CubeIsVisible)
         {
             if (!_panelActive)
             {
-                activeCubeScript.CubeSelect(true, posActive, this.gameObject); // needs to stay here or will cause stack overflow
+                activeCubeScript.CubeSelect(true, this.gameObject); // needs to stay here or will cause stack overflow
                 ActivatePanel(true);
             }
             else

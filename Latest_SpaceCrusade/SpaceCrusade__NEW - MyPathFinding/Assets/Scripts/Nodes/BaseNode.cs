@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class BaseNode : MonoBehaviour {
 
-    public LocationManager _locationBuilder;
+    public WorldManager _worldManager;
 
     public WorldNode worldNodeParent;
 
     public NodeTypes thisNodeType;
-    public Vector3Int nodeLocation;
+    public Vector3 nodeLocation;
     public int nodeSize;
     public int nodeRotation;
     public int nodeLayerCount;
@@ -32,13 +32,13 @@ public class BaseNode : MonoBehaviour {
 
         if (coverActive)
         {
-            _locationBuilder.AttachMapToNode(nodeType);
+            _worldManager.AttachMapToNode(nodeType);
             _nodeCover.SetActive(false);
             return false; // this is not a fail, this is deactivation
         }
         else
         {
-            _locationBuilder.AttachMapToNode(nodeType);
+            _worldManager.AttachMapToNode(nodeType);
             _nodeCover.SetActive(true);
             return true;
         }

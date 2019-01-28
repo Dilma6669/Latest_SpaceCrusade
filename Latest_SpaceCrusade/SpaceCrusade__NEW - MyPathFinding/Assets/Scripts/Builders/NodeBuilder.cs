@@ -18,13 +18,13 @@ public class NodeBuilder : MonoBehaviour {
     //////////////////////////////////////////
 
     // node objects are spawned at bottom corner each map piece
-    public GameObject InstantiateNodeObject(Vector3Int loc, NodeTypes nodePrefab, Transform parent)
+    public GameObject InstantiateNodeObject(Vector3 loc, NodeTypes nodePrefab, Transform parent)
     {
         //Debug.Log("Vector3 (gridLoc): x: " + gridLocX + " y: " + gridLocY + " z: " + gridLocZ);
         GameObject nodeObject = Instantiate(GetNodePrefab(nodePrefab), parent, false);
         nodeObject.transform.position = loc;
         nodeObject.transform.SetParent(parent);
-        nodeObject.transform.localScale = new Vector3Int(1, 1, 1);
+        nodeObject.transform.localScale = new Vector3(1, 1, 1);
 
         return nodeObject;
     }

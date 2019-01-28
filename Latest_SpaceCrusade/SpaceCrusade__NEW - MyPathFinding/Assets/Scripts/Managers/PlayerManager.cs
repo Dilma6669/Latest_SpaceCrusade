@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     public GameObject _playerObject;
+    public GameObject _playerMotherShip;
 
     BasePlayerData _playerData;
 
@@ -66,5 +67,14 @@ public class PlayerManager : MonoBehaviour
     public List<UnitData> GetPlayerUnitData()
     {
         return _playerData.allUnitData;
+    }
+
+
+    public void LoadPlayersShip(Vector3 loc, Vector3 rot) // Dont like this here
+    {
+        GameObject ship = Instantiate(_playerMotherShip, this.gameObject.transform, false);
+        ship.transform.position = loc;
+        ship.transform.localEulerAngles = rot;
+        ship.transform.SetParent(this.gameObject.transform);
     }
 }

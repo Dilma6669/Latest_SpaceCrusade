@@ -18,12 +18,6 @@ public class UnitsManager : MonoBehaviour {
     }
 
 
-    public bool SetUnitOnCube(UnitScript unitscript, Vector3 startingLoc)
-    {
-        return _gameManager._gamePlayManager.SetUnitOnCube(unitscript, startingLoc);
-    }
-
-
     public void LoadPlayersUnits(Vector3 worldNodeLoc)
     {
         List<UnitData> units = _gameManager._playerManager.GetPlayerUnitData();
@@ -33,33 +27,16 @@ public class UnitsManager : MonoBehaviour {
             Vector3 localStart = unit.UnitStartingLocalLoc;
             Vector3 worldStart = new Vector3(localStart.x + worldNodeLoc.x, localStart.y + worldNodeLoc.y, localStart.z + worldNodeLoc.z);
 
-            if (CreateUnitOnNetwork(unit, worldStart))
-            {
-                // AssignUniqueLayerToUnits();
-            }
-            else
-            {
-                Debug.LogError("Cant Place Unit on startUp: " + worldStart);
-            }
+            CreateUnitOnNetwork(unit, worldStart);
         }
     }
 
 
-    private bool CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
+    private void CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
     {
-        CubeLocationScript cubeScript = _gameManager._locationManager.CheckIfCanMoveToCube(worldStart);
-
-        if (cubeScript != null)
-        {
-            int playerID = _gameManager._playerManager.GetPlayerID();
-            _gameManager._playerManager._playerObject.GetComponent<NetworkAgent>().CmdTellServerToSpawnPlayerUnit(unitData, playerID , worldStart);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        int playerID = _gameManager._playerManager.GetPlayerID();
+        _gameManager._playerManager._playerObject.GetComponent<NetworkAgent>().CmdTellServerToSpawnPlayerUnit(unitData, playerID, worldStart);
+    } 
 
     /*
     public void AssignUniqueLayerToUnits()

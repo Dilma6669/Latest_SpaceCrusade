@@ -100,13 +100,15 @@ public class PlayerAgent : NetworkBehaviour
 
         PlayerID = _syncedVars.PlayerCount;
         _playerManager.LoadPlayerDataInToManager(PlayerID);
-        GetComponent<NetworkAgent>().CmdTellServerToUpdatePlayerCount();
+        GetComponent<NetworkAgent>().CmdAddPlayerToSession(NetID);
 
         SetUpPlayersGUI();
 
         GetComponent<CameraAgent>().SetUpCameraAndLayers(PlayerID);
 
-        _gameManager._locationManager.BuildMapForClient();
+        _playerManager.LoadPlayersShip(this.gameObject.transform.position, this.gameObject.transform.localEulerAngles);
+
+        _gameManager._worldManager.BuildMapForClient();
     }
 
     // The players personal GUI
@@ -125,7 +127,7 @@ public class PlayerAgent : NetworkBehaviour
 
     public void UpdatePlayerCount(int count)
     {
-        Debug.Log("fucken UpdatePlayerCount: " + count);
+        //Debug.Log("fucken UpdatePlayerCount: " + count);
         TotalPlayers = count;
         totalPlayerText.text = TotalPlayers.ToString();
     }

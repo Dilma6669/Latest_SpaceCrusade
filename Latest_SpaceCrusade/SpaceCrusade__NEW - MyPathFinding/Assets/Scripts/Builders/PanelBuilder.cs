@@ -7,8 +7,6 @@ public class PanelBuilder : MonoBehaviour {
 
     public GameObject panelPrefab;
 
-	private List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript> ();
-
     void Awake()
     {
         _gameManager = FindObjectOfType<GameManager>();
@@ -21,12 +19,14 @@ public class PanelBuilder : MonoBehaviour {
 		GameObject panelObject = Instantiate (panelPrefab, cubeTrans, false); // empty cube
 		panelObject.transform.SetParent (cubeTrans);
 		panelObject.name = (panel);
-		panelObject.gameObject.layer = LayerMask.NameToLayer ("Floor" + layerCount.ToString ());
+		//panelObject.gameObject.layer = LayerMask.NameToLayer ("Floor" + layerCount.ToString ());
 
 		PanelPieceScript panelScript = panelObject.gameObject.GetComponent<PanelPieceScript> ();
 		CubeLocationScript cubeScript = cubeTrans.gameObject.GetComponent<CubeLocationScript> ();
-		cubeScript.panelScriptChild = panelScript;
-		panelScript.cubeScriptParent = cubeScript;
+		cubeScript._panelScriptChild = panelScript;
+        cubeScript._isPanel = true;
+
+        panelScript.cubeScriptParent = cubeScript;
         panelScript._camera = _gameManager._playerManager._playerObject.GetComponent<Camera>();
 
         switch (panel) {
@@ -39,25 +39,25 @@ public class PanelBuilder : MonoBehaviour {
 			panelObject.transform.localPosition = new Vector3 (0, 0, 0);
 			if (rotations == 0) { // Seems good
 				if (angle == 0) { // across
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 180;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 180;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 0;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
 					}
 				} else if (angle == 90) { // Down
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 270;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 270;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 90;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
@@ -67,25 +67,25 @@ public class PanelBuilder : MonoBehaviour {
 				}
 			} else if (rotations == 1) {
 				if (angle == 0) { // across
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 180;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 180;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 0;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
 					}
 				} else if (angle == 90) { // Down
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 270;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 270;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
@@ -95,25 +95,25 @@ public class PanelBuilder : MonoBehaviour {
 				}
 			} else if (rotations == 2) {
 				if (angle == 0) { // across
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 0;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
 					}
 				} else if (angle == 90) { // Down
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 270;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 270;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
@@ -123,25 +123,25 @@ public class PanelBuilder : MonoBehaviour {
 				}
 			} else if (rotations == 3) {
 				if (angle == 0) { // across
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 0;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 180;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 180;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
 					}
 				} else if (angle == 90) { // Down
-					if (cubeScript.cubeAngle == 0) {
+					if (cubeScript.CubeAngle == 0) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -180) {
+					} else if (cubeScript.CubeAngle == -180) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -90) {
+					} else if (cubeScript.CubeAngle == -90) {
 						angle = 90;
-					} else if (cubeScript.cubeAngle == -270) {
+					} else if (cubeScript.CubeAngle == -270) {
 						angle = 90;
 					} else {
 						Debug.Log ("Got a wierd issue here!!");
@@ -172,7 +172,6 @@ public class PanelBuilder : MonoBehaviour {
 			break;
 		}
 		panelScript.panelAngle = angle;
-		cubesWithPanels.Add (cubeScript);
 	}
 
 }

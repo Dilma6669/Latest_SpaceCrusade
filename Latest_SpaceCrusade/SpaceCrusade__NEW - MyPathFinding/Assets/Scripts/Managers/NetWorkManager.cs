@@ -3,12 +3,25 @@ using UnityEngine.Networking;
 
 public class NetWorkManager : NetworkManager {
 
-	public SyncedVars _syncedVars;
+    public LocationManager _locationManager;
+    public MovementManager _movementManager;
+    public CombatManager _combatManager;
+
+    public SyncedVars _syncedVars;
 
     void Awake() {
-         Debug.Log("NETWORKMANAGER: Awake");
+
+        _locationManager = GetComponentInChildren<LocationManager>();
+        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _movementManager = GetComponentInChildren<MovementManager>();
+        if (_movementManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _combatManager = GetComponentInChildren<CombatManager>();
+        if (_combatManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _syncedVars = GetComponentInChildren<SyncedVars>();
+        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
 

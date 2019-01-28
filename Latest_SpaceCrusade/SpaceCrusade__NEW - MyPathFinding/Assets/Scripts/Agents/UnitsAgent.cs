@@ -12,7 +12,7 @@ public class UnitsAgent : NetworkBehaviour {
     PlayerManager _playerManager;
 
 
-    public GameObject _activeUnit = null;
+    UnitScript _activeUnit = null;
 
     public List<GameObject> unitObjects = new List<GameObject>();
     public List<UnitScript> unitScripts = new List<UnitScript>();
@@ -29,16 +29,17 @@ public class UnitsAgent : NetworkBehaviour {
 
 
 
-    public void SetUnitActive(bool onOff, GameObject unit = null)
+    public void SetUnitActive(bool onOff, UnitScript unit = null)
     {
         if (onOff)
         {
             if (_activeUnit)
             {
-                _activeUnit.GetComponent<UnitScript>().ActivateUnit(false);
+                _activeUnit.ActivateUnit(false); 
             }
             //_gameManager._cubeManager.SetCubeActive (false);
             _activeUnit = unit;
+            //_gameManager._locationManager.DebugTestPathFindingNodes(_activeUnit);
         }
         else
         {
@@ -46,15 +47,23 @@ public class UnitsAgent : NetworkBehaviour {
         }
     }
 
-    public void MakeActiveUnitMove(Vector3 vectorToMoveTo, Vector3 offsetPosToMoveTo)
+    public void MakeActiveUnitMove(Vector3 vectorToMoveTo)
     {
         if (_activeUnit)
         {
-            NetworkInstanceId unitNetID = _activeUnit.GetComponent<UnitScript>().NetID;
-            GetComponent<NetworkAgent>().CmdTellServerToMoveUnit(unitNetID, vectorToMoveTo, offsetPosToMoveTo);
+            NetworkInstanceId clientNetID = GetComponent<PlayerAgent>().NetID;
+            NetworkInstanceId unitNetID = _activeUnit.NetID;
+            GetComponent<NetworkAgent>().CmdTellServerToMoveUnit(clientNetID, unitNetID, vectorToMoveTo);
         }
     }
 
+    public void MakeUnitRecalculateMove(UnitScript unit, Vector3 vectorToMoveTo)
+    {
+        Debug.Log("recalulating from unitsAgent");
+        NetworkInstanceId clientNetID = GetComponent<PlayerAgent>().NetID;
+        NetworkInstanceId unitNetID = unit.NetID;
+        GetComponent<NetworkAgent>().CmdTellServerToMoveUnit(clientNetID, unitNetID, vectorToMoveTo);
+    }
 
 
     public void SetUpUnitForPlayer(GameObject unit)

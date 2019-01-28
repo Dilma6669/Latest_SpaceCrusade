@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class CubeConnections : MonoBehaviour {
+
+public class CubeConnections : NetworkBehaviour
+{
 
     GameManager _gameManager;
 
@@ -11,26 +14,35 @@ public class CubeConnections : MonoBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _locationManager = GetComponentInChildren<LocationManager> ();
+        _locationManager = GetComponent<LocationManager> ();
 		if(_locationManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 	}
 
     
     public void SetCubeNeighbours(CubeLocationScript cubeScript)
     {
+        if (!isServer)
+        {
+            Debug.LogError("Got a client trying to do server stuff here!");
+        }
+
         if (cubeScript == null)
         {
             Debug.LogError("cubeScript == null! not sure what this means just yet");
         }
         else
         {
-            cubeScript.GetNeighbourConnections();
-            cubeScript.GetHalfNeighbourConnections();
-
-            // setup Panels in cubes
-            if (cubeScript.panelScriptChild)
+            // If any of the half neighbours are panels, then this cubeScript location can be set to walkable/climable...etc
+            foreach (Vector3 vect in cubeScript.NeighbourHalfVects)
             {
-                SetUpPanelInCube(cubeScript);
+                CubeLocationScript neighbourScript = _locationManager.GetLocationScript(vect);
+                // setup Panels in cubes
+                if (neighbourScript != null && neighbourScript._isPanel)
+                {
+                   // Debug.Log("fuck we HAVE A PANEL in half neighbour");
+                    SetUpPanelInCube(neighbourScript);
+                    break;
+                }
             }
         }
     }
@@ -40,9 +52,7 @@ public class CubeConnections : MonoBehaviour {
 	// If ANY kind of wall/floor/object make neighbour cubes walkable
 	public void SetUpPanelInCube(CubeLocationScript cubeScript) {
 
-		cubeScript._isPanel = true;
-
-		PanelPieceScript panelScript = cubeScript.panelScriptChild;
+		PanelPieceScript panelScript = cubeScript._panelScriptChild;
 
         switch (panelScript.name) 
 		{
@@ -70,47 +80,50 @@ public class CubeConnections : MonoBehaviour {
 	private void SetUpFloorPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
 		Vector3 leftVect, rightVect;
-		GameObject cubeLeft, cubeRight;
 		CubeLocationScript cubeScriptLeft = null;
 		CubeLocationScript cubeScriptRight = null;
 
-        Vector3 cubeLoc = cubeScript.cubeLoc;
+        Vector3 cubeLoc = cubeScript.CubeLocVector;
 
-		leftVect = new Vector3 (cubeLoc.x, cubeLoc.y - 1, cubeLoc.z);
-		cubeScriptLeft = _locationManager.GetLocationScript(leftVect);
+        leftVect = new Vector3 (cubeLoc.x, cubeLoc.y - 1, cubeLoc.z);
+		cubeScriptLeft = _locationManager.GetLocationScript(leftVect); // underneath panel
 		if (cubeScriptLeft != null) {
 			panelScript.cubeScriptLeft = cubeScriptLeft;
 			panelScript.cubeLeftVector = leftVect;
 			panelScript.leftPosNode = new Vector3 (0, 0, -4.5f);
 			if (!cubeScriptLeft._isPanel) {
-				cubeScriptLeft._isHumanWalkable = true; 
-			}
+                cubeScriptLeft.IsAlienWalkable = true;
+            }
 			// make edges empty spaces for climbing over
 			MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y, leftVect.z - 2)); // South
 			MakeClimbableEdges (new Vector3 (leftVect.x - 2, leftVect.y, leftVect.z)); // West
 			MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y, leftVect.z + 2)); // North
 			MakeClimbableEdges (new Vector3 (leftVect.x + 2, leftVect.y, leftVect.z)); // East
-
 		}
 
-        rightVect = new Vector3 (cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
-		cubeScriptRight = _locationManager.GetLocationScript(rightVect);
-		if (cubeScriptRight != null) {
-			panelScript.cubeScriptRight = cubeScriptRight;
-			panelScript.cubeRightVector = rightVect;
-			panelScript.rightPosNode = new Vector3 (0, 0, 4.5f);
-			if (!cubeScriptRight._isPanel) {
-				cubeScriptRight._isHumanWalkable = true; 
-			}
-			// make edges empty spaces for climbing over
-			MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y, rightVect.z - 2)); // South
-			MakeClimbableEdges (new Vector3 (rightVect.x - 2, rightVect.y, rightVect.z)); // West
-			MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y, rightVect.z + 2)); // North
-			MakeClimbableEdges (new Vector3 (rightVect.x + 2, rightVect.y, rightVect.z)); // East
-		}
 
-		// 8 points for each panel
-		DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y, cubeLoc.z - 1));
+        rightVect = new Vector3(cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
+        cubeScriptRight = _locationManager.GetLocationScript(rightVect); // Ontop of panel
+        if (cubeScriptRight != null)
+        {
+            panelScript.cubeScriptRight = cubeScriptRight;
+            panelScript.cubeRightVector = rightVect;
+            panelScript.rightPosNode = new Vector3(0, 0, 4.5f);
+            if (!cubeScriptRight._isPanel)
+            {
+                cubeScriptRight.IsHumanWalkable = true;
+                cubeScriptRight.IsAlienWalkable = true;
+            }
+            // make edges empty spaces for climbing over
+            MakeClimbableEdges(new Vector3(rightVect.x, rightVect.y, rightVect.z - 2)); // South
+            MakeClimbableEdges(new Vector3(rightVect.x - 2, rightVect.y, rightVect.z)); // West
+            MakeClimbableEdges(new Vector3(rightVect.x, rightVect.y, rightVect.z + 2)); // North
+            MakeClimbableEdges(new Vector3(rightVect.x + 2, rightVect.y, rightVect.z)); // East
+        }
+
+        // 8 points for each panel
+        /*
+        DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y, cubeLoc.z - 1));
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y, cubeLoc.z - 1));
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 1, cubeLoc.y, cubeLoc.z - 1));
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y, cubeLoc.z + 0));
@@ -119,35 +132,35 @@ public class CubeConnections : MonoBehaviour {
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y, cubeLoc.z + 1));
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y, cubeLoc.z + 1));
 		DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 1, cubeLoc.y, cubeLoc.z + 1));
+        */
 
 		if (cubeScriptLeft == null) {
 			panelScript.cubeScriptLeft = panelScript.cubeScriptRight;
 			panelScript.cubeLeftVector = panelScript.cubeRightVector;
 			panelScript.leftPosNode = panelScript.rightPosNode;
-            Debug.LogWarning("cubeScript == null so making neighbours same cube");
+            //Debug.LogWarning("cubeScript == null so making neighbours same cube");
         }
 		if (cubeScriptRight == null) {
 			panelScript.cubeScriptRight = panelScript.cubeScriptLeft;
 			panelScript.cubeRightVector = panelScript.cubeLeftVector;
 			panelScript.rightPosNode = panelScript.leftPosNode;
-            Debug.LogWarning("cubeScript == null so making neighbours same cube");
+            //Debug.LogWarning("cubeScript == null so making neighbours same cube");
         }
 	}
 
 
 	private void SetUpWallPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
-		Vector3 cubeLoc = cubeScript.cubeLoc;
+		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
 		Vector3 leftVect, rightVect;
-		GameObject cubeLeft, cubeRight;
 		CubeLocationScript cubeScriptLeft = null;
 		CubeLocationScript cubeScriptRight = null;
 
-		int cubeAngle = (int)cubeScript.cubeAngle;
-		int panelAngle = (int)panelScript.panelAngle;
+		int cubeAngle = cubeScript.CubeAngle;
+		int panelAngle = panelScript.panelAngle;
 
-		panelScript._isLadder = true;
+		//panelScript._isLadder = true;
 
 		int result = (cubeAngle - panelAngle);
 		result = (((result + 180) % 360 + 360) % 360) - 180;
@@ -160,15 +173,18 @@ public class CubeConnections : MonoBehaviour {
 				panelScript.cubeScriptLeft = cubeScriptLeft;
 				panelScript.cubeLeftVector = leftVect;
 				panelScript.leftPosNode = new Vector3 (0, 0, -4.5f);
-				if (panelScript._isLadder || !cubeScriptLeft._isPanel) {
-					cubeScriptLeft._isHumanClimbable = true;
-				}
-				// make edges empty spaces for climbing over
+				if (panelScript._isLadder ) {
+					cubeScriptLeft.IsHumanClimbable = true;
+                }
+                cubeScriptLeft.IsAlienClimbable = true;
+                // make edges empty spaces for climbing over
+                /*
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y - 2, leftVect.z)); // South
 				MakeClimbableEdges (new Vector3 (leftVect.x - 2, leftVect.y, leftVect.z)); // West
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y + 2, leftVect.z)); // North
 				MakeClimbableEdges (new Vector3 (leftVect.x + 2, leftVect.y, leftVect.z)); // East
-			}
+                */
+            }
 
 			rightVect = new Vector3 (cubeLoc.x, cubeLoc.y, cubeLoc.z + 1);
 			cubeScriptRight = _locationManager.GetLocationScript(rightVect);
@@ -176,17 +192,21 @@ public class CubeConnections : MonoBehaviour {
 				panelScript.cubeScriptRight = cubeScriptRight;
 				panelScript.cubeRightVector = rightVect;
 				panelScript.rightPosNode = new Vector3 (0, 0, 4.5f);
-				if (panelScript._isLadder || !cubeScriptRight._isPanel) {
-					cubeScriptRight._isHumanClimbable = true;
+				if (panelScript._isLadder && !cubeScriptRight._isPanel) {
+					cubeScriptRight.IsHumanClimbable = true;
 				}
-				// make edges empty spaces for climbing over
+                cubeScriptRight.IsAlienClimbable = true;
+                // make edges empty spaces for climbing over
+                /*
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y - 2, rightVect.z)); // South
 				MakeClimbableEdges (new Vector3 (rightVect.x - 2, rightVect.y, rightVect.z)); // West
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y + 2, rightVect.z)); // North
 				MakeClimbableEdges (new Vector3 (rightVect.x + 2, rightVect.y, rightVect.z)); // East
-			}
+                */
+            }
 
 			// 8 points for each panel
+            /*
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y - 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y - 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 1, cubeLoc.y - 1, cubeLoc.z + 0));
@@ -196,6 +216,7 @@ public class CubeConnections : MonoBehaviour {
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x - 1, cubeLoc.y + 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y + 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 1, cubeLoc.y + 1, cubeLoc.z + 0));
+            */
 
 		} else if (result == 90 || result == -90) { //across 
 
@@ -205,15 +226,18 @@ public class CubeConnections : MonoBehaviour {
 				panelScript.cubeScriptLeft = cubeScriptLeft;
 				panelScript.cubeLeftVector = leftVect;
 				panelScript.leftPosNode = new Vector3 (-4.5f, 0, 0);
-				if (panelScript._isLadder || !cubeScriptLeft._isPanel) {
-					cubeScriptLeft._isHumanClimbable = true;
+				if (panelScript._isLadder && !cubeScriptLeft._isPanel) {
+                    cubeScriptLeft.IsHumanClimbable = true;
 				}
-				// make edges empty spaces for climbing over
+                cubeScriptLeft.IsAlienClimbable = true;
+                // make edges empty spaces for climbing over
+                /*
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y - 2, leftVect.z)); // South
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y, leftVect.z - 2)); // West
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y + 2, leftVect.z)); // North
 				MakeClimbableEdges (new Vector3 (leftVect.x, leftVect.y, leftVect.z + 2)); // East
-			}
+                */
+            }
 
 			rightVect = new Vector3 (cubeLoc.x + 1, cubeLoc.y, cubeLoc.z);
 			cubeScriptRight = _locationManager.GetLocationScript(rightVect);
@@ -221,17 +245,21 @@ public class CubeConnections : MonoBehaviour {
 				panelScript.cubeScriptRight = cubeScriptRight;
 				panelScript.cubeRightVector = rightVect;
 				panelScript.rightPosNode = new Vector3 (4.5f, 0, 0);
-				if (panelScript._isLadder || !cubeScriptRight._isPanel) {
-					cubeScriptRight._isHumanClimbable = true;
+				if (panelScript._isLadder) {
+                    cubeScriptRight.IsHumanClimbable = true;
 				}
-				// make edges empty spaces for climbing over
+                cubeScriptRight.IsAlienClimbable = true;
+                // make edges empty spaces for climbing over
+                /*
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y - 2, rightVect.z)); // South
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y, rightVect.z - 2)); // West
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y + 2, rightVect.z)); // North
 				MakeClimbableEdges (new Vector3 (rightVect.x, rightVect.y, rightVect.z + 2)); // East
-			}
+                */
+            }
 
 			// 8 points for each panel
+            /*
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y - 1, cubeLoc.z - 1));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y - 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y - 1, cubeLoc.z + 1));
@@ -241,6 +269,7 @@ public class CubeConnections : MonoBehaviour {
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y + 1, cubeLoc.z - 1));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y + 1, cubeLoc.z + 0));
 			DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 0, cubeLoc.y + 1, cubeLoc.z + 1));
+            */
 		} else {
 			Debug.Log ("SOMETHING weird: cubeAngle: " + cubeAngle + " panelAngle: " + panelAngle + " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 		}
@@ -260,9 +289,9 @@ public class CubeConnections : MonoBehaviour {
 
 	private void SetUpFloorAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
-		Vector3 cubeLoc = cubeScript.cubeLoc;
+		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
-		cubeScript._isPanel = false; // this might cause issues
+		//cubeScript._isPanel = false; // this might cause issues
 
 		Vector3 centerVect = new Vector3 (cubeLoc.x, cubeLoc.y, cubeLoc.z);
 		panelScript.cubeScriptLeft = cubeScript;
@@ -290,9 +319,9 @@ public class CubeConnections : MonoBehaviour {
 
 	private void SetUpCeilingAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
-		Vector3 cubeLoc = cubeScript.cubeLoc;
+		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
-		cubeScript._isPanel = false; // this might cause issues
+		//cubeScript._isPanel = false; // this might cause issues
 
 		Vector3 centerVect = new Vector3 (cubeLoc.x, cubeLoc.y, cubeLoc.z);
 		panelScript.cubeScriptLeft = cubeScript;
@@ -316,15 +345,16 @@ public class CubeConnections : MonoBehaviour {
 		//		DoHalfPointsForWalls (new Vector3 (cubeLoc.x + 1, cubeLoc.y - 1, cubeLoc.z + 1));
 	}
 
-
+    /*
 	private void DoHalfPointsForWalls(Vector3 nodeVect) {
 
 		CubeLocationScript nodeScript = _locationManager.GetLocationScript(nodeVect);
 		if (nodeScript != null) {
 			nodeScript._isPanel = true;
-			nodeScript._isHumanWalkable = false;
+			nodeScript.IsHumanWalkable = false;
 		}
 	}
+    */
 
 
 	private void MakeClimbableEdges(Vector3 nodeVect) {
@@ -332,7 +362,7 @@ public class CubeConnections : MonoBehaviour {
 		CubeLocationScript nodeScript = _locationManager.GetLocationScript(nodeVect);
 		if (nodeScript != null) {
 			if (!nodeScript._isPanel) {
-				nodeScript._isHumanClimbable = true; 
+				//nodeScript.IsHumanClimbable = true; 
 			}
 		}
 	}

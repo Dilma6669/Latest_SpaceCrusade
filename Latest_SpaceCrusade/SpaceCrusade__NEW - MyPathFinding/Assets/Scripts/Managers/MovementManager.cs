@@ -1,59 +1,66 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class MovementManager : MonoBehaviour {
+public class MovementManager : NetworkBehaviour
+{
 
+    LocationManager _locationManager;
 	PathFinding _pathFinding;
+    DataManipulation _dataManipulation;
 
 	private List<GameObject> unitsToMove = new List<GameObject>();
 
 
 	void Awake() {
 
-		_pathFinding = GetComponent<PathFinding> ();
+        _locationManager = transform.parent.GetComponentInChildren<LocationManager>();
+        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _pathFinding = GetComponent<PathFinding> ();
 		if(_pathFinding == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-	}
+
+        _dataManipulation = FindObjectOfType<DataManipulation>();
+        if (_dataManipulation == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
 
-
-	public void SetUnitsPath(GameObject objToMove, bool canClimbWalls, Vector3 start, Vector3 end, Vector3 posOffset) {
+    // this is now being done on sevrer and return a list of vector3 to make node visual display for path for client 
+    public int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end) {
 
         unitsToMove.Add (objToMove);
 
 		UnitScript unitScript = objToMove.GetComponent<UnitScript> ();
 
-		List<CubeLocationScript> nodes = unitScript.movePath;
-		if(unitScript.movePath.Count != 0) {
-			foreach (CubeLocationScript node in nodes) {
-				if (node.pathFindingNode) {
-                    Destroy (node.pathFindingNode);
-				}
-			}
-		}
-		unitScript.movePath.Clear ();
-        int unitsMovementStat = unitScript.UnitCombatStats[0];
-        unitScript.movePath = _pathFinding.FindPath (unitsMovementStat, canClimbWalls, start, end, posOffset);
-        objToMove.GetComponent<MovementScript>().MoveUnit();
+        List<CubeLocationScript> path = _pathFinding.FindPath(unitScript, start, end);
+        objToMove.GetComponent<MovementScript>().MoveUnit(path);
+        List<Vector3> vects = _dataManipulation.GetLocVectorsFromCubeScript(path);
+        int[] movePath = _dataManipulation.ConvertVectorsIntoIntArray(vects);
+        return movePath;
     }
 
-
-
-	public void MoveUnits() {
-
-		foreach (GameObject unit in unitsToMove) {
-			List<CubeLocationScript> nodes = unit.GetComponent<UnitScript> ().movePath;
-			foreach (CubeLocationScript node in nodes) {
-				if (node.pathFindingNode) {
-					Destroy (node.pathFindingNode);
-				}
-			}
-			unit.GetComponent<MovementScript>().MoveUnit ();
-		}
-		unitsToMove.Clear ();
-	}
 
     public void StopUnits() {
 
 
 	}
+
+    public void CreatePathFindingNodes(GameObject unit, int unitNetID, int[] path)
+    {
+        unit.GetComponent<UnitScript>().ClearPathFindingNodes();
+
+        List<Vector3> vects = _dataManipulation.ConvertIntArrayIntoVectors(path);
+
+        List<CubeLocationScript> scriptList = new List<CubeLocationScript>();
+
+        foreach(Vector3 vect in vects)
+        {
+            CubeLocationScript script = _locationManager.GetLocationScript(vect);
+            script.CreatePathFindingNode(unitNetID);
+            scriptList.Add(script);
+            //Debug.Log("pathfinding VISUAL node set at vect: " + vect);
+        }
+
+        unit.GetComponent<UnitScript>().AssignPathFindingNodes(scriptList);
+    }
 }

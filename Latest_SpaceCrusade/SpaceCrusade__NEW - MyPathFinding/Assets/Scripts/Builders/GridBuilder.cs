@@ -16,7 +16,7 @@ public class GridBuilder : MonoBehaviour {
 
     private Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup; 	// making a lookUp table for objects located at Vector3 Grid locations
 
-	private List<Vector3Int> _GridNodePositions;
+	private List<Vector3> _GridNodePositions;
 
     private int _worldNodeSize = 0;
 
@@ -25,10 +25,10 @@ public class GridBuilder : MonoBehaviour {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _mapSettings = _gameManager._locationManager._mapSettings;
+        _mapSettings = _gameManager._worldManager._mapSettings;
         if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _nodeBuilder = _gameManager._locationManager._nodeBuilder;
+        _nodeBuilder = _gameManager._worldManager._nodeBuilder;
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
 
@@ -64,7 +64,7 @@ public class GridBuilder : MonoBehaviour {
 		return _GridLocToScriptLookup;
 	}
 
-	public List<Vector3Int> GetGridNodePositions() {
+	public List<Vector3> GetGridNodePositions() {
 		return _GridNodePositions;
 	}
 
@@ -77,13 +77,13 @@ public class GridBuilder : MonoBehaviour {
         _worldNodeSize = worldNodeSize;
 
 
-        _GridNodePositions = new List<Vector3Int>();
+        _GridNodePositions = new List<Vector3>();
         _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
 
         // these are the bottom left corner axis for EACH map node
-        int startGridLocX = node.nodeLocation.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
-        int startGridLocY = node.nodeLocation.y - (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) / 2;
-        int startGridLocZ = node.nodeLocation.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)node.nodeLocation.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocY = (int)node.nodeLocation.y - (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) / 2;
+        int startGridLocZ = (int)node.nodeLocation.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
 
         BuildGridLocations(startGridLocX, startGridLocY, startGridLocZ);
 
@@ -116,7 +116,7 @@ public class GridBuilder : MonoBehaviour {
                     // Create location positions
                     ///////////////////////////////
                     // put vector location, eg, grid Location 0,0,0 and World Location 35, 0, 40 value pairs into hashmap for easy lookup
-                    Vector3Int gridLoc = new Vector3Int(gridLocX, gridLocY, gridLocZ);
+                    Vector3 gridLoc = new Vector3(gridLocX, gridLocY, gridLocZ);
 
                     // Create empty objects at locations to see the locations (debugging purposes)
                     if (_debugGridObjects)
@@ -167,7 +167,7 @@ public class GridBuilder : MonoBehaviour {
                     // Create location positions
                     ///////////////////////////////
                     // put vector location, eg, grid Location 0,0,0 and World Location 35, 0, 40 value pairs into hashmap for easy lookup
-                    Vector3Int gridLoc = new Vector3Int(gridLocX, gridLocY, gridLocZ);
+                    Vector3 gridLoc = new Vector3(gridLocX, gridLocY, gridLocZ);
 
                     // Create empty objects at locations to see the locations (debugging purposes)
                     if (_debugGridObjects)
@@ -191,13 +191,13 @@ public class GridBuilder : MonoBehaviour {
 
 
     // Create empty objects at locations to see the locations (debugging purposes)
-    private void MakeDebugObject(Vector3Int vect)
+    private void MakeDebugObject(Vector3 vect)
     {
         GameObject node = _nodeBuilder.InstantiateNodeObject(vect, NodeTypes.GridNode, this.transform);
     }
 
     // node objects are spawned at bottom corner each map piece
-    private void MakeMapNodeObject(Vector3Int vect, int startY)
+    private void MakeMapNodeObject(Vector3 vect, int startY)
     {
         //////////////////////////////////////////
         int multiple = (_worldNodeSize * _mapSettings.sizeOfMapPiecesXZ) / _worldNodeSize;

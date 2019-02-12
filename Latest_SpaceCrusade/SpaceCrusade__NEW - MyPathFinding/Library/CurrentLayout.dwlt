@@ -112,10 +112,10 @@ MonoBehaviour:
     y: 30
     width: 1904
     height: 932
-  m_MinSize: {x: 481, y: 248}
-  m_MaxSize: {x: 12006, y: 8048}
+  m_MinSize: {x: 483, y: 248}
+  m_MaxSize: {x: 12008, y: 8048}
   vertical: 0
-  controlID: 6100
+  controlID: 85
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_MinSize: {x: 102, y: 248}
   m_MaxSize: {x: 4002, y: 8048}
   vertical: 1
-  controlID: 6021
+  controlID: 13
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_MinSize: {x: 104, y: 248}
   m_MaxSize: {x: 4004, y: 8048}
   vertical: 1
-  controlID: 6043
+  controlID: 98
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -291,8 +291,8 @@ MonoBehaviour:
     y: 0
     width: 304
     height: 932
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 277, y: 74}
+  m_MaxSize: {x: 4002, y: 4024}
   m_ActualView: {fileID: 19}
   m_Panes:
   - {fileID: 19}
@@ -533,7 +533,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 843f5cfed0976cfe36fb6ffe8a948afeaa948afe74549dfeb6f4a2fec616a9fe2666b6fe08bdbcfe68f5c2fea83ccffe1efad6fe782bddfeb01debfe5e1af1fe76430aff6a5f86ff5cb794ff3a5a9affa8c6b3ffc8c6b3ff44d5b8ff80dbb8ff6ce9b8ff2ccec4ff6a08ccfff25eebff4490f7ff06dffeffe6e9ffff0e370000ee370000003800002438000064380000
+      m_ExpandedIDs: 56f9ffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -609,7 +609,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 94360000
     m_LastClickedID: 13972
-    m_ExpandedIDs: 00000000ae340000223600009c36000000ca9a3b
+    m_ExpandedIDs: 0000000074280000502a0000022b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -637,7 +637,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000ae340000223600009c36000000ca9a3b
+    m_ExpandedIDs: 0000000074280000502a0000022b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

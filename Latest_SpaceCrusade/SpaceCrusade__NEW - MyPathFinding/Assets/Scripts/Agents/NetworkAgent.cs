@@ -115,7 +115,7 @@ public class NetworkAgent : NetworkBehaviour
 
         GameObject unit = network_Unit_Objects[unitNetID];
         UnitScript unitScript = unit.GetComponent<UnitScript>();
-        int[] movePath = _gameManager._networkManager._movementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeLocVector, vectorToMoveTo);
+        int[] movePath = _gameManager._movementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeLocVector, vectorToMoveTo);
         NetworkConnection clientID = network_Client_Objects[clientNetID].GetComponent<NetworkIdentity>().connectionToClient;
         int unitID = (int)network_Unit_Objects[unitNetID].GetComponent<NetworkIdentity>().netId.Value;
         TargetSendPathVectorsToClient(clientID, network_Unit_Objects[unitNetID], unitID, movePath);
@@ -125,7 +125,7 @@ public class NetworkAgent : NetworkBehaviour
     void TargetSendPathVectorsToClient(NetworkConnection clientID, GameObject unit, int unitID, int[] pathVects)
     {
         //Debug.Log("Creating pathFinding NOdes on client: " + clientID);
-       _gameManager._networkManager._movementManager.CreatePathFindingNodes(unit, unitID, pathVects);
+       _gameManager._movementManager.CreatePathFindingNodes(unit, unitID, pathVects);
     }
 
 

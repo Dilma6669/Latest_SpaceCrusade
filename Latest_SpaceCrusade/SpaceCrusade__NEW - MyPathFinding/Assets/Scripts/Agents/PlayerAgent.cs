@@ -89,7 +89,7 @@ public class PlayerAgent : NetworkBehaviour
         if (!isLocalPlayer) return;
         Debug.Log("A network Player object has been created");
 
-        _playerManager._playerObject = this.gameObject;
+        _playerManager.PlayerObject = this.gameObject;
 
         transform.SetParent(_playerManager.transform);
 
@@ -119,7 +119,7 @@ public class PlayerAgent : NetworkBehaviour
         _uiManager.GetComponent<Canvas>().enabled = true;
 
         playerIDText.text = PlayerID.ToString();
-        playerNameText.text = _playerManager.GetPlayerName();
+        playerNameText.text = _playerManager.PlayerName;
         seedNumText.text = GlobalSeed.ToString();
     }
 

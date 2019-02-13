@@ -1,27 +1,51 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class GridBuilder : MonoBehaviour {
+public class GridBuilder : MonoBehaviour
+{
+    ////////////////////////////////////////////////
+
+    private static GridBuilder _instance;
+
+    ////////////////////////////////////////////////
 
     GameManager _gameManager;
-
     MapSettings _mapSettings;
     NodeBuilder _nodeBuilder;
 
+    ////////////////////////////////////////////////
+
+    private BaseNode _node;
+
+    private Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup;     // making a lookUp table for objects located at Vector3 Grid locations
+
+    private List<Vector3> _GridNodePositions;
+
+    private int _worldNodeSize = 0;
+
+    ////////////////////////////////////////////////
 
     public bool _debugGridObjects; // debugging purposes
     public bool _debugNodeSpheres = false;
 
-    private BaseNode _node;
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-    private Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup; 	// making a lookUp table for objects located at Vector3 Grid locations
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
 
-	private List<Vector3> _GridNodePositions;
 
-    private int _worldNodeSize = 0;
-
-    void Awake() {
-
+    void Start()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
@@ -31,9 +55,11 @@ public class GridBuilder : MonoBehaviour {
         _nodeBuilder = _gameManager._worldManager._nodeBuilder;
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-
         _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
     }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void SetCubeScriptToGridLocation(Vector3 vect, CubeLocationScript script)
     {

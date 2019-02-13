@@ -1,31 +1,45 @@
 ﻿using UnityEngine;
-using UnityEngine.Networking;
 
-
-public class CubeConnections : NetworkBehaviour
+public class CubeConnections : MonoBehaviour
 {
+    ////////////////////////////////////////////////
+
+    private static CubeConnections _instance;
+
+    ////////////////////////////////////////////////
 
     GameManager _gameManager;
-
     LocationManager _locationManager;
 
-	void Awake() {
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    void Start()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _locationManager = GetComponent<LocationManager> ();
+        _locationManager = _gameManager._locationManager;
 		if(_locationManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
 	}
 
-    
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     public void SetCubeNeighbours(CubeLocationScript cubeScript)
     {
-        if (!isServer)
-        {
-            Debug.LogError("Got a client trying to do server stuff here!");
-        }
-
         if (cubeScript == null)
         {
             Debug.LogError("cubeScript == null! not sure what this means just yet");

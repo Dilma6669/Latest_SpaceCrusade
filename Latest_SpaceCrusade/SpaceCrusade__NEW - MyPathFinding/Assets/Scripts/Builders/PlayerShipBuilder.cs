@@ -12,8 +12,6 @@ public class PlayerShipBuilder : MonoBehaviour {
     public List<int[,]> floors = new List<int[,]>();
     public List<int[,]> vents = new List<int[,]>();
 
-    private bool loadVents = false;
-
 
     void Awake()
     {

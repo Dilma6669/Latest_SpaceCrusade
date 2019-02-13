@@ -1,39 +1,54 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class LocationManager : NetworkBehaviour
+public class LocationManager : MonoBehaviour
 {
+    ////////////////////////////////////////////////
 
-    GameManager _gameManager;
+    private static LocationManager _instance;
 
-    public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
-
-    public Dictionary<int, CubeLocationScript> _unitLocation = new Dictionary<int, CubeLocationScript>();
-
-
-    public CubeLocationScript _activeCube = null; // hmmm dont know if should be here
+    ////////////////////////////////////////////////
 
     public CubeConnections _cubeConnections;
 
+    ////////////////////////////////////////////////
+
+    GameManager _gameManager;
+
+    ////////////////////////////////////////////////
+
+    public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
+    public Dictionary<int, CubeLocationScript> _unitLocation = new Dictionary<int, CubeLocationScript>();
+
+    private CubeLocationScript _activeCube = null; // hmmm dont know if should be here
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     void Awake()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _cubeConnections = GetComponent<CubeConnections>();
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
         if (_cubeConnections == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    void Start()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void AddCubeScriptToLocationLookup(Dictionary<Vector3, CubeLocationScript> locs)
     {
-        if (!isServer)
-        {
-            Debug.LogError("Got a client trying to do server stuff here!");
-        }
-
         foreach (Vector3 vect in locs.Keys)
         {
             if (!_LocationLookup.ContainsKey(vect))
@@ -50,12 +65,8 @@ public class LocationManager : NetworkBehaviour
 
 
 
-    public CubeLocationScript GetLocationScript(Vector3 loc) {
-
-        if (!isServer)
-        {
-            Debug.LogError("Got a client trying to do server stuff here!");
-        }
+    public CubeLocationScript GetLocationScript(Vector3 loc)
+    {
         //Debug.Log("GetLocationScript");
 
         if (_LocationLookup.ContainsKey(loc)) {
@@ -66,13 +77,8 @@ public class LocationManager : NetworkBehaviour
 	}
 
 
-    public CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc) {
-
-        if (!isServer)
-        {
-            Debug.LogError("Got a client trying to do server stuff here!");
-        }
-
+    public CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc)
+    {
         //Debug.Log("CheckIfCanMoveToCube loc: " + neighloc);
 
         CubeLocationScript cubeScript = GetLocationScript(neighloc);
@@ -140,11 +146,6 @@ public class LocationManager : NetworkBehaviour
 
     public bool SetUnitOnCube(UnitScript unitScript, Vector3 loc)
     {
-        if (!isServer)
-        {
-            Debug.LogError("Got a client trying to do server stuff here!");
-        }
-
         //Debug.Log("SetUnitOnCube");
 
         int unitNetId = (int)unitScript.NetID.Value;
@@ -188,7 +189,7 @@ public class LocationManager : NetworkBehaviour
         {
             _activeCube = GetLocationScript(cubeVect);
             _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
-            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeActiveUnitMove(cubeVect);
+            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeActiveUnitMove(cubeVect);
         }
     }
 

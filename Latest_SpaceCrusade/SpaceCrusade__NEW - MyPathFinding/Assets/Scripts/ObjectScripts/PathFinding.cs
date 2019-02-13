@@ -1,25 +1,50 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class PathFinding : MonoBehaviour
 {
+    ////////////////////////////////////////////////
+
+    private static PathFinding _instance;
+
+    ////////////////////////////////////////////////
+
     GameManager _gameManager;
+
+    ////////////////////////////////////////////////
 
     public bool _debugPathfindingNodes;
 
-    bool _unitCanClimbWalls = true;
+    ////////////////////////////////////////////////
 
-    List<CubeLocationScript> _previousNodes = new List<CubeLocationScript>();
+    private bool _unitCanClimbWalls = true;
+    private List<CubeLocationScript> _previousNodes = new List<CubeLocationScript>();
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
-		
 
-	public List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    public List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
 
         Debug.Log("FindPath startVect: " + startVect);
 

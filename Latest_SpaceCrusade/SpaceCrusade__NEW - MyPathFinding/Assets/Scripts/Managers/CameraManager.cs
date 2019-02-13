@@ -1,35 +1,59 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraManager : MonoBehaviour {
+public class CameraManager : MonoBehaviour
+{
+    ////////////////////////////////////////////////
+
+    private static CameraManager _instance;
+
+    ////////////////////////////////////////////////
 
     [HideInInspector]
     public CameraAgent _cameraAgent;
 
     // Layer INfo
-    int startLayer = 0;
-    int maxLayer = 20; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
-    int minLayer = 0;
+    int _startLayer = 0;
+    int _maxLayer = 20; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
+    int _minLayer = 0;
 
+    ////////////////////////////////////////////////
 
     public int LayerStart
     {
-        get { return startLayer; }
-        set { startLayer = value; }
+        get { return _startLayer; }
+        set { _startLayer = value; }
     }
     public int LayerMax
     {
-        get { return maxLayer; }
-        set { maxLayer = value; }
+        get { return _maxLayer; }
+        set { _maxLayer = value; }
     }
     public int LayerMin
     {
-        get { return minLayer; }
-        set { minLayer = value; }
+        get { return _minLayer; }
+        set { _minLayer = value; }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-	public KeyValuePair<Vector3, Vector3> GetCameraStartPosition(int playerID) {
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    public KeyValuePair<Vector3, Vector3> GetCameraStartPosition(int playerID) {
 
         //Debug.Log("Finding Camera for player: " + playerID);
 

@@ -118,12 +118,12 @@ public class UnitScript : NetworkBehaviour {
 
         if (onOff)
         {
-            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this);
+            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this);
             PanelPieceChangeColor("Red");
         }
         else
         {
-            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().SetUnitActive(false);
+            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().SetUnitActive(false);
             PanelPieceChangeColor("White");
         }
         _unitActive = onOff;
@@ -133,7 +133,7 @@ public class UnitScript : NetworkBehaviour {
     void OnMouseDown()
     {
         //if (!isLocalPlayer) return;
-        if (PlayerControllerID == _gameManager._playerManager._playerObject.GetComponent<PlayerAgent>().PlayerID)
+        if (PlayerControllerID == _gameManager._playerManager.PlayerObject.GetComponent<PlayerAgent>().PlayerID)
         {
             if (!_unitActive)
             {

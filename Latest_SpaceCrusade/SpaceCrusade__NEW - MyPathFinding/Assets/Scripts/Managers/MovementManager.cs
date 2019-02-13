@@ -1,20 +1,44 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class MovementManager : NetworkBehaviour
+public class MovementManager : MonoBehaviour
 {
+    ////////////////////////////////////////////////
 
+    private static MovementManager _instance;
+
+    ////////////////////////////////////////////////
+
+    GameManager     _gameManager;
     LocationManager _locationManager;
-	PathFinding _pathFinding;
+	PathFinding      _pathFinding;
     DataManipulation _dataManipulation;
 
-	private List<GameObject> unitsToMove = new List<GameObject>();
+    ////////////////////////////////////////////////
 
+    private List<GameObject> unitsToMove = new List<GameObject>();
 
-	void Awake() {
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-        _locationManager = transform.parent.GetComponentInChildren<LocationManager>();
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    void Start()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _locationManager = _gameManager._locationManager;
         if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _pathFinding = GetComponent<PathFinding> ();
@@ -24,6 +48,8 @@ public class MovementManager : NetworkBehaviour
         if (_dataManipulation == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     // this is now being done on sevrer and return a list of vector3 to make node visual display for path for client 
     public int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end) {

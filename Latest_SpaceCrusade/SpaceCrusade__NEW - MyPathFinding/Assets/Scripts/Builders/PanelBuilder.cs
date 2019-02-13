@@ -1,22 +1,48 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class PanelBuilder : MonoBehaviour {
+public class PanelBuilder : MonoBehaviour
+{
+    ////////////////////////////////////////////////
+
+    private static PanelBuilder _instance;
+
+    ////////////////////////////////////////////////
+
+    public GameObject _panelPrefab;
+
+    ////////////////////////////////////////////////
 
     GameManager _gameManager;
 
-    public GameObject panelPrefab;
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
+        if (_panelPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
+    void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void CreatePanelForCube(string panel, Transform cubeTrans, int layerCount, int angle, int rotations) {
 
-		GameObject panelObject = Instantiate (panelPrefab, cubeTrans, false); // empty cube
+		GameObject panelObject = Instantiate (_panelPrefab, cubeTrans, false); // empty cube
 		panelObject.transform.SetParent (cubeTrans);
 		panelObject.name = (panel);
 		//panelObject.gameObject.layer = LayerMask.NameToLayer ("Floor" + layerCount.ToString ());
@@ -27,7 +53,7 @@ public class PanelBuilder : MonoBehaviour {
         cubeScript._isPanel = true;
 
         panelScript.cubeScriptParent = cubeScript;
-        panelScript._camera = _gameManager._playerManager._playerObject.GetComponent<Camera>();
+        panelScript._camera = _gameManager._playerManager.PlayerObject.GetComponent<Camera>();
 
         switch (panel) {
 		case "Floor":

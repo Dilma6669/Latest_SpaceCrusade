@@ -1,13 +1,89 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-
 public class PlayerManager : MonoBehaviour
 {
-    public GameObject _playerObject;
+    ////////////////////////////////////////////////
+
+    private static PlayerManager _instance;
+
+    ////////////////////////////////////////////////
+
+    private GameObject _playerObject;
+    private BasePlayerData _playerData;
+
+    ////////////////////////////////////////////////
+
     public GameObject _playerMotherShip;
 
-    BasePlayerData _playerData;
+    ////////////////////////////////////////////////
+
+    public GameObject PlayerObject
+    {
+        get { return _playerObject; }
+        set { _playerObject = value; }
+    }
+
+    public BasePlayerData PlayerData
+    {
+        get { return _playerData; }
+        set { _playerData = value; }
+    }
+
+
+    public int PlayerID
+    {
+        get { return _playerObject.GetComponent<PlayerAgent>().PlayerID; }
+    }
+
+    public string PlayerName
+    {
+        get { return _playerData.name; }
+    }
+
+    public List<int[,]> PlayerShipSmallFloorDataPART1
+    {
+        get { return _playerData.smallShipFloorsPART1; }
+    }
+
+    public List<int[,]> PlayerShipSmallFloorDataPART2
+    {
+        get { return _playerData.smallShipFloorsPART2; }
+    }
+
+    public List<int[,]> PlayerShipSmallVentDataPART1
+    {
+        get { return _playerData.smallShipVentsPART1; }
+    }
+
+    public List<int[,]> PlayerShipSmallVentDataPART2
+    {
+        get { return _playerData.smallShipVentsPART2; }
+    }
+
+    public List<UnitData> PlayerUnitData
+    {
+        get { return _playerData.allUnitData; }
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+        if (_playerMotherShip == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void LoadPlayerDataInToManager(int playerID)
     {
@@ -31,44 +107,8 @@ public class PlayerManager : MonoBehaviour
                 Debug.Log("SOMETHING WENT WRONG HERE: playerID: " + playerID);
                 break;
         }
-        _playerData = data;
+        PlayerData = data;
     }
-
-    public int GetPlayerID()
-    {
-        return _playerObject.GetComponent<PlayerAgent>().PlayerID;
-    }
-
-    public string GetPlayerName()
-    {
-        return _playerData.name;
-    }
-
-    public List<int[,]> GetPlayerShipSmallFloorDataPART1()
-    {
-        return _playerData.smallShipFloorsPART1;
-    }
-
-    public List<int[,]> GetPlayerShipSmallFloorDataPART2()
-    {
-        return _playerData.smallShipFloorsPART2;
-    }
-
-    public List<int[,]> GetPlayerShipSmallVentDataPART1()
-    {
-        return _playerData.smallShipVentsPART1;
-    }
-
-    public List<int[,]> GetPlayerShipSmallVentDataPART2()
-    {
-        return _playerData.smallShipVentsPART2;
-    }
-
-    public List<UnitData> GetPlayerUnitData()
-    {
-        return _playerData.allUnitData;
-    }
-
 
     public void LoadPlayersShip(Vector3 loc, Vector3 rot) // Dont like this here
     {

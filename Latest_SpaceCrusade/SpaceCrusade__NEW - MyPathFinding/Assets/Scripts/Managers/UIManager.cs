@@ -1,10 +1,17 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 
+public class UIManager : MonoBehaviour
+{
+    ////////////////////////////////////////////////
 
-public class UIManager : MonoBehaviour {
+    private static UIManager _instance;
+
+    ////////////////////////////////////////////////
 
     GameManager _gameManager;
+    
+    ////////////////////////////////////////////////
 
     public delegate void ChangeLayerEvent(int change);
 	public static event ChangeLayerEvent OnChangeLayerClick;
@@ -16,12 +23,29 @@ public class UIManager : MonoBehaviour {
 	public Text _playerTotalGUINum;
 
 
-	// Use this for initialization
-	void Awake () {
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    void Start()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
 	public void ChangeLayer(bool UpDown) {
 
@@ -41,16 +65,5 @@ public class UIManager : MonoBehaviour {
 		_playerTotalGUINum.text = total.ToString();
 
 	}
-
-
-
-	//	public void MoveUnits(bool goStop) {
-	//
-	//		if (goStop) {
-	//			_gameManager._movementManager.MoveUnits ();
-	//		} else {
-	//			_gameManager._movementManager.StopUnits ();
-	//		}
-	//	}
 
 }

@@ -110,7 +110,7 @@ public class MovementScript : MonoBehaviour {
     {
         if(_unitInterrupted)
         {
-            _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
             _unitInterrupted = false;
         }
 
@@ -191,6 +191,6 @@ public class MovementScript : MonoBehaviour {
     {
         Debug.Log("IEnumerator RecalculateMove");
         yield return new WaitForSeconds(waitTime);
-        _gameManager._playerManager._playerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+        _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
     }
 }

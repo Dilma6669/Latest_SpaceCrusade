@@ -2,47 +2,49 @@
 
 public class GameManager : MonoBehaviour {
 
-    [HideInInspector]
-    public WorldManager _worldManager;
-    [HideInInspector]
-    public PlayerManager _playerManager;
-    [HideInInspector]
-    public CameraManager _cameraManager;
-    [HideInInspector]
-    public UIManager _uiManager;
-    [HideInInspector]
-    public LocationManager _locationManager;
-    [HideInInspector]
-    public NetWorkManager _networkManager;
-    [HideInInspector]
-    public UnitsManager _unitsManager;
+    ////////////////////////////////////////////////
 
+    private static GameManager _instance;
 
+    ////////////////////////////////////////////////
 
-    void Awake() {
+    public WorldManager     _worldManager;
+    public PlayerManager    _playerManager;
+    public LocationManager  _locationManager;
+    public MovementManager  _movementManager;
+    public CombatManager    _combatManager;
+    public CameraManager    _cameraManager;
+    public UIManager        _uiManager;
+    public NetWorkManager   _networkManager;
+    public UnitsManager     _unitsManager;
 
-        _worldManager = GetComponentInChildren<WorldManager>();
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
         if (_worldManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _playerManager = GetComponentInChildren<PlayerManager>();
         if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _cameraManager = GetComponentInChildren<CameraManager>();
-        if (_cameraManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _uiManager = GetComponentInChildren<UIManager>();
-        if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _locationManager = GetComponentInChildren<LocationManager>();
         if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _networkManager = GetComponentInChildren<NetWorkManager>();
+        if (_movementManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_combatManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_cameraManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
         if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _unitsManager = GetComponentInChildren<UnitsManager> ();
-		if(_unitsManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
+        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void StartGame(Vector3 worldNodeLoc)
     {

@@ -3,36 +3,110 @@ using UnityEngine;
 
 public class WorldBuilder : MonoBehaviour
 {
-    GameManager _gameManager;
+    ////////////////////////////////////////////////
 
+    private static WorldBuilder _instance;
+
+    ////////////////////////////////////////////////
+
+    GameManager _gameManager;
     MapSettings _mapSettings;
     NodeBuilder _nodeBuilder;
 
-    private List<Vector3> worldVects;
-    private Dictionary<WorldNode, List<KeyValuePair<Vector3, int>>> connectorVectsAndRotations;
-    private List<Vector3> outerVects;
-    private List<Vector3> dockingVects;
+    ////////////////////////////////////////////////
 
-    private List<WorldNode> WorldNodes;
-    private Dictionary<WorldNode, List<MapNode>> worldNodeAndWrapperNodes;
-    private Dictionary<WorldNode, List<ConnectorNode>> worldNodeAndconnectorNodes;
-    private List<MapNode> outerNodes;
-    //private List<MapNode> dockingNodes;
+    private List<Vector3> _worldVects;
+    private Dictionary<WorldNode, List<KeyValuePair<Vector3, int>>> _connectorVectsAndRotations;
+    private List<Vector3> _outerVects;
+    private List<Vector3> _dockingVects;
+
+    private List<WorldNode> _WorldNodes;
+    private Dictionary<WorldNode, List<MapNode>> _worldAndWrapperNodes;
+    private Dictionary<WorldNode, List<ConnectorNode>> _worldAndconnectorNodes;
+    private List<MapNode> _outerNodes;
+    //private List<MapNode> _dockingNodes;
 
     private int lowestYpos = 10000;
     private int highestYpos = 0;
 
-    Dictionary<Vector3, int[]> NEW_WORLD_GRID = new Dictionary<Vector3, int[]>();
+    private Dictionary<Vector3, int[]> NEW_WORLD_GRID = new Dictionary<Vector3, int[]>();
 
-    bool LOADPREBUILT_STRUCTURE = true;
+    private bool LOADPREBUILT_STRUCTURE = true;
 
-    int MAPTYPE_OUTER = -1;
-    int MAPTYPE_MAP = 0;
-    int MAPTYPE_CONNECTOR = 2;
-    int MAPTYPE_CONNECTOR_UP = 4;
-    int MAPTYPE_SHIPPORT = 6;
+    private static int MAPTYPE_OUTER = -1;
+    private static int MAPTYPE_MAP = 0;
+    private static int MAPTYPE_CONNECTOR = 2;
+    private static int MAPTYPE_CONNECTOR_UP = 4;
+    private static int MAPTYPE_SHIPPORT = 6;
+
+    ////////////////////////////////////////////////
+
+    public List<Vector3> WorldVects
+    {
+        get { return _worldVects; }
+        set { _worldVects = value; }
+    }
+
+    public Dictionary<WorldNode, List<KeyValuePair<Vector3, int>>> ConnectorVectsAndRotations
+    {
+        get { return _connectorVectsAndRotations; }
+        set { _connectorVectsAndRotations = value; }
+    }
+
+    public List<Vector3> OuterVects
+    {
+        get { return _outerVects; }
+        set { _outerVects = value; }
+    }
+
+    public List<Vector3> DockingVects
+    {
+        get { return _dockingVects; }
+        set { _dockingVects = value; }
+    }
+
+    public List<WorldNode> WorldNodes
+    {
+        get { return _WorldNodes; }
+        set { _WorldNodes = value; }
+    }
+
+    public Dictionary<WorldNode, List<MapNode>> WorldAndWrapperNodes
+    {
+        get { return _worldAndWrapperNodes; }
+        set { _worldAndWrapperNodes = value; }
+    }
+
+    public Dictionary<WorldNode, List<ConnectorNode>> WorldAndConnectorNodes
+    {
+        get { return _worldAndconnectorNodes; }
+        set { _worldAndconnectorNodes = value; }
+    }
+
+    public List<MapNode> OuterNodes
+    {
+        get { return _outerNodes; }
+        set { _outerNodes = value; }
+    }
+
+    //public List<MapNode> GetDockingNodes() { return dockingNodes; }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
@@ -44,31 +118,25 @@ public class WorldBuilder : MonoBehaviour
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
-
-    public List<WorldNode> GetWorldNodes() { return WorldNodes; }
-    public Dictionary<WorldNode, List<MapNode>> GetWorldAndWrapperNodes() { return worldNodeAndWrapperNodes; }
-    public Dictionary<WorldNode, List<ConnectorNode>> GetWorldAndConnectorNodes() { return worldNodeAndconnectorNodes; }
-    public List<MapNode> GetOuterNodes() { return outerNodes; }
-    //public List<MapNode> GetDockingNodes() { return dockingNodes; }
-
-
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void BuildWorldNodes(float waitTime)
     {
         List<List<Vector3>> container = GetWorld_Outer_DockingVects();
-        worldVects = container[0];
-        outerVects = container[1];
-        //dockingVects = container[2];
-        outerNodes = CreateOuterNodes(this.transform, outerVects);
+        WorldVects = container[0];
+        OuterVects = container[1];
+        //DockingVects = container[2];
+        OuterNodes = CreateOuterNodes(this.transform, OuterVects);
 
-        WorldNodes = CreateWorldNodes(worldVects);
+        WorldNodes = CreateWorldNodes(WorldVects);
         GetWorldNodeNeighbours();
-        worldNodeAndWrapperNodes = CreateMapNodes(WorldNodes);
+        WorldAndWrapperNodes = CreateMapNodes(WorldNodes);
 
-        connectorVectsAndRotations = GetConnectorVects(WorldNodes);
-        worldNodeAndconnectorNodes = CreateConnectorNodes(connectorVectsAndRotations);
+        ConnectorVectsAndRotations = GetConnectorVects(WorldNodes);
+        WorldAndConnectorNodes = CreateConnectorNodes(ConnectorVectsAndRotations);
 
-        //dockingNodes = CreateDockingNodes(dockingVects);
+        //DockingNodes = CreateDockingNodes(dockingVects);
 
     }
 

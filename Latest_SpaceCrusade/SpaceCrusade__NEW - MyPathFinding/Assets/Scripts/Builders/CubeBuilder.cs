@@ -2,30 +2,52 @@
 
 public class CubeBuilder : MonoBehaviour {
 
-    GameManager _gameManager;
+    ////////////////////////////////////////////////
 
-    [HideInInspector]
+    private static CubeBuilder _instance;
+
+    ////////////////////////////////////////////////
+
     public PanelBuilder _panelBuilder;
-    [HideInInspector]
     public ObjectBuilder _objectBuilder;
-
 
     public GameObject _defaultCubePrefab; // Debugging purposes
 
+    ////////////////////////////////////////////////
+
+    GameManager _gameManager;
+
+    ////////////////////////////////////////////////
+
 	private int rotationY = 0;
 
-	void Awake()
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
+        if (_panelBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_objectBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_defaultCubePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
+    void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
-        _panelBuilder = GetComponentInChildren<PanelBuilder> ();
-		if(_panelBuilder == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
-		_objectBuilder = GetComponentInChildren<ObjectBuilder> ();
-		if(_objectBuilder == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-	}
-
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public CubeLocationScript CreateCubeObject(Vector3 gridLoc, int cubeType, int rotations, int layerCount, Transform parent)
     {

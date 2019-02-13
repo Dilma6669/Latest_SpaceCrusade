@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 
-public class NodeBuilder : MonoBehaviour {
+public class NodeBuilder : MonoBehaviour
+{
+    ////////////////////////////////////////////////
+
+    private static NodeBuilder _instance;
+
+    ////////////////////////////////////////////////
 
     public GameObject _gridObjectPrefab; // Debugging purposes
     public GameObject _worldNodePrefab; // object that shows Map nodes
@@ -14,8 +20,34 @@ public class NodeBuilder : MonoBehaviour {
     public GameObject _largeGarageCoverPrefab;
     public GameObject _connectorCoverPrefab;
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-    //////////////////////////////////////////
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
+        if (_gridObjectPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_worldNodePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_mapNodePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_connectorNodePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_outerNodePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_dockingNodePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_normalCoverPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_openCoverPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_largeGarageCoverPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_connectorCoverPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     // node objects are spawned at bottom corner each map piece
     public GameObject InstantiateNodeObject(Vector3 loc, NodeTypes nodePrefab, Transform parent)

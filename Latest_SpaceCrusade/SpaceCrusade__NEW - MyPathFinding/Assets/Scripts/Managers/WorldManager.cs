@@ -4,72 +4,67 @@ using UnityEngine;
 
 public class WorldManager : MonoBehaviour {
 
-    GameManager _gameManager;
+    ////////////////////////////////////////////////
 
+    private static WorldManager _instance;
+    private static List<WorldNode> _worldNodes;
+
+    ////////////////////////////////////////////////
+
+    public WorldBuilder     _worldBuilder;
+    public GridBuilder      _gridBuilder;
+    public CubeBuilder      _cubeBuilder;
+    public MapPieceBuilder  _mapPieceBuilder;
+    public OuterZoneBuilder _outerZoneBuilder;
+    public NodeBuilder      _nodeBuilder;
+    public MapSettings      _mapSettings;
+
+    ////////////////////////////////////////////////
+
+    public List<WorldNode> WorldNodes
+    {
+        get { return _worldNodes; }
+        set { _worldNodes = value; }
+    }
+
+    ////////////////////////////////////////////////
+
+    GameManager     _gameManager;
     LocationManager _locationManager;
 
-    [HideInInspector]
-    public WorldBuilder _worldBuilder;
-    [HideInInspector]
-    public GridBuilder _gridBuilder;
-    [HideInInspector]
-    public CubeBuilder _cubeBuilder;
-    [HideInInspector]
-    public MapPieceBuilder _mapPieceBuilder;
-    [HideInInspector]
-    public OuterZoneBuilder _outerZoneBuilder;
-    [HideInInspector]
-    public PlayerShipBuilder _playerShipBuilder;
-    [HideInInspector]
-    public NodeBuilder _nodeBuilder;
-
-
-    [HideInInspector]
-    public MapSettings _mapSettings;
-
-
-
-    public List<WorldNode> _worldNodes;
-
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
 
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _locationManager = _gameManager._locationManager;
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-
-        _worldBuilder = GetComponentInChildren<WorldBuilder>();
         if (_worldBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _gridBuilder = GetComponentInChildren<GridBuilder>();
         if (_gridBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _cubeBuilder = GetComponentInChildren<CubeBuilder>();
         if (_cubeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _mapPieceBuilder = GetComponentInChildren<MapPieceBuilder>();
         if (_mapPieceBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _outerZoneBuilder = GetComponentInChildren<OuterZoneBuilder>();
         if (_outerZoneBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _nodeBuilder = GetComponentInChildren<NodeBuilder>();
         if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-
-
-        _mapSettings = GetComponent<MapSettings>();
-        if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
     }
 
+    void Start()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _locationManager = _gameManager._locationManager;
+        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
 
-    //////////////////////////////////////////
-    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     public void AttachMapToNode<T>(T node) where T : BaseNode
     {
         if (node.thisNodeType == NodeTypes.WorldNode)
@@ -91,8 +86,7 @@ public class WorldManager : MonoBehaviour {
         }
     }
 
-    //////////////////////////////////////////
-    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+
     private void AttachMapPiecesToWorldNode(WorldNode worldNode)
     {
         int mapCount = 0;
@@ -120,15 +114,14 @@ public class WorldManager : MonoBehaviour {
             _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
             _locationManager.AddCubeScriptToLocationLookup(_gridBuilder.GetGridLocations()); // needs to be after AttachMapPieceToMapNode
             _mapPieceBuilder.SetPanelsNeighbours();
-            mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
-            mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+            mapNode.mapFloorData = _mapPieceBuilder.MapFloorData;
+            mapNode.mapVentData = _mapPieceBuilder.MapVentData;
             mapCount++;
         }
         _gameManager.StartGame(worldNode.nodeLocation); // <<<<<< start the fucking game bitch
     }
 
-    //////////////////////////////////////////
-    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+
     private void AttachMapPieceToMapNode(MapNode mapNode)
     {
         Vector3 nodeVect = mapNode.nodeLocation;
@@ -144,12 +137,11 @@ public class WorldManager : MonoBehaviour {
         _locationManager.AddCubeScriptToLocationLookup(_gridBuilder.GetGridLocations()); // needs to be after AttachMapPieceToMapNode
         _mapPieceBuilder.SetPanelsNeighbours();
         mapNode.RemoveDoorPanels();
-        mapNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
-        mapNode.mapVentData = _mapPieceBuilder.GetMapVentData();
+        mapNode.mapFloorData = _mapPieceBuilder.MapFloorData;
+        mapNode.mapVentData = _mapPieceBuilder.MapVentData;
     }
 
-    //////////////////////////////////////////
-    /// THESE NEED TO BE IN A DIFFFERNT SCRIPT
+
     private void AttachMapPieceToConnectorNode(ConnectorNode connectNode)
     {
         Vector3 nodeVect = connectNode.nodeLocation;
@@ -170,7 +162,6 @@ public class WorldManager : MonoBehaviour {
 
     /////////////////////////////////////////////////
 
-
     public void BuildMapForClient()
     {
         StartCoroutine(BuildGridEnumerator());
@@ -183,10 +174,10 @@ public class WorldManager : MonoBehaviour {
 
         // Get the World Nodes
         _worldBuilder.BuildWorldNodes(buildTime);
-        _worldNodes = _worldBuilder.GetWorldNodes();
+        _worldNodes = _worldBuilder.WorldNodes;
 
         // Get the Map Nodes around the World Nodes
-        Dictionary<WorldNode, List<MapNode>> worldAndMapNodes = _worldBuilder.GetWorldAndWrapperNodes();
+        Dictionary<WorldNode, List<MapNode>> worldAndMapNodes = _worldBuilder.WorldAndWrapperNodes;
 
         // World Nodes and Maps
         foreach (WorldNode worldNode in worldAndMapNodes.Keys)
@@ -201,7 +192,7 @@ public class WorldManager : MonoBehaviour {
 
 
         // Connectors
-        Dictionary<WorldNode, List<ConnectorNode>> worldAndConnectorNodes = _worldBuilder.GetWorldAndConnectorNodes();
+        Dictionary<WorldNode, List<ConnectorNode>> worldAndConnectorNodes = _worldBuilder.WorldAndConnectorNodes;
 
         //Debug.Log("worldAndConnectorNodes.Count: " + worldAndConnectorNodes.Count);
 

@@ -1,28 +1,48 @@
 ﻿using UnityEngine;
 
-public class OuterZoneBuilder : MonoBehaviour {
+public class OuterZoneBuilder : MonoBehaviour
+{
+    ////////////////////////////////////////////////
 
-    GameManager _gameManager;
+    private static OuterZoneBuilder _instance;
+
+    ////////////////////////////////////////////////
 
     public GameObject outerZonePrefab;
 
+    ////////////////////////////////////////////////
+
+    GameManager _gameManager;
     MapSettings _mapSettings;
 
-    Vector3 lowestXpos;
-    Vector3 highestXpos;
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
+        if (outerZonePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     void Start()
     {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
         _mapSettings = _gameManager._worldManager._mapSettings;
         if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     public void CreateOuterZoneForNode(WorldNode node)
     {

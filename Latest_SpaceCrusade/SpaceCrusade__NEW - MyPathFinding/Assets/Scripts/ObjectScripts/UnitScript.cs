@@ -1,27 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class UnitScript : NetworkBehaviour {
+public class UnitScript : NetworkBehaviour
+{
+    ////////////////////////////////////////////////
 
     GameManager _gameManager;
+    UnitsManager _unitsManager;
+
+    ////////////////////////////////////////////////
 
     // GamePlay data
-    List<CubeLocationScript> _pathFindingNodes;
-	bool _unitActive;
-	// Visual
-	Renderer[] _rends;
+    private List<CubeLocationScript> _pathFindingNodes;
+    private bool _unitActive;
+    // Visual
+    private Renderer[] _rends;
 
 
     // Unit stats
-    int _unitModel;
-    bool _unitCanClimbWalls;
-    public int[] _unitCombatStats;
-    Vector3 _startingWorldLoc;
-    int _playerControllerId;
-    NetworkInstanceId _netID;
-    public CubeLocationScript _cubeUnitIsOn;
+    private int _unitModel;
+    private bool _unitCanClimbWalls;
+    private int[] _unitCombatStats;
+    private Vector3 _startingWorldLoc;
+    private int _playerControllerId;
+    private NetworkInstanceId _netID;
+    private CubeLocationScript _cubeUnitIsOn;
 
     UnitData _unitData;
 
@@ -37,13 +41,11 @@ public class UnitScript : NetworkBehaviour {
         set { _unitCanClimbWalls = value; }
     }
 
-    /*
     public int[] UnitCombatStats
     {
         get { return _unitCombatStats; }
         set { _unitCombatStats = value; }
     }
-    */
 
     public Vector3 UnitStartingWorldLoc
     {
@@ -75,21 +77,30 @@ public class UnitScript : NetworkBehaviour {
         set { _unitData = value; }
     }
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     void Awake()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
 
+    }
 
 	// Use this for initialization
 	void Start () {
+
         _pathFindingNodes = new List<CubeLocationScript>();
         _rends = GetComponentsInChildren<Renderer> ();
-	}
-		
 
-	public void PanelPieceChangeColor(string color) {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _unitsManager = _gameManager._unitsManager;
+        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    public void PanelPieceChangeColor(string color) {
 
 		foreach (Renderer rend in _rends) {
 			switch (color) {
@@ -118,12 +129,12 @@ public class UnitScript : NetworkBehaviour {
 
         if (onOff)
         {
-            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().SetUnitActive(true, this);
+            _unitsManager.SetUnitActive(true, this);
             PanelPieceChangeColor("Red");
         }
         else
         {
-            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().SetUnitActive(false);
+            _unitsManager.SetUnitActive(false);
             PanelPieceChangeColor("White");
         }
         _unitActive = onOff;
@@ -133,7 +144,7 @@ public class UnitScript : NetworkBehaviour {
     void OnMouseDown()
     {
         //if (!isLocalPlayer) return;
-        if (PlayerControllerID == _gameManager._playerManager.PlayerObject.GetComponent<PlayerAgent>().PlayerID)
+        if (PlayerControllerID == _gameManager._playerManager.PlayerID)
         {
             if (!_unitActive)
             {

@@ -14,6 +14,7 @@ public class LocationManager : MonoBehaviour
     ////////////////////////////////////////////////
 
     GameManager _gameManager;
+    UnitsManager _unitsManager;
 
     ////////////////////////////////////////////////
 
@@ -42,6 +43,8 @@ public class LocationManager : MonoBehaviour
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _unitsManager = _gameManager._unitsManager;
+        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
@@ -189,7 +192,7 @@ public class LocationManager : MonoBehaviour
         {
             _activeCube = GetLocationScript(cubeVect);
             _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
-            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeActiveUnitMove(cubeVect);
+            _unitsManager.MakeActiveUnitMove(cubeVect);
         }
     }
 

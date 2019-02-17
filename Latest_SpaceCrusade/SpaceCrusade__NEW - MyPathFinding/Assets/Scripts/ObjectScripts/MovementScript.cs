@@ -2,47 +2,68 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovementScript : MonoBehaviour {
+public class MovementScript : MonoBehaviour
+{
+    ////////////////////////////////////////////////
 
-	public GameManager _gameManager;
+    GameManager _gameManager;
+    UnitsManager _unitsManager;
+    LocationManager _locationManager;
 
-	private bool moveInProgress = false;
+    ////////////////////////////////////////////////
+
+    private bool moveInProgress = false;
 
 	private List<CubeLocationScript> _nodes;
 
-    CubeLocationScript _currTarget;
-    Vector3 _currTargetVect;
-    CubeLocationScript _finalTarget;
-    Vector3 _finalTargetVect;
+    private CubeLocationScript _currTarget;
+    private Vector3 _currTargetVect;
+    private CubeLocationScript _finalTarget;
+    private Vector3 _finalTargetVect;
     private bool collision = false;
 
-	public int locCount;
+    private int locCount;
 
     private int _unitsSpeed;
 
-    bool _newPath = false;
+    private bool _newPath = false;
     private List<CubeLocationScript> _tempNodes;
-    bool _unitInterrupted = false;
+    private bool _unitInterrupted = false;
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     void Awake()
     {
+
+    }
+
+    void Start()
+    {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _unitsManager = _gameManager._unitsManager;
+        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _locationManager = _gameManager._locationManager;
+        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _nodes = new List<CubeLocationScript>();
         _tempNodes = new List<CubeLocationScript>();
     }
 
-	// Use this for initialization
-	void Update () {
+
+    // Use this for initialization
+    void Update () {
 
 		if (moveInProgress) {
 			StartMoving ();
 		}
 	}
 
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-	private void StartMoving() {
+    private void StartMoving() {
 
         if (locCount < _nodes.Count)
         {
@@ -110,7 +131,7 @@ public class MovementScript : MonoBehaviour {
     {
         if(_unitInterrupted)
         {
-            _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+            _unitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
             _unitInterrupted = false;
         }
 
@@ -120,7 +141,7 @@ public class MovementScript : MonoBehaviour {
             {
                 _currTarget = _nodes[locCount];
                 _currTargetVect = new Vector3(_currTarget.CubeLocVector.x, _currTarget.CubeLocVector.y, _currTarget.CubeLocVector.z);
-                if (!_gameManager._locationManager.SetUnitOnCube(GetComponent<UnitScript>(), _currTargetVect))
+                if (!_locationManager.SetUnitOnCube(GetComponent<UnitScript>(), _currTargetVect))
                 {
                     Debug.LogWarning("units movement interrupted >> recalculating");
                     _unitInterrupted = true;
@@ -156,7 +177,7 @@ public class MovementScript : MonoBehaviour {
     {
         Debug.Log("MoveUnit!");
 
-        int[] stats = GetComponent<UnitScript>()._unitCombatStats;
+        int[] stats = GetComponent<UnitScript>().UnitCombatStats;
         _unitsSpeed = stats[0];
 
         if (_pathNodes.Count > 0)
@@ -191,6 +212,6 @@ public class MovementScript : MonoBehaviour {
     {
         Debug.Log("IEnumerator RecalculateMove");
         yield return new WaitForSeconds(waitTime);
-        _gameManager._playerManager.PlayerObject.GetComponent<UnitsAgent>().MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+        _unitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
     }
 }

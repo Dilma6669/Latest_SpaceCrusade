@@ -31,6 +31,7 @@ public class WorldManager : MonoBehaviour {
 
     GameManager     _gameManager;
     LocationManager _locationManager;
+    SyncedVars _syncedVars;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -60,6 +61,8 @@ public class WorldManager : MonoBehaviour {
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
         _locationManager = _gameManager._locationManager;
         if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _syncedVars = _gameManager._networkManager._syncedVars;
+        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
@@ -164,6 +167,9 @@ public class WorldManager : MonoBehaviour {
 
     public void BuildMapForClient()
     {
+        int GlobalSeed = _syncedVars.GlobalSeed;
+        Random.InitState(GlobalSeed);
+
         StartCoroutine(BuildGridEnumerator());
     }
 

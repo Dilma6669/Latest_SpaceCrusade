@@ -4,37 +4,51 @@ using UnityEngine.Networking;
 
 public class NetworkAgent : NetworkBehaviour
 {
-    GameManager _gameManager;
+    /////////////////////////////////////////////////////
 
+    GameManager _gameManager;
+    NetWorkManager _networkManager;
     SyncedVars _syncedvars;
+
+    /////////////////////////////////////////////////////
 
     Dictionary<NetworkInstanceId, GameObject> network_Client_Objects;
     Dictionary<NetworkInstanceId, GameObject> network_Unit_Objects;
 
+    /////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     // Use this for initialization
     void Awake()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _syncedvars = _gameManager._networkManager._syncedVars;
-        if (_syncedvars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
         network_Client_Objects = new Dictionary<NetworkInstanceId, GameObject>();
         network_Unit_Objects = new Dictionary<NetworkInstanceId, GameObject>();
     }
 
-
     // Need this Start()
     void Start()
     {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _networkManager = _gameManager._networkManager;
+        if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        _syncedvars = _gameManager._networkManager._syncedVars;
+        if (_syncedvars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+
+        if (!isLocalPlayer) return;
+        _networkManager.NetworkAgent = this;
     }
 
+    /////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     [Command] //Commands - which are called from the client and run on the server;
     public void CmdAddPlayerToSession(NetworkInstanceId clientID)
     {
+        Start();
+        Debug.Log("fuck CmdAddPlayerToSession " + network_Client_Objects);
         network_Client_Objects.Add(clientID, ClientScene.FindLocalObject(clientID));
         RpcUpdatePlayerCountOnClient(_syncedvars.PlayerCount + 1);
     }
@@ -43,11 +57,6 @@ public class NetworkAgent : NetworkBehaviour
     {
         GetComponent<PlayerAgent>().UpdatePlayerCount(count);
     }
-
-
-    /////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////
 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
     public void CmdTellServerToSpawnPlayerUnit(UnitData unitData, int playerID, Vector3 worldStart)
@@ -101,7 +110,7 @@ public class NetworkAgent : NetworkBehaviour
         unitScript.UnitModel = unitData.UnitModel;
         unitScript.UnitCanClimbWalls = unitData.UnitCanClimbWalls;
         unitScript.UnitStartingWorldLoc = unitData.UnitStartingWorldLoc;
-        unitScript._unitCombatStats = unitData.UnitCombatStats;
+        unitScript.UnitCombatStats = unitData.UnitCombatStats;
         unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
     }
 

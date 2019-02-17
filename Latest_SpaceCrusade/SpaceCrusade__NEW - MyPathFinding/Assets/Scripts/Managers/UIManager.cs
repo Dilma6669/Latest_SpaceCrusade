@@ -10,18 +10,16 @@ public class UIManager : MonoBehaviour
     ////////////////////////////////////////////////
 
     GameManager _gameManager;
-    
+    SyncedVars _syncedVars;
+    Text playerIDText;
+    Text playerNameText;
+    Text totalPlayerText;
+    Text seedNumText;
+
     ////////////////////////////////////////////////
 
     public delegate void ChangeLayerEvent(int change);
 	public static event ChangeLayerEvent OnChangeLayerClick;
-
-	public PlayerAgent _playerAgent;
-
-	public Text _playerIDGUINum;
-
-	public Text _playerTotalGUINum;
-
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -36,34 +34,51 @@ public class UIManager : MonoBehaviour
         {
             _instance = this;
         }
+
+        playerIDText = transform.FindDeepChild("PlayerNum").GetComponent<Text>();
+        playerNameText = transform.FindDeepChild("PlayerName").GetComponent<Text>();
+        totalPlayerText = transform.FindDeepChild("TotalPlayersNum").GetComponent<Text>();
+        seedNumText = transform.FindDeepChild("SeedNum").GetComponent<Text>();
     }
 
     void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
         if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _syncedVars = _gameManager._networkManager._syncedVars;
+        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-	public void ChangeLayer(bool UpDown) {
+    // The players personal GUI
+    public void SetUpPlayersGUI(int playerID)
+    {
+        GetComponent<Canvas>().enabled = true;
 
-		if (UpDown) {
-			if(OnChangeLayerClick != null)
-				OnChangeLayerClick(1);
-		} else {
-			if(OnChangeLayerClick != null)
-				OnChangeLayerClick(-1);
-		}
+        playerIDText.text = playerID.ToString();
+        playerNameText.text = _gameManager._playerManager.PlayerName;
+        seedNumText.text = _syncedVars.GlobalSeed.ToString();
+    }
+
+	public void UpdateTotalPlayersGUI(int total) {
+
+        totalPlayerText.text = total.ToString();
 	}
 
+    /*
+    public void ChangeLayer(bool UpDown) {
 
-	public void UpdatePlayerGUINum(int ID, int total) {
+    if (UpDown) {
+        if(OnChangeLayerClick != null)
+            OnChangeLayerClick(1);
+    } else {
+        if(OnChangeLayerClick != null)
+            OnChangeLayerClick(-1);
+    }
+}
+*/
 
-		_playerIDGUINum.text = ID.ToString();
-		_playerTotalGUINum.text = total.ToString();
-
-	}
 
 }

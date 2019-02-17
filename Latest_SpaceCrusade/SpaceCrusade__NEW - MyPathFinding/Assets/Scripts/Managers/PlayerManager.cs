@@ -9,7 +9,12 @@ public class PlayerManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    private GameObject _playerObject;
+    GameManager _gameManager;
+    SyncedVars _syncedVars;
+
+    ////////////////////////////////////////////////
+
+    private PlayerAgent _playerAgent;
     private BasePlayerData _playerData;
 
     ////////////////////////////////////////////////
@@ -18,10 +23,17 @@ public class PlayerManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    public GameObject PlayerObject
+    int _playerID = 0;
+    string _playerName = "???";
+    int _totalPlayers = -1;
+    int _seed = -1;
+
+    ////////////////////////////////////////////////
+
+    public PlayerAgent PlayerAgent
     {
-        get { return _playerObject; }
-        set { _playerObject = value; }
+        get { return _playerAgent; }
+        set { _playerAgent = value; }
     }
 
     public BasePlayerData PlayerData
@@ -30,10 +42,16 @@ public class PlayerManager : MonoBehaviour
         set { _playerData = value; }
     }
 
-
     public int PlayerID
     {
-        get { return _playerObject.GetComponent<PlayerAgent>().PlayerID; }
+        get { return _playerID; }
+        set { _playerID = value; }
+    }
+
+    public int TotalPlayers
+    {
+        get { return _totalPlayers; }
+        set { _totalPlayers = value; }
     }
 
     public string PlayerName
@@ -82,8 +100,23 @@ public class PlayerManager : MonoBehaviour
         if (_playerMotherShip == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
+    void Start()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _syncedVars = _gameManager._networkManager._syncedVars;
+        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    }
+
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
+
+    public void SetUpPlayer()
+    {
+        PlayerID = _syncedVars.PlayerCount;
+        LoadPlayerDataInToManager(PlayerID);
+    }
+
 
     public void LoadPlayerDataInToManager(int playerID)
     {

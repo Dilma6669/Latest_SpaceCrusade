@@ -53,7 +53,7 @@ public class PanelBuilder : MonoBehaviour
         cubeScript._isPanel = true;
 
         panelScript.cubeScriptParent = cubeScript;
-        panelScript._camera = _gameManager._playerManager.PlayerObject.GetComponent<Camera>();
+        panelScript._camera = _gameManager._cameraManager.Camera_Agent.GetComponent<Camera>();
 
         switch (panel) {
 		case "Floor":

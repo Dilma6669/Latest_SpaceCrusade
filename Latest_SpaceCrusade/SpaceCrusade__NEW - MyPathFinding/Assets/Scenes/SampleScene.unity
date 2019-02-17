@@ -1369,9 +1369,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67ca44026f7eda64c85d1804aa626afe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerAgent: {fileID: 0}
-  _playerIDGUINum: {fileID: 0}
-  _playerTotalGUINum: {fileID: 0}
 --- !u!114 &661327273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3696,7 +3693,7 @@ MonoBehaviour:
   matchSize: 4
   isNetworkActive: 0
   matchMaker: {fileID: 0}
-  _syncedVars: {fileID: 0}
+  _syncedVars: {fileID: 1698446190}
 --- !u!1 &1905949326
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,9 +7,19 @@ public class NetWorkManager : NetworkManager
 
     private static NetWorkManager _instance;
 
+    private NetworkAgent _networkAgent;
+
     ////////////////////////////////////////////////
 
     public SyncedVars _syncedVars;
+
+    ////////////////////////////////////////////////
+
+    public NetworkAgent NetworkAgent
+    {
+        get { return _networkAgent; }
+        set { _networkAgent = value; }
+    }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////

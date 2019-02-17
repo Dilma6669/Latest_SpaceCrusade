@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 
 public class UnitsAgent : NetworkBehaviour {
 
+    /*
     GameManager _gameManager;
 
     NetworkManager _networkManager;
@@ -73,10 +74,11 @@ public class UnitsAgent : NetworkBehaviour {
             Debug.Log("fucken unit 3: " + unit);
             UnitScript unitScript = unit.GetComponent<UnitScript>();
             unitScript.CubeUnitIsOn = _gameManager._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
-            unitScript.PlayerControllerID = GetComponent<PlayerAgent>().PlayerID;
+            unitScript.PlayerControllerID = _playerManager.PlayerID;
             Debug.Log("fucken unitScript.PlayerControllerID 1: " + unitScript.PlayerControllerID);
         }
     }
+    */
 
 
 }

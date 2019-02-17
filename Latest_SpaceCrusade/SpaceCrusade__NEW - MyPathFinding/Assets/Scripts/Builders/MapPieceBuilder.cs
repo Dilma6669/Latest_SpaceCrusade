@@ -217,11 +217,12 @@ public class MapPieceBuilder : MonoBehaviour {
 
             floor = layers[y];
 
-
+            /* cant remember why this was in here, but was fucking ship garage vents up
             if (!floorORRoof && y == (layers.Count - 1) && neighbours[5] != -1)// for the roofs of the vents only appearing if no map piece above vent
             {
                 continue; // if so, skip last layer
             }
+            */
 
 
             for (int r = 0; r < rotations; r++)

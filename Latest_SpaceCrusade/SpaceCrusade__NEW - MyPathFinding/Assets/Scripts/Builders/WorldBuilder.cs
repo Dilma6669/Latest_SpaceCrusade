@@ -26,9 +26,6 @@ public class WorldBuilder : MonoBehaviour
     private List<MapNode> _outerNodes;
     //private List<MapNode> _dockingNodes;
 
-    private int lowestYpos = 10000;
-    private int highestYpos = 0;
-
     private Dictionary<Vector3, int[]> NEW_WORLD_GRID = new Dictionary<Vector3, int[]>();
 
     private bool LOADPREBUILT_STRUCTURE = true;
@@ -427,6 +424,7 @@ public class WorldBuilder : MonoBehaviour
 
             WorldNode nodeScript = CreateNode<WorldNode>(this.transform, vect, rotation, mapType, mapPiece, NodeTypes.WorldNode);
             nodeScript.worldNodeCount = (count - 1);
+            nodeScript.nodeLayerCount = countFloorY * 12; // 12 is the number of (mapieces + vents layers) in the y axis of a worldnode
 
             // for the specified map structures
             if (LOADPREBUILT_STRUCTURE)
@@ -448,6 +446,16 @@ public class WorldBuilder : MonoBehaviour
                 nodeScript.nodeSize = randSize;
             }
 
+
+            int shipEntranceProbablity = 20;
+
+            if (nodeScript.nodeSize == 3 && Random.Range(0, shipEntranceProbablity) == 0)
+            {  
+                _nodeBuilder.AttachCoverToNode(nodeScript, nodeScript.gameObject, CoverTypes.LargeGarageCover);
+                nodeScript.entrance = true;
+            }
+
+
             worldNodes.Add(nodeScript);
 
             // for counting, best not to change, even tho its ugly
@@ -465,6 +473,10 @@ public class WorldBuilder : MonoBehaviour
             {
                 countFloorZ = 0;
             }
+
+            //  think need to add world nodes to layer sytem
+            _gameManager._layerManager.AddNodeToLayer(nodeScript); // for camera layers
+
             count++;
         }
         return worldNodes;
@@ -481,22 +493,15 @@ public class WorldBuilder : MonoBehaviour
         {
             List<Vector3> mapVects = GetMapVects(worldNode);
             List<MapNode> mapNodes = new List<MapNode>();
-
-            bool shipEntrance = false;
-            int shipEntranceProbablity = 20;
-
-            if (worldNode.nodeSize == 3 && Random.Range(0, shipEntranceProbablity) == 0)
-            {
-                shipEntrance = true;
-                _nodeBuilder.AttachCoverToNode(worldNode, worldNode.gameObject, CoverTypes.LargeGarageCover);
-            }
-
-            int mapCount = 0;
+            
+            int mapCount = 1;
+            int layerCount = 0;
+            int nodeLayerCount = -1;
             foreach (Vector3 vect in mapVects)
             {
                 int rotation = 0;
                 int mapType = -1;
-                if (shipEntrance)
+                if (worldNode.entrance)
                 {
                     mapType = MAPTYPE_SHIPPORT;
                 }
@@ -515,21 +520,34 @@ public class WorldBuilder : MonoBehaviour
                 }
                 mapNode.worldNodeParent = worldNode;
 
+
+                if (worldNode.nodeSize == 1)
+                {
+                    nodeLayerCount = worldNode.nodeLayerCount + 4; // 4 total layers in 1 map and vent piece
+                }
+                else if (worldNode.nodeSize == 3)
+                {
+                    nodeLayerCount = worldNode.nodeLayerCount + layerCount;
+
+                    if (mapCount % 9 == 0)
+                    {
+                        layerCount = layerCount + 4;  // 4 total layers in 1 map and vent piece
+                    }
+                }
+                else
+                {
+                    Debug.LogError("something weird here");
+                }
+                mapNode.nodeLayerCount = nodeLayerCount;
+
+
                 mapNodes.Add(mapNode);
-                if (!shipEntrance)
+                if (!worldNode.entrance)
                 {
                     _nodeBuilder.AttachCoverToNode(mapNode, mapNode.gameObject, CoverTypes.NormalCover);
                 }
 
-                /*// dont think need this anymore But not deleteing incase still do
-                if (vect.y <= lowestYpos) // this is find lowest point to make LayerCounts
-                {
-                    lowestYpos = vect.y;
-                }
-                if (vect.y >= highestYpos) // this is find highest point to make LayerCounts
-                {
-                    highestYpos = vect.y;
-                }*/
+                _gameManager._layerManager.AddNodeToLayer(mapNode); // for camera layers
 
                 mapCount++;
             }
@@ -563,31 +581,20 @@ public class WorldBuilder : MonoBehaviour
             if (worldNode.nodeSize == 3)
             {
                 // bottom
-                SetMapNeighboursWithMultipleLinks(worldNode, 0, 4, new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 0, 4, new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, worldNode.entrance);
                 // Front
-                SetMapNeighboursWithMultipleLinks(worldNode, 1, 10, new int[] { 0, 1, 2, 9, 10, 11, 18, 19, 20 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 1, 10, new int[] { 0, 1, 2, 9, 10, 11, 18, 19, 20 }, worldNode.entrance);
                 // Left
-                SetMapNeighboursWithMultipleLinks(worldNode, 2, 12, new int[] { 0, 3, 6, 9, 12, 15, 18, 21, 24 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 2, 12, new int[] { 0, 3, 6, 9, 12, 15, 18, 21, 24 }, worldNode.entrance);
                 // Right
-                SetMapNeighboursWithMultipleLinks(worldNode, 3, 14, new int[] { 2, 5, 8, 11, 14, 17, 20, 23, 26 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 3, 14, new int[] { 2, 5, 8, 11, 14, 17, 20, 23, 26 }, worldNode.entrance);
                 // Back
-                SetMapNeighboursWithMultipleLinks(worldNode, 4, 16, new int[] { 6, 7, 8, 15, 16, 17, 24, 25, 26 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 4, 16, new int[] { 6, 7, 8, 15, 16, 17, 24, 25, 26 }, worldNode.entrance);
                 // Top
-                SetMapNeighboursWithMultipleLinks(worldNode, 5, 22, new int[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 }, shipEntrance);
+                SetMapNeighboursWithMultipleLinks(worldNode, 5, 22, new int[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 }, worldNode.entrance);
             }
         }
     
-
-        /* // dont think need this anymore But not deleteing incase still do
-        // figure out LayerCount (DONT LIKE THIS) basicly have to re-run whats just happened to get count
-        foreach (WorldNode worldNode in worldNodeAndWrapperNodes.Keys)
-        {
-            List<MapNode> wrapperNodes = worldNodeAndWrapperNodes[worldNode];
-            foreach (MapNode nodeScript in wrapperNodes)
-            {
-                nodeScript.nodeLayerCount = GetLayerCountForNodePos(nodeScript.nodeLocation);
-            }
-        }*/
         return worldNodeAndWrapperNodes;
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -645,6 +652,7 @@ public class WorldBuilder : MonoBehaviour
                 int rotation = pair.Value;
                 int mapType = MAPTYPE_CONNECTOR;
                 int mapPiece = 0; // only 1 connector map piece atm for both vertical and horizontal pieces
+                int nodeLayerCount = -1;
 
                 ConnectorNode connectorNode = CreateNode<ConnectorNode>(worldNode.gameObject.transform, vector, rotation, mapType, mapPiece, NodeTypes.ConnectorNode);
                 _nodeBuilder.AttachCoverToNode(connectorNode, connectorNode.gameObject, CoverTypes.ConnectorCover);
@@ -662,6 +670,20 @@ public class WorldBuilder : MonoBehaviour
                     connectorNode.connectorUp = true;
                     connectorNode.nodeMapType = MAPTYPE_CONNECTOR_UP;
                 }
+
+
+                if (worldNode.nodeSize == 1)
+                {
+                    nodeLayerCount = worldNode.nodeLayerCount + 4;  // 4 total layers in 1 map and vent piece
+                }
+                else
+                {
+                    Debug.LogError("something weird here");
+                }
+                connectorNode.nodeLayerCount = nodeLayerCount;
+
+                _gameManager._layerManager.AddNodeToLayer(connectorNode); // for camera layers
+
             }
             worldNode.connectorNodes = connectorNodes;
             worldNodeAndConnectorNodes.Add(worldNode, connectorNodes);
@@ -745,26 +767,8 @@ public class WorldBuilder : MonoBehaviour
         nodeScript.nodeRotation = rotation;
         nodeScript.nodeMapType = mapType;
         nodeScript.nodeMapPiece = mapPiece;
-        nodeScript.nodeLayerCount = GetLayerCountForNodePos(vect);
+        nodeScript.nodeLayerCount = -1;
         return nodeScript;
-    }
-    ////////////////////////////////////////////////////////////////////////////
-
-    // Get Layer Count for Node Position ////////////////////////////////////////
-    private int GetLayerCountForNodePos(Vector3 nodePos)
-    {
-        int yPos = (int)nodePos.y;
-        int currHeight = lowestYpos;
-        int mapHeight = (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY);
-        for (int layer = 0; layer < 50; layer += 2) // needs to be 2 coz 2 layers needed each map piece floor and roof
-        {
-            if (yPos == currHeight)
-            {
-                return layer;
-            }
-            currHeight += mapHeight;
-        }
-        return 0;
     }
     ////////////////////////////////////////////////////////////////////////////
 

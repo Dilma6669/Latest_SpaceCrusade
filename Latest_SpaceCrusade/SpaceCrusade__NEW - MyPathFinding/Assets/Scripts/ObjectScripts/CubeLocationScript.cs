@@ -10,6 +10,7 @@ public class CubeLocationScript : MonoBehaviour {
     int _cubeUniqueID;
     public Vector3 _cubeLoc;
     int _cubeAngle;
+    public int _cubeLayerID;
 
     bool _cubeVisible;
     bool _cubSelected;
@@ -83,6 +84,12 @@ public class CubeLocationScript : MonoBehaviour {
     {
         get { return _flagToSayIsMine; }
         set { _flagToSayIsMine = value; }
+    }
+
+    public int CubeLayerID
+    {
+        get { return _cubeLayerID; }
+        set { _cubeLayerID = value; }
     }
 
     // Human
@@ -312,28 +319,4 @@ public class CubeLocationScript : MonoBehaviour {
         ResetPathFindingValues();
     }
 
-
-
-
-    ////////////////////////////////////////////////
-    // If player canNOT see this cube
-    public void CubeNotVisible() {
-		Debug.Log ("CubeNotVisible");
-		CubeIsVisible = false;
-//		foreach (Transform child in transform) {
-//			if (child.gameObject.activeSelf && child.GetComponent<PanelPieceScript> ()) {
-//				child.GetComponent<PanelPieceScript> ().PanelPieceChangeColor ("Black");
-//			}
-//		}
-	}
-	// If player can see this cube
-	public void CubeVisible() {
-        CubeIsVisible = true;
-//		foreach (Transform child in transform) {
-//			if (child.gameObject.activeSelf && child.GetComponent<PanelPieceScript> ()) {
-//				child.GetComponent<PanelPieceScript> ().PanelPieceChangeColor ("White");
-//			}
-//		}
-	}
-	////////////////////////////////////////////////
 }

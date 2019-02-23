@@ -67,18 +67,20 @@ public class UIManager : MonoBehaviour
         totalPlayerText.text = total.ToString();
 	}
 
-    /*
-    public void ChangeLayer(bool UpDown) {
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
-    if (UpDown) {
-        if(OnChangeLayerClick != null)
-            OnChangeLayerClick(1);
-    } else {
-        if(OnChangeLayerClick != null)
-            OnChangeLayerClick(-1);
+    public void ChangeLayer(bool UpDown)
+    {
+        if (UpDown)
+        {
+            if (OnChangeLayerClick != null)
+                OnChangeLayerClick(1);
+        }
+        else
+        {
+            if (OnChangeLayerClick != null)
+                OnChangeLayerClick(-1);
+        }
     }
-}
-*/
-
-
 }

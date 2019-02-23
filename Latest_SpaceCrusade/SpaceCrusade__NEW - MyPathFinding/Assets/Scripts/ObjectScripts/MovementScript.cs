@@ -97,6 +97,12 @@ public class MovementScript : MonoBehaviour
 
     private void UnitMoveTowardsTarget(Vector3 unitCurrPos, Vector3 _vectTarget)
     {
+        // Rotation
+        Vector3 targetDir = _vectTarget - unitCurrPos;
+        Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, (Time.deltaTime*2f) * _unitsSpeed, 0.0f);
+        transform.rotation = Quaternion.LookRotation(newDir);
+
+        // Moving
         transform.position = Vector3.MoveTowards(unitCurrPos, _vectTarget, Time.deltaTime * _unitsSpeed);
     }
 
@@ -177,7 +183,7 @@ public class MovementScript : MonoBehaviour
     {
         Debug.Log("MoveUnit!");
 
-        int[] stats = GetComponent<UnitScript>().UnitCombatStats;
+        int[] stats = gameObject.transform.GetComponent<UnitScript>().UnitCombatStats;
         _unitsSpeed = stats[0];
 
         if (_pathNodes.Count > 0)

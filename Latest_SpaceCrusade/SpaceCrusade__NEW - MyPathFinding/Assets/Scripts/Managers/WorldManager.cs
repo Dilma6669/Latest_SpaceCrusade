@@ -98,7 +98,6 @@ public class WorldManager : MonoBehaviour {
             mapNode.entrance = true;
             Vector3 nodeVect = mapNode.nodeLocation;
             int mapSize = mapNode.nodeSize;
-            int layerCount = mapNode.nodeLayerCount;
             int rotation = mapNode.nodeRotation;
             int mapType = mapNode.nodeMapType;
             int mapPiece = mapCount;
@@ -114,7 +113,7 @@ public class WorldManager : MonoBehaviour {
             _gridBuilder.BuildLocationGrid(mapNode, mapSize);
             List<Vector3> mapPieceNodes = _gridBuilder.GetGridNodePositions();
             _mapPieceBuilder.SetWorldNodeNeighboursForDock(worldNode.neighbours); // for the ship docks
-            _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
+            _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, mapSize, mapType, mapPiece, rotation);
             _locationManager.AddCubeScriptToLocationLookup(_gridBuilder.GetGridLocations()); // needs to be after AttachMapPieceToMapNode
             _mapPieceBuilder.SetPanelsNeighbours();
             mapNode.mapFloorData = _mapPieceBuilder.MapFloorData;
@@ -129,14 +128,13 @@ public class WorldManager : MonoBehaviour {
     {
         Vector3 nodeVect = mapNode.nodeLocation;
         int mapSize = mapNode.nodeSize;
-        int layerCount = mapNode.nodeLayerCount;
         int rotation = mapNode.nodeRotation;
         int mapType = mapNode.nodeMapType;
         int mapPiece = mapNode.nodeMapPiece;
 
         _gridBuilder.BuildLocationGrid(mapNode, mapSize);
         List<Vector3> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-        _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
+        _mapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, mapSize, mapType, mapPiece, rotation);
         _locationManager.AddCubeScriptToLocationLookup(_gridBuilder.GetGridLocations()); // needs to be after AttachMapPieceToMapNode
         _mapPieceBuilder.SetPanelsNeighbours();
         mapNode.RemoveDoorPanels();
@@ -149,14 +147,13 @@ public class WorldManager : MonoBehaviour {
     {
         Vector3 nodeVect = connectNode.nodeLocation;
         int mapSize = connectNode.nodeSize;
-        int layerCount = connectNode.nodeLayerCount;
         int rotation = connectNode.nodeRotation;
         int mapType = connectNode.nodeMapType;
         int mapPiece = connectNode.nodeMapPiece;
 
         _gridBuilder.BuildLocationGrid(connectNode, mapSize);
         List<Vector3> mapPieceNodes = _gridBuilder.GetGridNodePositions();
-        _mapPieceBuilder.AttachMapPieceToMapNode(connectNode, mapPieceNodes, layerCount, mapSize, mapType, mapPiece, rotation);
+        _mapPieceBuilder.AttachMapPieceToMapNode(connectNode, mapPieceNodes, mapSize, mapType, mapPiece, rotation);
         _locationManager.AddCubeScriptToLocationLookup(_gridBuilder.GetGridLocations()); // needs to be after AttachMapPieceToMapNode
         _mapPieceBuilder.SetPanelsNeighbours();
         //connectNode.mapFloorData = _mapPieceBuilder.GetMapFloorData();
@@ -171,6 +168,8 @@ public class WorldManager : MonoBehaviour {
         Random.InitState(GlobalSeed);
 
         StartCoroutine(BuildGridEnumerator());
+
+        _gameManager._layerManager.MakeAllNodeLayersVisible();
     }
 
     // this is make the game actually start at startup and not wait loading
@@ -211,8 +210,6 @@ public class WorldManager : MonoBehaviour {
                 connectorNode._worldManager = this;
 
                 Vector3 nodeVect = connectorNode.nodeLocation;
-
-                int layerCount = connectorNode.nodeLayerCount;
 
                 int mapSize = 1; // this is for Each connector
 

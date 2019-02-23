@@ -49,7 +49,7 @@ public class CubeBuilder : MonoBehaviour {
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public CubeLocationScript CreateCubeObject(Vector3 gridLoc, int cubeType, int rotations, int layerCount, Transform parent)
+    public CubeLocationScript CreateCubeObject(Vector3 gridLoc, int cubeType, int rotations, int nodeLayerCount, Transform parent)
     {
 
         rotationY = (rotations * -90) % 360;
@@ -62,8 +62,9 @@ public class CubeBuilder : MonoBehaviour {
         cubeScript._locationManager = _gameManager._locationManager;
 
         cubeScript.CubeLocVector = gridLoc;
+        cubeScript.CubeLayerID = nodeLayerCount;
+        _gameManager._layerManager.AddCubeToLayer(cubeScript);
         cubeObject.transform.eulerAngles = new Vector3(0, rotationY, 0);
-        //cubeObject.gameObject.layer = LayerMask.NameToLayer ("Floor" + layerCount.ToString ());
 
         cubeScript.CubeAngle = (int)rotationY;
 
@@ -72,37 +73,37 @@ public class CubeBuilder : MonoBehaviour {
             case 00:
                 return null;
             case 01:
-                _panelBuilder.CreatePanelForCube("Floor", cubeObject.transform, layerCount, 0, rotations);
+                _panelBuilder.CreatePanelForCube("Floor", cubeObject.transform, 0, rotations);
                 break;
             case 02:
-                _panelBuilder.CreatePanelForCube("Wall", cubeObject.transform, layerCount, 90, rotations); // Down
+                _panelBuilder.CreatePanelForCube("Wall", cubeObject.transform, 90, rotations); // Down
                 break;
             case 03:
-                _panelBuilder.CreatePanelForCube("Wall", cubeObject.transform, layerCount, 0, rotations); // across
+                _panelBuilder.CreatePanelForCube("Wall", cubeObject.transform, 0, rotations); // across
                 break;
             case 04:
-                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, layerCount, 90, rotations);
+                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, 90, rotations);
                 break;
             case 05:
-                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, layerCount, 270, rotations);
+                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, 270, rotations);
                 break;
             case 06:
-                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, layerCount, 180, rotations);
+                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, 180, rotations);
                 break;
             case 07:
-                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, layerCount, 0, rotations);
+                _panelBuilder.CreatePanelForCube("FloorAngle", cubeObject.transform, 0, rotations);
                 break;
             case 08:
-                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, layerCount, 90, rotations);
+                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, 90, rotations);
                 break;
             case 09:
-                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, layerCount, 270, rotations);
+                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, 270, rotations);
                 break;
             case 10:
-                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, layerCount, 180, rotations);
+                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, 180, rotations);
                 break;
             case 11:
-                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, layerCount, 0, rotations);
+                _panelBuilder.CreatePanelForCube("CeilingAngle", cubeObject.transform, 0, rotations);
                 break;
         }
         return cubeScript;

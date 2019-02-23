@@ -16,39 +16,10 @@ public class CameraManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    // Layer INfo
-    private int _startLayer;
-    private int _maxLayer; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
-    private int _minLayer;
-    private int _currLayer;
-
-    ////////////////////////////////////////////////
-
     public CameraAgent Camera_Agent
     {
         get { return _cameraAgent; }
         set { _cameraAgent = value; }
-    }
-
-    public int LayerStart
-    {
-        get { return _startLayer; }
-        set { _startLayer = value; }
-    }
-    public int LayerMax
-    {
-        get { return _maxLayer; }
-        set { _maxLayer = value; }
-    }
-    public int LayerMin
-    {
-        get { return _minLayer; }
-        set { _minLayer = value; }
-    }
-    public int LayerCurr
-    {
-        get { return _currLayer; }
-        set { _currLayer = value; }
     }
 
     ////////////////////////////////////////////////
@@ -85,10 +56,6 @@ public class CameraManager : MonoBehaviour
         Start();
         Camera_Agent = cameraAgent;
 
-        LayerStart = 0;
-        LayerMax = 20; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
-        LayerMin = 0;
-        LayerCurr = LayerStart;
 
         KeyValuePair<Vector3, Vector3> camStartPos = GetCameraStartPosition(playerID);
 
@@ -101,8 +68,6 @@ public class CameraManager : MonoBehaviour
         Camera_Agent.angleV = -camRot.eulerAngles.x;
 
         /*
-        _currLayer = _gameManager._cameraManager.LayerStart;
-        _maxLayer = _gameManager._cameraManager.LayerMax;
 
         // reveal layers up to current
         for (int i = 0; i <= _currLayer; i++) 
@@ -118,8 +83,6 @@ public class CameraManager : MonoBehaviour
 
     public KeyValuePair<Vector3, Vector3> GetCameraStartPosition(int playerID = -1)
     {
-        Debug.Log("fuck GetCameraStartPosition playerID " + playerID);
-
         List<KeyValuePair<Vector3, Vector3>> cameraPositions = new List<KeyValuePair<Vector3, Vector3>>();
 
         KeyValuePair<Vector3, Vector3> cam0 = new KeyValuePair<Vector3, Vector3>(new Vector3(-124.3f, 475, 895.9f), new Vector3(0, 90, 0));
@@ -133,6 +96,11 @@ public class CameraManager : MonoBehaviour
         cameraPositions.Add(cam3);
 
         return cameraPositions[playerID];
+    }
+
+    public void SetCamToOrbitUnit(Transform unit)
+    {
+        Camera_Agent.SetCamToOrbitUnit(unit);
     }
 
 

@@ -30,9 +30,4 @@ public class GamePlayManager : MonoBehaviour {
 	}
 
 
-    public void StartGame(Vector3 worldNodeLoc)
-    {
-        _gameManager._unitsManager.LoadPlayersUnits(worldNodeLoc); // this is not best place for this!! dont like this
-    }
-
 }

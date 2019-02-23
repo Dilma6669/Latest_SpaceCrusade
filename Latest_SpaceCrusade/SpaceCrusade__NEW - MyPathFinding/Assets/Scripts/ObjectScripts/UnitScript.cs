@@ -25,7 +25,7 @@ public class UnitScript : NetworkBehaviour
     private Vector3 _startingWorldLoc;
     private int _playerControllerId;
     private NetworkInstanceId _netID;
-    private CubeLocationScript _cubeUnitIsOn;
+    public CubeLocationScript _cubeUnitIsOn;
 
     UnitData _unitData;
 

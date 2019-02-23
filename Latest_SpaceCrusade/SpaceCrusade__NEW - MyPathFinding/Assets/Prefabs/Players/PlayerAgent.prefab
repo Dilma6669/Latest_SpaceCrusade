@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 33428205784439770}
   - component: {fileID: 23718130902694002}
   - component: {fileID: 136607886610750700}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4829159540708418}
   - component: {fileID: 108517507030307264}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 20852366927229568}
   - component: {fileID: 114347370363158834}
   - component: {fileID: 114261971574779048}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PlayerAgent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,9 +224,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89ae4856cc1cf9f45800ace37146b22f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minLayer: 0
-  _maxLayer: -1
-  _currLayer: -1
+  _camera: {fileID: 0}
+  angleH: 180
+  angleV: -26
 --- !u!114 &114659641301470120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,8 +239,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad11aee19d04f8e40be5fa616d232cbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitObjects: []
-  unitScripts: []
 --- !u!114 &114840890758508176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,7 +281,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 288
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

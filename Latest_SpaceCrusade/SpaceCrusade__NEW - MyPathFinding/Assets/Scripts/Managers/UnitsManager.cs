@@ -94,6 +94,8 @@ public class UnitsManager : MonoBehaviour
                 _activeUnit.ActivateUnit(false);
             }
             //_gameManager._cubeManager.SetCubeActive (false);
+            _gameManager._cameraManager.SetCamToOrbitUnit(unit.transform);
+            _gameManager._layerManager.ChangeCameraLayer(unit.CubeUnitIsOn);
             _activeUnit = unit;
             //_gameManager._locationManager.DebugTestPathFindingNodes(_activeUnit);
         }

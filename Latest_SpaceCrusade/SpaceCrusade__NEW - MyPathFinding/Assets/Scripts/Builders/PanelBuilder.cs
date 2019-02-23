@@ -40,12 +40,11 @@ public class PanelBuilder : MonoBehaviour
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void CreatePanelForCube(string panel, Transform cubeTrans, int layerCount, int angle, int rotations) {
+    public void CreatePanelForCube(string panel, Transform cubeTrans, int angle, int rotations) {
 
 		GameObject panelObject = Instantiate (_panelPrefab, cubeTrans, false); // empty cube
 		panelObject.transform.SetParent (cubeTrans);
 		panelObject.name = (panel);
-		//panelObject.gameObject.layer = LayerMask.NameToLayer ("Floor" + layerCount.ToString ());
 
 		PanelPieceScript panelScript = panelObject.gameObject.GetComponent<PanelPieceScript> ();
 		CubeLocationScript cubeScript = cubeTrans.gameObject.GetComponent<CubeLocationScript> ();

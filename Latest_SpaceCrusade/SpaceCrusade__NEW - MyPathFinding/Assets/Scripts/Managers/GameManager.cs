@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
     public UIManager        _uiManager;
     public NetWorkManager   _networkManager;
     public UnitsManager     _unitsManager;
+    public LayerManager     _layerManager;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -41,6 +42,7 @@ public class GameManager : MonoBehaviour {
         if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
         if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
         if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        if (_layerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
@@ -48,6 +50,7 @@ public class GameManager : MonoBehaviour {
 
     public void StartGame(Vector3 worldNodeLoc)
     {
+        Debug.Log("fuck StartGame");
         _unitsManager.LoadPlayersUnits(worldNodeLoc);
     }
 

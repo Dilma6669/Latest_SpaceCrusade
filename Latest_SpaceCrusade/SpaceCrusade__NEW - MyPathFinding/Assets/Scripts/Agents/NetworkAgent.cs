@@ -48,7 +48,6 @@ public class NetworkAgent : NetworkBehaviour
     public void CmdAddPlayerToSession(NetworkInstanceId clientID)
     {
         Start();
-        Debug.Log("fuck CmdAddPlayerToSession " + network_Client_Objects);
         network_Client_Objects.Add(clientID, ClientScene.FindLocalObject(clientID));
         RpcUpdatePlayerCountOnClient(_syncedvars.PlayerCount + 1);
     }

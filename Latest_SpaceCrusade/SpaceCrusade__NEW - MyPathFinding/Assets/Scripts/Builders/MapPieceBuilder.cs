@@ -31,6 +31,8 @@ public class MapPieceBuilder : MonoBehaviour {
 
     private int layerCount = -1;
 
+    private int nodeLayerCounter = 0;
+
     private static int MAPTYPE_MAP_FLOOR = 0;
     private static int MAPTYPE_MAP_VENTS = 1;
     private static int MAPTYPE_CONNECT_FLOOR = 2;
@@ -110,7 +112,7 @@ public class MapPieceBuilder : MonoBehaviour {
         worldNeighbours = worldNodes;
     }
 
-    public void AttachMapPieceToMapNode<T>(T node, List<Vector3> nodes, int _LayerCount, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
+    public void AttachMapPieceToMapNode<T>(T node, List<Vector3> nodes, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
         MapFloorData.Clear(); // storing data for serialzatino
         MapVentData.Clear();
@@ -121,7 +123,9 @@ public class MapPieceBuilder : MonoBehaviour {
         cubesWithPanels.Clear();
 
         neighbours = node.neighbours;
-        layerCount = node.nodeLayerCount;
+        layerCount = 2;
+
+        nodeLayerCounter = 0;
 
         for (int j = 0; j < nodes.Count; j++)
         {
@@ -217,12 +221,15 @@ public class MapPieceBuilder : MonoBehaviour {
 
             floor = layers[y];
 
-            /* cant remember why this was in here, but was fucking ship garage vents up
-            if (!floorORRoof && y == (layers.Count - 1) && neighbours[5] != -1)// for the roofs of the vents only appearing if no map piece above vent
+
+            // for an extra layer roof of the vents only appearing if no map piece above vent
+            if (!node.entrance)
             {
-                continue; // if so, skip last layer
+                if (!floorORRoof && y == (layers.Count - 1) && neighbours[5] != -1)
+                {
+                    continue; // if so, skip last layer
+                }
             }
-            */
 
 
             for (int r = 0; r < rotations; r++)
@@ -252,7 +259,10 @@ public class MapPieceBuilder : MonoBehaviour {
 
                     GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
                     // A test to see if cube has panel to try make connecting neighbours easier
-                    CubeLocationScript cubeScript = _gameManager._worldManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, layerCount, node.gameObject.transform); // Create the cube
+
+                    int nodeLayercount = node.GetComponent<T>().nodeLayerCount + nodeLayerCounter;
+    
+                    CubeLocationScript cubeScript = _gameManager._worldManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, nodeLayercount, node.gameObject.transform); // Create the cube
                     if (cubeScript != null && cubeScript._isPanel)
                     {
                         cubesWithPanels.Add(cubeScript);
@@ -260,6 +270,11 @@ public class MapPieceBuilder : MonoBehaviour {
                     objectsCountX += 1;
                 }
                 objectsCountZ += 1;
+            }
+
+            if (y % 2 != 0)
+            {
+                nodeLayerCounter++;
             }
             objectsCountY += 1;
         }

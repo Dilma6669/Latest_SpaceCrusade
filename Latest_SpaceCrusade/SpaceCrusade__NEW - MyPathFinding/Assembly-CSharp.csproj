@@ -99,6 +99,7 @@
      <Compile Include="Assets\Scripts\Managers\CombatManager.cs" />
      <Compile Include="Assets\Scripts\Managers\GameManager.cs" />
      <Compile Include="Assets\Scripts\Managers\GamePlayManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\LayerManager.cs" />
      <Compile Include="Assets\Scripts\Managers\LocationManager.cs" />
      <Compile Include="Assets\Scripts\Managers\MovementManager.cs" />
      <Compile Include="Assets\Scripts\Managers\NetWorkManager.cs" />

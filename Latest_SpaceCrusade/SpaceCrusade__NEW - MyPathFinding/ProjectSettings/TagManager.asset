@@ -11,6 +11,11 @@ TagManager:
   - Panel_FloorAngle
   - Panel_CeilingAngle
   - CubeFront
+  - CubeRWall
+  - CubeBWall
+  - CubeFWall
+  - CubeGWall
+  - CubeCWall
   layers:
   - Default
   - TransparentFX
@@ -20,27 +25,27 @@ TagManager:
   - UI
   - 
   - 
-  - Floor0
-  - Floor1
-  - Floor2
-  - Floor3
-  - Floor4
-  - Floor5
-  - Floor6
-  - Floor7
-  - Floor8
-  - Floor9
-  - Floor10
-  - Floor11
-  - Floor12
-  - Floor13
-  - Floor14
-  - Floor15
-  - Floor16
-  - Floor17
-  - Floor18
-  - Floor19
-  - Floor20
+  - LayerVisible
+  - LayerNotVisible
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 

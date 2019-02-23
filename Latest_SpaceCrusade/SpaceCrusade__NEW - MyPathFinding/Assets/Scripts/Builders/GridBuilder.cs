@@ -77,7 +77,7 @@ public class GridBuilder : MonoBehaviour
         }
         else
         {
-            Debug.LogError("_GridLocToScriptLookup.ContainsKey(vect) does not exist");
+            Debug.LogError("_GridLocToScriptLookup.ContainsKey(vect) does not exist: " + vect);
         }
     }
 
@@ -101,7 +101,6 @@ public class GridBuilder : MonoBehaviour
         _node = node as T;
 
         _worldNodeSize = worldNodeSize;
-
 
         _GridNodePositions = new List<Vector3>();
         _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
@@ -174,14 +173,15 @@ public class GridBuilder : MonoBehaviour
 
         int offset = 0;
 
-        if (_node.neighbours[5] == -1) // for the roofs of the vents only appearing if no map piece above vent
+        // for an extra layer roof of the vents only appearing if no map piece above vent
+        if (_node.neighbours[5] == -1)
         {
             offset = 1;
         }
 
         for (int y = startY; y < (startY + _mapSettings.sizeOfMapVentsY) + offset; y++) {
 
-			gridLocX = startX;
+            gridLocX = startX;
 			gridLocZ = startZ;
 
 			for (int z = startZ; z < finishZ; z++) {

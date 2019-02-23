@@ -15,7 +15,4 @@ public class MapNode : BaseNode {
     {
         //Debug.Log("removing door panels");
     }
-
-
-
 }

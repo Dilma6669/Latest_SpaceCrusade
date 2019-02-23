@@ -52,13 +52,17 @@ public class MovementManager : MonoBehaviour
     ////////////////////////////////////////////////
 
     // this is now being done on sevrer and return a list of vector3 to make node visual display for path for client 
-    public int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end) {
+    public int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end)
+    {
 
-        unitsToMove.Add (objToMove);
+        unitsToMove.Add(objToMove);
 
-		UnitScript unitScript = objToMove.GetComponent<UnitScript> ();
+        UnitScript unitScript = objToMove.GetComponent<UnitScript>();
 
         List<CubeLocationScript> path = _pathFinding.FindPath(unitScript, start, end);
+
+        if (path == null) { return null; }
+
         objToMove.GetComponent<MovementScript>().MoveUnit(path);
         List<Vector3> vects = _dataManipulation.GetLocVectorsFromCubeScript(path);
         int[] movePath = _dataManipulation.ConvertVectorsIntoIntArray(vects);

@@ -88,27 +88,23 @@ public class PanelPieceScript : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hit))
             {
-
-                //cubeScriptParent.AssignCubeNeighbours();
-
                 int triIndex = hit.triangleIndex;
 
-                //Debug.Log ("Hit Triangle index : " + hit.triangleIndex);
+                Debug.Log("Hit Triangle index : " + hit.triangleIndex);
 
-                if (triIndex == 0 || triIndex == 1 ||
-                    triIndex == 2 || triIndex == 3 ||
-                    triIndex == 8 || triIndex == 9) // good
-                {
-                    activeCubeScript = cubeScriptLeft;
-                    //posActive = transform.TransformPoint(leftPosNode);
-
-                }
-                else if (triIndex == 4 || triIndex == 5 ||
-                    triIndex == 6 || triIndex == 7 ||
-                    triIndex == 10 || triIndex == 11)
+                if (triIndex == 0 || triIndex == 1 || // (if floor) To sit OnTop of panels
+                        triIndex == 4 || triIndex == 5 ||
+                        triIndex == 8 || triIndex == 9)
                 {
                     activeCubeScript = cubeScriptRight;
                     //posActive = transform.TransformPoint(rightPosNode);
+                }
+                else if (triIndex == 2 || triIndex == 3 || // (if floor) To sit Underneath of panels
+                        triIndex == 6 || triIndex == 7 ||
+                        triIndex == 10 || triIndex == 11)
+                {
+                    activeCubeScript = cubeScriptLeft;
+                    //posActive = transform.TransformPoint(leftPosNode);
                 }
                 else
                 {
@@ -131,6 +127,7 @@ public class PanelPieceScript : MonoBehaviour {
             }
         }
     }
+
 
 
     void OnMouseOver()

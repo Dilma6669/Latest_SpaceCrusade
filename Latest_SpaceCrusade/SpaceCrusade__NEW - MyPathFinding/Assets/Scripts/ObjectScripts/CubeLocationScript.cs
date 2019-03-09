@@ -6,21 +6,22 @@ public class CubeLocationScript : MonoBehaviour {
     // Cube info
     int _cubeUniqueID;
     public Vector3 _cubeLoc;
-    int _cubeAngle;
+    public int _cubeAngle;
     public int _cubeLayerID;
     public bool _cubeMovable;
+    public bool _cubePlatform;
 
     bool _cubeVisible;
     bool _cubSelected;
     public bool _cubeOccupied; // If a guy is on square
     public MovementScript _flagToSayIsMine;
 
-    bool _isHumanWalkable;
-    bool _isHumanClimbable;
-    bool _isHumanJumpable;
-    bool _isAlienWalkable;
-    bool _isAlienClimbable;
-    bool _isAlienJumpable;
+    public bool _isHumanWalkable;
+    public bool _isHumanClimbable;
+    public bool _isHumanJumpable;
+    public bool _isAlienWalkable;
+    public bool _isAlienClimbable;
+    public bool _isAlienJumpable;
 
     // panel objects
     public bool _isPanel = false;
@@ -54,10 +55,16 @@ public class CubeLocationScript : MonoBehaviour {
         set { _cubeLoc = value; }
     }
 
-    public bool CubeMovable
+    public bool CubeMoveable
     {
         get { return _cubeMovable; }
         set { _cubeMovable = value; }
+    }
+
+    public bool CubePlatform
+    {
+        get { return _cubePlatform; }
+        set { _cubePlatform = value; }
     }
 
     public int CubeAngle
@@ -148,30 +155,34 @@ public class CubeLocationScript : MonoBehaviour {
         set { _neighHalfVects = value; }
     }
 
-    
-    void Awake() {
 
+    void Awake()
+    {
         CubeIsVisible = true;
         CubeSelected = false;
         CubeOccupied = false;
+        CubeMoveable = false;
+        CubePlatform = false;
+
         IsHumanWalkable = false;
         IsHumanClimbable = false;
         IsHumanJumpable = false;
         IsAlienWalkable = false;
         IsAlienClimbable = false;
         IsAlienJumpable = false;
-        CubeLocVector = new Vector3 (-1, -1, -1);
-
+        CubeLocVector = new Vector3(-1, -1, -1);
     }
 
     public void AssignCubeNeighbours()
     {
         if(!NeighboursSet)
         {
-            SetHalfNeighbourVects();
-            SetNeighbourVects();
-            CubeConnections.SetCubeNeighbours(this);
-            NeighboursSet = true;
+            if (_isPanel)
+            {
+                SetHalfNeighbourVects();
+                CubeConnections.SetCubeHalfNeighbours(this);
+                NeighboursSet = true;
+            }
         }
     }
 
@@ -204,7 +215,7 @@ public class CubeLocationScript : MonoBehaviour {
 	}
 
 
-	public void SetHalfNeighbourVects() {
+    public void SetHalfNeighbourVects() {
 
         Vector3 ownVect = new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z);
 
@@ -226,7 +237,7 @@ public class CubeLocationScript : MonoBehaviour {
         //neighHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z - 1)); // 11
 
         NeighbourHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
-        NeighbourHalfVects.Add(ownVect);                                                  // 13 //// MIDDLE
+        //NeighbourHalfVects.Add(ownVect);                                                  // 13 //// MIDDLE
         NeighbourHalfVects.Add(new Vector3 (ownVect.x + 1, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
 
         //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y + 0, ownVect.z + 1)); // 15
@@ -272,7 +283,7 @@ public class CubeLocationScript : MonoBehaviour {
          //neighVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z - 2)); // 11
 
         NeighbourVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 0)); // 12 side (west)
-        NeighbourVects.Add(ownVect);                                                   // 13 //// MIDDLE
+        //NeighbourVects.Add(ownVect);                                                   // 13 //// MIDDLE
         NeighbourVects.Add(new Vector3 (ownVect.x + 2, ownVect.y + 0, ownVect.z + 0)); // 14 side (east)
 
         //neighVects.Add(new Vector3 (ownVect.x - 2, ownVect.y + 0, ownVect.z + 2)); // 15

@@ -38,7 +38,7 @@ public class LocationManager : MonoBehaviour
     {
         if (!_LocationLookup.ContainsKey(vect))
         {
-            //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
+            //Debug.Log("fucken adding normalscript to vect: " + vect + " script: " + script);
             _LocationLookup.Add(vect, script);
         }
         else
@@ -51,7 +51,7 @@ public class LocationManager : MonoBehaviour
     {
         if (!_LocationHalfLookup.ContainsKey(vect))
         {
-            //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
+            //Debug.Log("fucken adding HALF script to vect: " + vect + " script: " + script);
             _LocationHalfLookup.Add(vect, script);
         }
         else
@@ -88,67 +88,48 @@ public class LocationManager : MonoBehaviour
     {
         //Debug.Log("CheckIfCanMoveToCube loc: " + neighloc);
 
-        CubeLocationScript cubeScript = GetLocationScript(neighloc);
+        CubeLocationScript neighCubeScript = GetLocationScript(neighloc);
 
-        if (cubeScript == null)
+        if (neighCubeScript == null)
         {
             Debug.LogError("FAIL move cubeScript == null: " + neighloc);
             return null;
         }
 
-        if (!cubeScript.CubeMovable)
+        if (!neighCubeScript.CubePlatform)
         {
-            Debug.LogWarning("FAIL move cubeScript not CubeMovable: " + neighloc);
+            //Debug.LogWarning("FAIL move cubeScript not CubeMoveable: " + neighloc);
             return null;
         }
 
-        if (cubeScript.CubeOccupied)
+        if (neighCubeScript.CubeOccupied)
         {
-            Debug.LogWarning("FAIL move Cube is Occupied at vect:" + neighloc);
+            //Debug.LogWarning("FAIL move Cube is Occupied at vect:" + neighloc);
             return null;
         }
 
         if (!unit.UnitCanClimbWalls)  // if human
         {
-            if (cubeScript.IsHumanWalkable == false && cubeScript.IsHumanClimbable == false && cubeScript.IsHumanJumpable == false)
+            if (neighCubeScript.IsHumanWalkable == false && neighCubeScript.IsHumanClimbable == false && neighCubeScript.IsHumanJumpable == false)
             {
-                Debug.LogWarning("FAIL move error Human walkable/climable/jumpable: " + neighloc);
+               // Debug.LogWarning("FAIL move error Human walkable/climable/jumpable: " + neighloc);
+                //Debug.LogFormat("FAIL walkable/climable/jumpable: {0} , {1} , {2}", neighCubeScript.IsHumanWalkable, neighCubeScript.IsHumanClimbable, neighCubeScript.IsHumanJumpable);
                 return null;
             }
         }
         else // alien
         {
-            if (cubeScript.IsAlienWalkable == false && cubeScript.IsAlienClimbable == false && cubeScript.IsAlienJumpable == false)
+            if (neighCubeScript.IsAlienWalkable == false && neighCubeScript.IsAlienClimbable == false && neighCubeScript.IsAlienJumpable == false)
             {
-                Debug.LogWarning("FAIL move error ALIEN walkable/climable/jumpable: " + neighloc);
+                //Debug.LogWarning("FAIL move error ALIEN walkable/climable/jumpable: " + neighloc);
                 return null;
             }
         }
-        /*
-        if (unit.CubeUnitIsOn != null)
-        {
-            int neighHalfIndex = node.NeighbourVects.IndexOf(neighloc);
-            Vector3 neighHalfVect = node.NeighbourHalfVects[neighHalfIndex];
-            CubeLocationScript neighbourHalfScript = GetLocationScript(neighHalfVect);
-
-            if (neighbourHalfScript == null)
-            {
-                Debug.LogWarning("FAIL move neighbourHalfScript == null: " + neighloc);
-                return null;
-            }
-
-            if (neighbourHalfScript._isPanel)
-            {
-                Debug.LogWarning("FAIL move neighbourHalfScript._isPanel: " + neighloc);
-                return null;
-            }
-        }
-        */
 
         //Debug.Log("SUCCES move to loc: " + neighloc);
 
         // success
-        return cubeScript;
+        return neighCubeScript;
     }
 
 
@@ -211,7 +192,7 @@ public class LocationManager : MonoBehaviour
 
             if (script != null)
             {
-                if (script.CubeMovable)
+                if (script.CubeMoveable)
                 {
                     script.CreatePathFindingNode((int)unit.NetID.Value);
                 }

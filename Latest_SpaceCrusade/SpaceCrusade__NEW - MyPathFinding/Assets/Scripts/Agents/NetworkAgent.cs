@@ -139,10 +139,8 @@ public class NetworkAgent : NetworkBehaviour
     [TargetRpc] //ClientRpc calls - which are called on the server and run on clients 
     void TargetSendPathVectorsToClient(NetworkConnection clientID, GameObject unit, int unitID, int[] pathVects)
     {
-        Debug.Log("Creating pathFinding NOdes on client: " + clientID);
-        Debug.Log("IS THIS UNIT REGISTERING: " + unit);
-
-         MovementManager.CreatePathFindingNodes(unit, unitID, pathVects);
+        //Debug.Log("Creating pathFinding NOdes on client: " + clientID);
+        MovementManager.CreatePathFindingNodes(unit, unitID, pathVects);
     }
 
 

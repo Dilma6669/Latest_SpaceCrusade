@@ -16,7 +16,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
     ////////////////////////////////////////////////
 
-    private static List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript>(); 
+    private static List<CubeLocationScript> halfCubesWithPanels = new List<CubeLocationScript>(); 
 
     private static int worldNodeSize = 0;
     private static int sizeSquared = 0;
@@ -61,27 +61,13 @@ public class MapPieceBuilder : MonoBehaviour {
     //////////////////////////////////////////////
 
     // trying to connection neighbours early so this is here
-
     public static void SetPanelsNeighbours()
     {
-        foreach (CubeLocationScript script in cubesWithPanels)
+        foreach (CubeLocationScript script in halfCubesWithPanels)
         {
             script.AssignCubeNeighbours();
-
-            CubeLocationScript leftscript = script._panelScriptChild.cubeScriptLeft;
-            if (leftscript != null)
-            {
-                leftscript.AssignCubeNeighbours();
-            }
-
-            CubeLocationScript rightscript = script._panelScriptChild.cubeScriptRight;
-            if (rightscript != null)
-            {
-                rightscript.AssignCubeNeighbours();
-            }
-
         }
-        cubesWithPanels.Clear();
+        halfCubesWithPanels.Clear();
     }
 
     public static void SetWorldNodeNeighboursForDock(int[] worldNodes)
@@ -99,7 +85,7 @@ public class MapPieceBuilder : MonoBehaviour {
         worldNodeSize = _worldNodeSize;
         sizeSquared = (worldNodeSize * worldNodeSize);
 
-        cubesWithPanels.Clear();
+        halfCubesWithPanels.Clear();
 
         neighbours = node.neighbours;
         layerCount = 2;
@@ -242,9 +228,9 @@ public class MapPieceBuilder : MonoBehaviour {
                     CubeLocationScript cubeScript = CubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, nodeLayercount, node.gameObject.transform); // Create the cube
                     
                     // A test to see if cube has panel to try make connecting neighbours easier
-                    if (cubeScript != null && cubeScript._isPanel)
+                    if (cubeScript && cubeScript._isPanel)
                     {
-                        cubesWithPanels.Add(cubeScript);
+                        halfCubesWithPanels.Add(cubeScript);
                     }
 
                     objectsCountX += 1;

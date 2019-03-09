@@ -66,7 +66,7 @@ public class NodeBuilder : MonoBehaviour
         cubeObject.transform.eulerAngles = new Vector3(0, rotationY, 0);
 
         CubeLocationScript cubeScript = cubeObject.GetComponent<CubeLocationScript>();
-        cubeScript.CubeMovable = (gridLoc.x % 2 == 0 && gridLoc.y % 2 == 1) ? true : false;
+        cubeScript.CubeMoveable = (gridLoc.x % 2 == 0 && gridLoc.y % 2 == 1) ? true : false;
         cubeScript.CubeLocVector = gridLoc;
         cubeScript.CubeLayerID = nodeLayerCount;
         cubeScript.CubeAngle = rotationY;
@@ -79,7 +79,7 @@ public class NodeBuilder : MonoBehaviour
     private static void SortOutCubeScriptShit(Vector3 GridLoc, CubeLocationScript cubeScript)
     {
         // If cube is movable or not
-        if (cubeScript.CubeMovable)
+        if (cubeScript.CubeMoveable)
         {
             LocationManager.SetCubeScriptToLocation(GridLoc, cubeScript);
         }
@@ -191,9 +191,6 @@ public class NodeBuilder : MonoBehaviour
         cubeScript._panelScriptChild = panelScript;
         cubeScript._isPanel = true;
         panelObject.name = (panelName);
-
-        cubeScript._panelScriptChild = panelScript;
-        cubeScript._isPanel = true;
 
         panelScript.cubeScriptParent = cubeScript;
         panelScript._camera = CameraManager.Camera_Agent.GetComponent<Camera>();

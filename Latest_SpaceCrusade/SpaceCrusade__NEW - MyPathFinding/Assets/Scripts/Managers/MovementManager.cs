@@ -8,10 +8,6 @@ public class MovementManager : MonoBehaviour
     private static MovementManager _instance;
 
     ////////////////////////////////////////////////
-
-    private static List<GameObject> unitsToMove = new List<GameObject>();
-
-    ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     void Awake()
@@ -32,9 +28,6 @@ public class MovementManager : MonoBehaviour
     // this is now being done on sevrer and return a list of vector3 to make node visual display for path for client 
     public static int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end)
     {
-
-        unitsToMove.Add(objToMove);
-
         UnitScript unitScript = objToMove.GetComponent<UnitScript>();
 
         List<CubeLocationScript> path = PathFinding.FindPath(unitScript, start, end);

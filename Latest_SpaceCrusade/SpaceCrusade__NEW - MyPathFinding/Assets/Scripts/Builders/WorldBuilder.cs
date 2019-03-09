@@ -126,7 +126,7 @@ public class WorldBuilder : MonoBehaviour
         List<Vector3> mapPieceNodes = GridBuilder.GetGridNodeStartPositions();
         MapPieceBuilder.AttachMapPieceToMapNode(mapNode, mapPieceNodes, mapSize, mapType, mapPiece, rotation);
         MapPieceBuilder.SetPanelsNeighbours();
-        mapNode.RemoveDoorPanels();
+        //mapNode.RemoveDoorPanels();
         //mapNode.mapFloorData = MapPieceBuilder.MapFloorData;
         //mapNode.mapVentData = MapPieceBuilder.MapVentData;
     }

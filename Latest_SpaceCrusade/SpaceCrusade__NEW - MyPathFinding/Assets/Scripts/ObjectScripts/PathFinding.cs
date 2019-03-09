@@ -37,6 +37,7 @@ public class PathFinding : MonoBehaviour
     public static List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
 
         Debug.Log("FindPath startVect: " + startVect);
+        Debug.Log("FindPath trying to move to: " + targetVect);
 
         CubeLocationScript cubeStartScript = LocationManager.GetLocationScript(startVect);
 		CubeLocationScript cubeTargetScript = LocationManager.GetLocationScript(targetVect);
@@ -69,13 +70,18 @@ public class PathFinding : MonoBehaviour
 
 			foreach (Vector3 vect in neighVects) {
 
+                CubeLocationScript neightbourScript = LocationManager.GetLocationScript(vect);
+
+                //if (node == cubeStartScript)
+                //{
+                //    continue;
+                //}
+
                 // personal checks
                 if (LocationManager.CheckIfCanMoveToCube(unit, node, vect) == null)
                 {
                     continue;
                 }
-
-                CubeLocationScript neightbourScript = LocationManager.GetLocationScript(vect);
 
                 if (closedSet.Contains (neightbourScript)) {
                     continue;
@@ -85,6 +91,7 @@ public class PathFinding : MonoBehaviour
                 {
                     neightbourScript.CreatePathFindingNode(unit.PlayerControllerID);
                 }
+
                 _previousNodes.Add(neightbourScript);
 
                 int newCostToNeighbour = node.gCost + GetDistance (node, neightbourScript);

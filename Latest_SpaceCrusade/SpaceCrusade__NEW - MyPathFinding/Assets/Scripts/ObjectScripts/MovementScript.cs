@@ -6,12 +6,6 @@ public class MovementScript : MonoBehaviour
 {
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    UnitsManager _unitsManager;
-    LocationManager _locationManager;
-
-    ////////////////////////////////////////////////
-
     private bool moveInProgress = false;
 
 	private List<CubeLocationScript> _nodes;
@@ -40,13 +34,6 @@ public class MovementScript : MonoBehaviour
 
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _unitsManager = _gameManager._unitsManager;
-        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _locationManager = _gameManager._locationManager;
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
         _nodes = new List<CubeLocationScript>();
         _tempNodes = new List<CubeLocationScript>();
     }
@@ -137,7 +124,7 @@ public class MovementScript : MonoBehaviour
     {
         if(_unitInterrupted)
         {
-            _unitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+            UnitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
             _unitInterrupted = false;
         }
 
@@ -147,7 +134,7 @@ public class MovementScript : MonoBehaviour
             {
                 _currTarget = _nodes[locCount];
                 _currTargetVect = new Vector3(_currTarget.CubeLocVector.x, _currTarget.CubeLocVector.y, _currTarget.CubeLocVector.z);
-                if (!_locationManager.SetUnitOnCube(GetComponent<UnitScript>(), _currTargetVect))
+                if (!LocationManager.SetUnitOnCube(GetComponent<UnitScript>(), _currTargetVect))
                 {
                     Debug.LogWarning("units movement interrupted >> recalculating");
                     _unitInterrupted = true;
@@ -218,6 +205,6 @@ public class MovementScript : MonoBehaviour
     {
         Debug.Log("IEnumerator RecalculateMove");
         yield return new WaitForSeconds(waitTime);
-        _unitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
+        UnitsManager.MakeUnitRecalculateMove(GetComponent<UnitScript>(), _finalTargetVect);
     }
 }

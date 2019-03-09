@@ -8,16 +8,17 @@ public class GameManager : MonoBehaviour {
 
     ////////////////////////////////////////////////
 
-    public WorldManager     _worldManager;
-    public PlayerManager    _playerManager;
-    public LocationManager  _locationManager;
-    public MovementManager  _movementManager;
-    public CombatManager    _combatManager;
-    public CameraManager    _cameraManager;
-    public UIManager        _uiManager;
-    public NetWorkManager   _networkManager;
-    public UnitsManager     _unitsManager;
-    public LayerManager     _layerManager;
+    // these are just references to the in-scene game objects
+    public static GameObject _WorldManager;
+    public static GameObject _PlayerManager;
+    public static GameObject _LocationManager;
+    public static GameObject _MovementManager;
+    public static GameObject _CombatManager;
+    public static GameObject _CameraManager;
+    public static GameObject _UIManager;
+    public static GameObject _NetworkManager;
+    public static GameObject _UnitsManager;
+    public static GameObject _LayerManager;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -32,26 +33,29 @@ public class GameManager : MonoBehaviour {
         {
             _instance = this;
         }
+    }
 
-        if (_worldManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_movementManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_combatManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_cameraManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_uiManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        if (_layerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+    void Start()
+    {
+        _WorldManager       = GameObject.Find("WorldManager");
+        _PlayerManager      = GameObject.Find("PlayerManager");
+        _LocationManager    = GameObject.Find("LocationManager");
+        _MovementManager    = GameObject.Find("MovementManager");
+        _CombatManager      = GameObject.Find("CombatManager");
+        _CameraManager      = GameObject.Find("CameraManager");
+        _UIManager          = GameObject.Find("UIManager");
+        _NetworkManager     = GameObject.Find("NetworkManager");
+        _UnitsManager       = GameObject.Find("UnitsManager");
+        _LayerManager       = GameObject.Find("LayerManager");
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void StartGame(Vector3 worldNodeLoc)
+    public static void StartGame(Vector3 worldNodeLoc)
     {
         Debug.Log("fuck StartGame");
-        _unitsManager.LoadPlayersUnits(worldNodeLoc);
+        UnitsManager.LoadPlayersUnits(worldNodeLoc);
     }
 
 }

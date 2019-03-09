@@ -9,34 +9,30 @@ public class LayerManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-
-    ////////////////////////////////////////////////
-
     // Layer INfo
-    private int _startLayer;
-    private int _maxLayer; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
-    private int _minLayer;
-    private int _currLayer;
+    private static int _startLayer;
+    private static int _maxLayer; // This needs to change with the amout of y levels, basicly level*2 because of vents layer ontop of layer
+    private static int _minLayer;
+    private static int _currLayer;
 
     ////////////////////////////////////////////////
 
-    public int LayerStart
+    public static int LayerStart
     {
         get { return _startLayer; }
         set { _startLayer = value; }
     }
-    public int LayerMax
+    public static int LayerMax
     {
         get { return _maxLayer; }
         set { _maxLayer = value; }
     }
-    public int LayerMin
+    public static int LayerMin
     {
         get { return _minLayer; }
         set { _minLayer = value; }
     }
-    public int LayerCurr
+    public static int LayerCurr
     {
         get { return _currLayer; }
         set { _currLayer = value; }
@@ -44,16 +40,16 @@ public class LayerManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    public Dictionary<int, List<CubeLocationScript>> _layerCubeList;
-    public Dictionary<int, List<BaseNode>> _layerNodeList;
+    public static Dictionary<int, List<CubeLocationScript>> _layerCubeList;
+    public static Dictionary<int, List<BaseNode>> _layerNodeList;
 
-    int layerID;
-    BaseNode parentWorldNode;
-    int parentWorldLayerID;
+    static int layerID;
+    static BaseNode parentNode;
+    static int parentLayerID;
 
 
-    int LAYERVISIBLE = 8;
-    int LAYERNOTVISIBLE = 9;
+    static int LAYERVISIBLE = 8;
+    static int LAYERNOTVISIBLE = 9;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -72,12 +68,8 @@ public class LayerManager : MonoBehaviour
 
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
         _layerCubeList = new Dictionary<int, List<CubeLocationScript>>();
         _layerNodeList = new Dictionary<int, List<BaseNode>>();
-
 
         // change layer callback event
         UIManager.OnChangeLayerClick += ChangeCameraLayerByHUD;
@@ -87,7 +79,7 @@ public class LayerManager : MonoBehaviour
 
     //////////////////
 
-    public void ChangeCameraLayerByHUD(int change)
+    public static void ChangeCameraLayerByHUD(int change)
     {
         if (change == 1)
         {
@@ -103,12 +95,21 @@ public class LayerManager : MonoBehaviour
     }
 
 
-    public void ChangeCameraLayer(CubeLocationScript cubeScript)
+    public static void ChangeCameraLayer(CubeLocationScript cubeScript)
     {
-        parentWorldNode = cubeScript.transform.parent.parent.GetComponent<BaseNode>();
-        parentWorldLayerID = parentWorldNode.nodeLayerCount;
-        ChangeSpecificNodeVisibility(LAYERNOTVISIBLE); // set specfic world node to not visible
+        BaseNode parentWorldNode = cubeScript.transform.parent.parent.GetComponent<BaseNode>();
+        BaseNode parentMapNode = cubeScript.transform.parent.GetComponent<BaseNode>();
 
+        if (parentWorldNode.entrance)
+        {
+            parentNode = parentWorldNode;
+        }
+        else
+        {
+            parentNode = parentMapNode;
+        }
+        parentLayerID = parentNode.nodeLayerCount;
+        ChangeSpecificNodeVisibility(LAYERNOTVISIBLE); // set specfic world node to not visible
         if (LayerCurr != -1)
         {
             //ChangeSpecificNodeVisibility(parentWorldNode, LAYERVISIBLE);
@@ -117,7 +118,7 @@ public class LayerManager : MonoBehaviour
     
         layerID = cubeScript.CubeLayerID;
 
-        for (int i = parentWorldLayerID; i <= cubeScript.CubeLayerID; i++)
+        for (int i = parentLayerID; i <= cubeScript.CubeLayerID; i++)
         {
             layerID = i;
             ChangeSpecificCubesVisibility(LAYERVISIBLE);
@@ -128,20 +129,20 @@ public class LayerManager : MonoBehaviour
 
 
 
-    public void ChangeSpecificNodeVisibility(int visibilityLayer)
+    public static void ChangeSpecificNodeVisibility(int visibilityLayer)
     {
-        parentWorldNode.gameObject.layer = visibilityLayer;
+        parentNode.gameObject.layer = visibilityLayer;
 
-        Transform[] allChildren = parentWorldNode.GetComponentsInChildren<Transform>();
+        Transform[] allChildren = parentNode.GetComponentsInChildren<Transform>();
         foreach (Transform child in allChildren)
         {
             child.gameObject.layer = visibilityLayer;
         }
     }
 
-    public void ChangeSpecificCubesVisibility(int visibilityLayer)
+    public static void ChangeSpecificCubesVisibility(int visibilityLayer)
     {
-        CubeLocationScript[] allChildren = parentWorldNode.GetComponentsInChildren<CubeLocationScript>();
+        CubeLocationScript[] allChildren = parentNode.GetComponentsInChildren<CubeLocationScript>();
 
         foreach (CubeLocationScript child in allChildren)
         {
@@ -161,7 +162,7 @@ public class LayerManager : MonoBehaviour
 
     //////////////////
 
-    public void AddCubeToLayer(CubeLocationScript script)
+    public static void AddCubeToLayer(CubeLocationScript script)
     {
         int cubeLayer = script.CubeLayerID;
         if (_layerCubeList.ContainsKey(cubeLayer))
@@ -174,7 +175,7 @@ public class LayerManager : MonoBehaviour
         }
     }
 
-    public void ChangeCubeLayerVisibility(int layerID, int visibilityLayer)
+    public static void ChangeCubeLayerVisibility(int layerID, int visibilityLayer)
     {
         if (_layerCubeList.ContainsKey(layerID))
         {
@@ -198,7 +199,7 @@ public class LayerManager : MonoBehaviour
     }
 
 
-    public void MakeAllCubeLayersVisible()
+    public static void MakeAllCubeLayersVisible()
     {
         Debug.Log("fuekcn MakeAllLayersVisible");
         foreach (int layerID in _layerCubeList.Keys)
@@ -207,7 +208,7 @@ public class LayerManager : MonoBehaviour
         }
     }
 
-    public void MakeAllCubeLayersNotVisible()
+    public static void MakeAllCubeLayersNotVisible()
     {
         Debug.Log("fuekcn MakeAllLayersNotVisible");
         foreach (int layerID in _layerCubeList.Keys)
@@ -218,7 +219,7 @@ public class LayerManager : MonoBehaviour
 
     //////////////////
 
-    public void AddNodeToLayer(BaseNode node)
+    public static void AddNodeToLayer(BaseNode node)
     {
         int nodeLayer = node.nodeLayerCount;
         if (_layerNodeList.ContainsKey(nodeLayer))
@@ -231,7 +232,7 @@ public class LayerManager : MonoBehaviour
         }
     }
 
-    public void ChangeNodeLayerVisibility(int layerID, int visibilityLayer)
+    public static void ChangeNodeLayerVisibility(int layerID, int visibilityLayer)
     {
         if (_layerNodeList.ContainsKey(layerID))
         {
@@ -254,7 +255,7 @@ public class LayerManager : MonoBehaviour
         }
     }
 
-    public void MakeAllNodeLayersVisible()
+    public static void MakeAllNodeLayersVisible()
     {
         Debug.Log("fuekcn MakeAllLayersVisible");
         foreach (int layerID in _layerNodeList.Keys)
@@ -263,7 +264,7 @@ public class LayerManager : MonoBehaviour
         }
     }
 
-    public void MakeAllNodeLayersNotVisible()
+    public static void MakeAllNodeLayersNotVisible()
     {
         Debug.Log("fuekcn MakeAllLayersNotVisible");
         foreach (int layerID in _layerNodeList.Keys)

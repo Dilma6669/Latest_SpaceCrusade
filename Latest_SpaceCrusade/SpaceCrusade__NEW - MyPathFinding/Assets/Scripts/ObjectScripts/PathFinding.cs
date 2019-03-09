@@ -9,16 +9,12 @@ public class PathFinding : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
+    public static bool _debugPathfindingNodes;
 
     ////////////////////////////////////////////////
 
-    public bool _debugPathfindingNodes;
-
-    ////////////////////////////////////////////////
-
-    private bool _unitCanClimbWalls = true;
-    private List<CubeLocationScript> _previousNodes = new List<CubeLocationScript>();
+    private static bool _unitCanClimbWalls = true;
+    private static List<CubeLocationScript> _previousNodes = new List<CubeLocationScript>();
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -35,21 +31,15 @@ public class PathFinding : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
+    public static List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
 
         Debug.Log("FindPath startVect: " + startVect);
 
-        CubeLocationScript cubeStartScript = _gameManager._locationManager.GetLocationScript(startVect);
-		CubeLocationScript cubeTargetScript = _gameManager._locationManager.GetLocationScript(targetVect);
+        CubeLocationScript cubeStartScript = LocationManager.GetLocationScript(startVect);
+		CubeLocationScript cubeTargetScript = LocationManager.GetLocationScript(targetVect);
 
         List<CubeLocationScript> openSet = new List<CubeLocationScript>();
 		openSet.Clear ();
@@ -71,7 +61,7 @@ public class PathFinding : MonoBehaviour
 			openSet.Remove (node);
 			closedSet.Add (node);
 
-			if (node == cubeTargetScript) {
+			if (node == cubeTargetScript) { 
                 return RetracePath (cubeStartScript, cubeTargetScript);
 			}
 
@@ -80,12 +70,12 @@ public class PathFinding : MonoBehaviour
 			foreach (Vector3 vect in neighVects) {
 
                 // personal checks
-                if (_gameManager._locationManager.CheckIfCanMoveToCube(unit, node, vect) == null)
+                if (LocationManager.CheckIfCanMoveToCube(unit, node, vect) == null)
                 {
                     continue;
                 }
 
-                CubeLocationScript neightbourScript = _gameManager._locationManager.GetLocationScript(vect);
+                CubeLocationScript neightbourScript = LocationManager.GetLocationScript(vect);
 
                 if (closedSet.Contains (neightbourScript)) {
                     continue;
@@ -112,7 +102,7 @@ public class PathFinding : MonoBehaviour
 		return null;
 	}
 
-	private List<CubeLocationScript> RetracePath(CubeLocationScript startNode, CubeLocationScript endNode) {
+	private static List<CubeLocationScript> RetracePath(CubeLocationScript startNode, CubeLocationScript endNode) {
 		List<CubeLocationScript> path = new List<CubeLocationScript>();
 		CubeLocationScript currentNode = endNode;
 
@@ -127,7 +117,7 @@ public class PathFinding : MonoBehaviour
 
 
 
-	int GetDistance(CubeLocationScript nodeA, CubeLocationScript nodeB) {
+	private static int GetDistance(CubeLocationScript nodeA, CubeLocationScript nodeB) {
 		int dstX = (int)Mathf.Abs(nodeA.CubeLocVector.x - nodeB.CubeLocVector.x);
 		int dstY = (int)Mathf.Abs(nodeA.CubeLocVector.y - nodeB.CubeLocVector.y);
 
@@ -136,7 +126,7 @@ public class PathFinding : MonoBehaviour
 		return 14*dstX + 10 * (dstY-dstX);
 	}
 
-    void ResetPath()
+    private static void ResetPath()
     {
         foreach (CubeLocationScript node in _previousNodes)
         {

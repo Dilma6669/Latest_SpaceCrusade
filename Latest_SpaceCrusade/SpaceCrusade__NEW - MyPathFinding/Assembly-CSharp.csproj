@@ -59,10 +59,12 @@
      <Compile Include="Assets\Scripts\Agents\UnitsAgent.cs" />
      <Compile Include="Assets\Scripts\Builders\ConnectorData\ConnectorPiece_01.cs" />
      <Compile Include="Assets\Scripts\Builders\ConnectorData\ConnectorPiece_Roof_01.cs" />
+     <Compile Include="Assets\Scripts\Builders\ConnectorNodeBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\CubeBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\Enums\CoverTypes.cs" />
      <Compile Include="Assets\Scripts\Builders\Enums\NodeTypes.cs" />
      <Compile Include="Assets\Scripts\Builders\GridBuilder.cs" />
+     <Compile Include="Assets\Scripts\Builders\MapNodeBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\MapPieceBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\BaseMapPiece.cs" />
      <Compile Include="Assets\Scripts\Builders\MapsData\MapPiece_Corridor_01.cs" />
@@ -93,6 +95,7 @@
      <Compile Include="Assets\Scripts\Builders\UnitBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\UnitData\UnitData.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldBuilder.cs" />
+     <Compile Include="Assets\Scripts\Builders\WorldNodeBuilder.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldNodeData\WorldNodeBase.cs" />
      <Compile Include="Assets\Scripts\Builders\WorldNodeData\WorldNodeData_01.cs" />
      <Compile Include="Assets\Scripts\Managers\CameraManager.cs" />
@@ -104,7 +107,6 @@
      <Compile Include="Assets\Scripts\Managers\MovementManager.cs" />
      <Compile Include="Assets\Scripts\Managers\NetWorkManager.cs" />
      <Compile Include="Assets\Scripts\Managers\PlayerManager.cs" />
-     <Compile Include="Assets\Scripts\Managers\Send_NetWork_Data.cs" />
      <Compile Include="Assets\Scripts\Managers\UIManager.cs" />
      <Compile Include="Assets\Scripts\Managers\UnitsManager.cs" />
      <Compile Include="Assets\Scripts\Managers\WorldManager.cs" />

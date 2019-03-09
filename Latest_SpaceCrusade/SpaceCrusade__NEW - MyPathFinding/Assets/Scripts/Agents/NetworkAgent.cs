@@ -6,12 +6,6 @@ public class NetworkAgent : NetworkBehaviour
 {
     /////////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    NetWorkManager _networkManager;
-    SyncedVars _syncedvars;
-
-    /////////////////////////////////////////////////////
-
     Dictionary<NetworkInstanceId, GameObject> network_Client_Objects;
     Dictionary<NetworkInstanceId, GameObject> network_Unit_Objects;
 
@@ -28,17 +22,9 @@ public class NetworkAgent : NetworkBehaviour
     // Need this Start()
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _networkManager = _gameManager._networkManager;
-        if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _syncedvars = _gameManager._networkManager._syncedVars;
-        if (_syncedvars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         if (!isLocalPlayer) return;
-        _networkManager.NetworkAgent = this;
+        NetWorkManager.NetworkAgent = this;
     }
 
     /////////////////////////////////////////////////////
@@ -49,7 +35,10 @@ public class NetworkAgent : NetworkBehaviour
     {
         Start();
         network_Client_Objects.Add(clientID, ClientScene.FindLocalObject(clientID));
-        RpcUpdatePlayerCountOnClient(_syncedvars.PlayerCount + 1);
+
+        SyncedVars _syncedVars = GameObject.Find("SyncedVars").GetComponent<SyncedVars>(); // needs to be here, function runs before awake
+
+        RpcUpdatePlayerCountOnClient(_syncedVars.PlayerCount + 1);
     }
     [ClientRpc] //ClientRpc calls - which are called on the server and run on clients
     void RpcUpdatePlayerCountOnClient(int count)
@@ -58,15 +47,15 @@ public class NetworkAgent : NetworkBehaviour
     }
 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    public void CmdTellServerToSpawnPlayerUnit(UnitData unitData, int playerID, Vector3 worldStart)
+    public void CmdTellServerToSpawnPlayerUnit(NetworkInstanceId clientNetID, UnitData unitData, int playerID, Vector3 worldStart)
     {
         //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
         if (!isServer) return;
 
         unitData.UnitStartingWorldLoc = worldStart;
 
-        GameObject prefab = _gameManager._unitsManager._unitBuilder.GetUnitModel(unitData.UnitModel);
-        GameObject unit = Instantiate(prefab, _gameManager._unitsManager.gameObject.transform, false);
+        GameObject prefab = UnitsManager._unitBuilder.GetUnitModel(unitData.UnitModel);
+        GameObject unit = Instantiate(prefab, GameManager._UnitsManager.transform, false);
         NetworkServer.Spawn(unit);
         AssignUnitDataToUnitScript(unit, playerID, unitData);
 
@@ -74,9 +63,12 @@ public class NetworkAgent : NetworkBehaviour
         {
             network_Unit_Objects.Add(unit.GetComponent<NetworkIdentity>().netId, unit);
             unit.transform.position = unitData.UnitStartingWorldLoc;
-            _gameManager._locationManager.SetUnitOnCube(unit.GetComponent<UnitScript>(), unitData.UnitStartingWorldLoc);
+            LocationManager.SetUnitOnCube(unit.GetComponent<UnitScript>(), unitData.UnitStartingWorldLoc);
             NetworkInstanceId unitNetID = unit.GetComponent<NetworkIdentity>().netId;
             RpcUpdatePlayerUnitsOnAllClients(unit, unitNetID, playerID, unitData);
+
+            NetworkConnection clientID = network_Client_Objects[clientNetID].GetComponent<NetworkIdentity>().connectionToClient;
+            TargetActivateUnitLeader(clientID, unit);
         }
         else
         {
@@ -99,6 +91,21 @@ public class NetworkAgent : NetworkBehaviour
         }
     }
 
+    [TargetRpc] //ClientRpc calls - which are called on the server and run on clients 
+    void TargetActivateUnitLeader(NetworkConnection clientID, GameObject unit)
+    {
+        if (isLocalPlayer)
+        {
+            UnitScript unitScript = unit.GetComponent<UnitScript>();
+            unitScript.ActivateUnit(true);
+        }
+    }
+
+
+
+
+
+
 
     void AssignUnitDataToUnitScript(GameObject unit, int playerID, UnitData unitData)
     {
@@ -110,7 +117,7 @@ public class NetworkAgent : NetworkBehaviour
         unitScript.UnitCanClimbWalls = unitData.UnitCanClimbWalls;
         unitScript.UnitStartingWorldLoc = unitData.UnitStartingWorldLoc;
         unitScript.UnitCombatStats = unitData.UnitCombatStats;
-        unit.transform.SetParent(_gameManager._unitsManager.gameObject.transform);
+        unit.transform.SetParent(GameManager._UnitsManager.transform);
     }
 
 
@@ -123,7 +130,7 @@ public class NetworkAgent : NetworkBehaviour
 
         GameObject unit = network_Unit_Objects[unitNetID];
         UnitScript unitScript = unit.GetComponent<UnitScript>();
-        int[] movePath = _gameManager._movementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeLocVector, vectorToMoveTo);
+        int[] movePath = MovementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeLocVector, vectorToMoveTo);
         NetworkConnection clientID = network_Client_Objects[clientNetID].GetComponent<NetworkIdentity>().connectionToClient;
         int unitID = (int)network_Unit_Objects[unitNetID].GetComponent<NetworkIdentity>().netId.Value;
         TargetSendPathVectorsToClient(clientID, network_Unit_Objects[unitNetID], unitID, movePath);
@@ -132,8 +139,10 @@ public class NetworkAgent : NetworkBehaviour
     [TargetRpc] //ClientRpc calls - which are called on the server and run on clients 
     void TargetSendPathVectorsToClient(NetworkConnection clientID, GameObject unit, int unitID, int[] pathVects)
     {
-        //Debug.Log("Creating pathFinding NOdes on client: " + clientID);
-       _gameManager._movementManager.CreatePathFindingNodes(unit, unitID, pathVects);
+        Debug.Log("Creating pathFinding NOdes on client: " + clientID);
+        Debug.Log("IS THIS UNIT REGISTERING: " + unit);
+
+         MovementManager.CreatePathFindingNodes(unit, unitID, pathVects);
     }
 
 
@@ -143,7 +152,7 @@ public class NetworkAgent : NetworkBehaviour
     {
         if (!isServer) return;
 
-        CubeLocationScript cube = _gameManager._locationManager.GetLocationScript(cubeVec);
+        CubeLocationScript cube =  .LocationManager.GetLocationScript(cubeVec);
         cube.AssignCubeNeighbours();
     }
     */

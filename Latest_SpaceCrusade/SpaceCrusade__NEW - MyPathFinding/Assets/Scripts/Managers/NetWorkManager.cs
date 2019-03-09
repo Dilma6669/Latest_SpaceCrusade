@@ -7,15 +7,13 @@ public class NetWorkManager : NetworkManager
 
     private static NetWorkManager _instance;
 
-    private NetworkAgent _networkAgent;
+    ////////////////////////////////////////////////
+
+    private static NetworkAgent _networkAgent;
 
     ////////////////////////////////////////////////
 
-    public SyncedVars _syncedVars;
-
-    ////////////////////////////////////////////////
-
-    public NetworkAgent NetworkAgent
+    public static NetworkAgent NetworkAgent
     {
         get { return _networkAgent; }
         set { _networkAgent = value; }
@@ -36,6 +34,7 @@ public class NetWorkManager : NetworkManager
         }
     }
 
+
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
@@ -44,8 +43,7 @@ public class NetWorkManager : NetworkManager
 	{
         Debug.Log("NETWORKMANAGER: Client Connect!! Con: " + Conn.hostId);
 
-        _syncedVars = FindObjectOfType<SyncedVars>();
-        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        SyncedVars _syncedVars = GameObject.Find("SyncedVars").GetComponent<SyncedVars>(); // needs to be here, function runs before awake
 
         if (Conn.hostId == -1)
         {

@@ -6,11 +6,6 @@ public class CameraAgent : NetworkBehaviour
 {
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    CameraManager _cameraManager;
-
-    ////////////////////////////////////////////////
-
     [HideInInspector]
     public Camera _camera;
 
@@ -61,13 +56,9 @@ public class CameraAgent : NetworkBehaviour
 
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _cameraManager = _gameManager._cameraManager;
-        if (_cameraManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
         if (!isLocalPlayer) return;
-        _cameraManager.Camera_Agent = this;
+
+        CameraManager.Camera_Agent = this;
         _camera.enabled = true;
     }
 

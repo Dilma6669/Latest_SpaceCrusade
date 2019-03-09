@@ -9,24 +9,19 @@ public class GridBuilder : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    MapSettings _mapSettings;
-    NodeBuilder _nodeBuilder;
+    private static BaseNode _node;
+
+    private static List<Vector3> _GridMovableLocLookup;     // moveable
+    private static List<Vector3> _GridNotMovableLocLookup;     // not movable
+
+    private static List<Vector3> _GridStartNodePositions; // important for mapbuilding
+
+    private static int _worldNodeSize = 0;
 
     ////////////////////////////////////////////////
 
-    private BaseNode _node;
-
-    private Dictionary<Vector3, CubeLocationScript> _GridLocToScriptLookup;     // making a lookUp table for objects located at Vector3 Grid locations
-
-    private List<Vector3> _GridNodePositions;
-
-    private int _worldNodeSize = 0;
-
-    ////////////////////////////////////////////////
-
-    public bool _debugGridObjects; // debugging purposes
-    public bool _debugNodeSpheres = false;
+    public static bool _debugGridObjects; // debugging purposes
+    public static bool _debugNodeSpheres = false;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -43,72 +38,49 @@ public class GridBuilder : MonoBehaviour
         }
     }
 
-
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _mapSettings = _gameManager._worldManager._mapSettings;
-        if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _nodeBuilder = _gameManager._worldManager._nodeBuilder;
-        if (_nodeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
+        _GridMovableLocLookup = new List<Vector3>();
+        _GridNotMovableLocLookup = new List<Vector3>();
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void SetCubeScriptToGridLocation(Vector3 vect, CubeLocationScript script)
+    // NOTE::: ALL THESE LISTS ARE GENERATED EACH MAP PIECE
+    // Just movable locations
+    public static List<Vector3> GetGrid_MOVEABLE_LocLookup()
     {
-        if (_GridLocToScriptLookup.ContainsKey(vect))
-        {
-            if (_GridLocToScriptLookup[vect] == null)
-            {
-                //Debug.Log("fucken adding to vect: " + vect + " script: " + script);
-                _GridLocToScriptLookup[vect] = script;
-            }
-            else
-            {
-                Debug.LogError("GOT a same location trying to have script assigned too");
-            }
-        }
-        else
-        {
-            Debug.LogError("_GridLocToScriptLookup.ContainsKey(vect) does not exist: " + vect);
-        }
+        return _GridMovableLocLookup;
+    }
+    // Just NOT movable locations
+    public static List<Vector3> GetGrid_NOTMOVEABLE_Lookup(Vector3 vect)
+    {
+        return _GridNotMovableLocLookup;
+    }
+    // Bottom corner start positions
+    public static List<Vector3> GetGridNodeStartPositions()
+    {
+        return _GridStartNodePositions;
     }
 
-    public CubeLocationScript GetGridLocationScript(Vector3 vect)
+    ////////////////////////////////////////////////s
+
+    public static void BuildLocationGrid<T>(T node, int worldNodeSize) where T : BaseNode
     {
-        return _GridLocToScriptLookup[vect];
-    }
+        // these need to be reset each map piece built
+        _GridStartNodePositions = new List<Vector3>();
+        _GridMovableLocLookup = new List<Vector3>();
+        _GridNotMovableLocLookup = new List<Vector3>();
 
-    public Dictionary <Vector3, CubeLocationScript> GetGridLocations() {
-		return _GridLocToScriptLookup;
-	}
-
-	public List<Vector3> GetGridNodePositions() {
-		return _GridNodePositions;
-	}
-
-
-
-    public void BuildLocationGrid<T>(T node, int worldNodeSize) where T : BaseNode
-    {
         _node = node as T;
 
         _worldNodeSize = worldNodeSize;
 
-        _GridNodePositions = new List<Vector3>();
-        _GridLocToScriptLookup = new Dictionary<Vector3, CubeLocationScript>();
-
         // these are the bottom left corner axis for EACH map node
-        int startGridLocX = (int)node.nodeLocation.x - (_mapSettings.sizeOfMapPiecesXZ / 2);
-        int startGridLocY = (int)node.nodeLocation.y - (_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) / 2;
-        int startGridLocZ = (int)node.nodeLocation.z - (_mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)node.nodeLocation.x - (MapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocY = (int)node.nodeLocation.y - (MapSettings.sizeOfMapPiecesY + MapSettings.sizeOfMapVentsY) / 2;
+        int startGridLocZ = (int)node.nodeLocation.z - (MapSettings.sizeOfMapPiecesXZ / 2);
 
         BuildGridLocations(startGridLocX, startGridLocY, startGridLocZ);
 
@@ -116,7 +88,7 @@ public class GridBuilder : MonoBehaviour
 
 
 
-	public void BuildGridLocations(int startX, int startY, int startZ) {
+	public static void BuildGridLocations(int startX, int startY, int startZ) {
 
         int gridLocX = startX;
 		int gridLocY = startY;
@@ -143,17 +115,7 @@ public class GridBuilder : MonoBehaviour
                     // put vector location, eg, grid Location 0,0,0 and World Location 35, 0, 40 value pairs into hashmap for easy lookup
                     Vector3 gridLoc = new Vector3(gridLocX, gridLocY, gridLocZ);
 
-                    // Create empty objects at locations to see the locations (debugging purposes)
-                    if (_debugGridObjects)
-                    {
-                        MakeDebugObject(gridLoc);
-                    }
-
-                    // Adds null script for optimization
-                    _GridLocToScriptLookup.Add(gridLoc, null);
-
-                    // node objects are spawned at bottom corner each map piece
-                    MakeMapNodeObject(gridLoc, startY);
+                    PutGridLocInCorrectLists(gridLoc, startY);
 
                     gridLocX += 1;
 				}
@@ -169,7 +131,7 @@ public class GridBuilder : MonoBehaviour
 		//gridLocY = gridLocY;
 		gridLocZ = startZ;
 
-        startY += _mapSettings.sizeOfMapPiecesY;
+        startY += MapSettings.sizeOfMapPiecesY;
 
         int offset = 0;
 
@@ -179,7 +141,7 @@ public class GridBuilder : MonoBehaviour
             offset = 1;
         }
 
-        for (int y = startY; y < (startY + _mapSettings.sizeOfMapVentsY) + offset; y++) {
+        for (int y = startY; y < (startY + MapSettings.sizeOfMapVentsY) + offset; y++) {
 
             gridLocX = startX;
 			gridLocZ = startZ;
@@ -195,17 +157,7 @@ public class GridBuilder : MonoBehaviour
                     // put vector location, eg, grid Location 0,0,0 and World Location 35, 0, 40 value pairs into hashmap for easy lookup
                     Vector3 gridLoc = new Vector3(gridLocX, gridLocY, gridLocZ);
 
-                    // Create empty objects at locations to see the locations (debugging purposes)
-                    if (_debugGridObjects)
-                    {
-                        MakeDebugObject(gridLoc);
-                    }
-
-                    // Adds null script for optimization
-                    _GridLocToScriptLookup.Add(gridLoc, null);
-
-                    // node objects are spawned at bottom corner each map piece
-                    MakeMapNodeObject(gridLoc, startY);
+                    PutGridLocInCorrectLists(gridLoc, startY);
 
 					gridLocX += 1;
 				}
@@ -215,28 +167,34 @@ public class GridBuilder : MonoBehaviour
 		}
     }
 
-
-    // Create empty objects at locations to see the locations (debugging purposes)
-    private void MakeDebugObject(Vector3 vect)
-    {
-        GameObject node = _nodeBuilder.InstantiateNodeObject(vect, NodeTypes.GridNode, this.transform);
-    }
-
     // node objects are spawned at bottom corner each map piece
-    private void MakeMapNodeObject(Vector3 vect, int startY)
+    private static void PutGridLocInCorrectLists(Vector3 gridLoc, int startY)
     {
-        //////////////////////////////////////////
-        int multiple = (_worldNodeSize * _mapSettings.sizeOfMapPiecesXZ) / _worldNodeSize;
-
-        if (vect.x % multiple == 0 && vect.z % multiple == 0 && vect.y == startY)
+        if (gridLoc.x % 2 == 0 && gridLoc.y % 2 == 1)
         {
-            GameObject node = _nodeBuilder.InstantiateNodeObject(vect, NodeTypes.MapNode, this.transform);
-            _GridNodePositions.Add(vect);
+            // movable locations
+            _GridMovableLocLookup.Add(gridLoc);
         }
-        /////////////////////////////////////////////
+        else
+        {
+            // non moveable loacatoins
+            _GridNotMovableLocLookup.Add(gridLoc);
+        }
+
+        // for the corner map nodes for mapbuilding
+        int multiple = (_worldNodeSize * MapSettings.sizeOfMapPiecesXZ) / _worldNodeSize;
+
+        if (gridLoc.x % multiple == 0 && gridLoc.z % multiple == 0 && gridLoc.y == startY)
+        {
+            _GridStartNodePositions.Add(gridLoc);
+        }
+
+        // Create empty objects at locations to see the locations (debugging purposes)
+        if (_debugGridObjects)
+        {
+            WorldBuilder._nodeBuilder.InstantiateNodeObject(gridLoc, NodeTypes.GridNode, WorldManager._GridContainer.transform);
+        }
     }
-
-
 }
 	
 

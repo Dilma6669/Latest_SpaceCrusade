@@ -11,11 +11,6 @@ public class OuterZoneBuilder : MonoBehaviour
     public GameObject outerZonePrefab;
 
     ////////////////////////////////////////////////
-
-    GameManager _gameManager;
-    MapSettings _mapSettings;
-
-    ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     void Awake()
@@ -30,15 +25,6 @@ public class OuterZoneBuilder : MonoBehaviour
         }
 
         if (outerZonePrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _mapSettings = _gameManager._worldManager._mapSettings;
-        if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
@@ -56,8 +42,8 @@ public class OuterZoneBuilder : MonoBehaviour
         int spreadDistanceX = 10;
         int spreadDistanceY = 10;
 
-        int multiplierX = _mapSettings.sizeOfMapPiecesXZ * 3; // 3 is size of world nodes 3 is max at mo
-        int multiplierY = ((_mapSettings.sizeOfMapPiecesY + _mapSettings.sizeOfMapVentsY) * 3); // 1 is size of world nodes 3 is max at mo
+        int multiplierX = MapSettings.sizeOfMapPiecesXZ * 3; // 3 is size of world nodes 3 is max at mo
+        int multiplierY = ((MapSettings.sizeOfMapPiecesY + MapSettings.sizeOfMapVentsY) * 3); // 1 is size of world nodes 3 is max at mo
 
         int startX = (int)centalVect.x - (spreadDistanceX* multiplierX) - 1; // -1 to make line up properly (not sure exactly)
 

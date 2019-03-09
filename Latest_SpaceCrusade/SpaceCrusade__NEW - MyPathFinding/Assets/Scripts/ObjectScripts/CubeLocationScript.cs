@@ -1,16 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CubeLocationScript : MonoBehaviour {
-
-    public LocationManager _locationManager;
 
     // Cube info
     int _cubeUniqueID;
     public Vector3 _cubeLoc;
     int _cubeAngle;
     public int _cubeLayerID;
+    public bool _cubeMovable;
 
     bool _cubeVisible;
     bool _cubSelected;
@@ -54,6 +52,12 @@ public class CubeLocationScript : MonoBehaviour {
     {
         get { return _cubeLoc; }
         set { _cubeLoc = value; }
+    }
+
+    public bool CubeMovable
+    {
+        get { return _cubeMovable; }
+        set { _cubeMovable = value; }
     }
 
     public int CubeAngle
@@ -166,7 +170,7 @@ public class CubeLocationScript : MonoBehaviour {
         {
             SetHalfNeighbourVects();
             SetNeighbourVects();
-            _locationManager._cubeConnections.SetCubeNeighbours(this);
+            CubeConnections.SetCubeNeighbours(this);
             NeighboursSet = true;
         }
     }
@@ -190,12 +194,12 @@ public class CubeLocationScript : MonoBehaviour {
 		if (onOff) {
 			CubeActive (true);
 			_activePanel = panelSelected;
-            _locationManager.SetCubeActive (true, new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z)); // not sure if this should be here yet
+            LocationManager.SetCubeActive (true, new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z)); // not sure if this should be here yet
         }
         else
         {
 			CubeActive (false);
-            _locationManager.SetCubeActive (false);
+            LocationManager.SetCubeActive (false);
 		}
 	}
 

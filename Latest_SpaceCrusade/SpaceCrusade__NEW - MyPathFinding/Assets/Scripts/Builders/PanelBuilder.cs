@@ -7,14 +7,6 @@ public class PanelBuilder : MonoBehaviour
     private static PanelBuilder _instance;
 
     ////////////////////////////////////////////////
-
-    public GameObject _panelPrefab;
-
-    ////////////////////////////////////////////////
-
-    GameManager _gameManager;
-
-    ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     void Awake()
@@ -27,34 +19,18 @@ public class PanelBuilder : MonoBehaviour
         {
             _instance = this;
         }
-
-        if (_panelPrefab == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void CreatePanelForCube(string panel, Transform cubeTrans, int angle, int rotations) {
+    public static void CreatePanelForCube(string panelName, CubeLocationScript cubeScript, int angle, int rotations) {
 
-		GameObject panelObject = Instantiate (_panelPrefab, cubeTrans, false); // empty cube
-		panelObject.transform.SetParent (cubeTrans);
-		panelObject.name = (panel);
+        Transform cubeTrans = cubeScript.GetComponent<Transform>();
+        GameObject panelObject = WorldBuilder._nodeBuilder.CreatePanelForCube(panelName, cubeTrans);
+        PanelPieceScript panelScript = panelObject.GetComponent<PanelPieceScript>();
 
-		PanelPieceScript panelScript = panelObject.gameObject.GetComponent<PanelPieceScript> ();
-		CubeLocationScript cubeScript = cubeTrans.gameObject.GetComponent<CubeLocationScript> ();
-		cubeScript._panelScriptChild = panelScript;
-        cubeScript._isPanel = true;
-
-        panelScript.cubeScriptParent = cubeScript;
-        panelScript._camera = _gameManager._cameraManager.Camera_Agent.GetComponent<Camera>();
-
-        switch (panel) {
+        switch (panelName) {
 		case "Floor":
 			panelObject.transform.localPosition = new Vector3 (0, 0, 0);
 			panelObject.transform.localEulerAngles = new Vector3 (90, angle, 0);

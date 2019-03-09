@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine.EventSystems;
 using UnityEngine;
 
 public class PanelPieceScript : MonoBehaviour {
@@ -84,55 +83,58 @@ public class PanelPieceScript : MonoBehaviour {
 
     void OnMouseDown()
     {
-
-        RaycastHit hit;
-        if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hit))
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-
-            //cubeScriptParent.AssignCubeNeighbours();
-
-            int triIndex = hit.triangleIndex;
-
-            //Debug.Log ("Hit Triangle index : " + hit.triangleIndex);
-
-            if (triIndex == 0 || triIndex == 1 ||
-                triIndex == 2 || triIndex == 3 ||
-                triIndex == 8 || triIndex == 9) // good
+            RaycastHit hit;
+            if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hit))
             {
-                activeCubeScript = cubeScriptLeft;
-                //posActive = transform.TransformPoint(leftPosNode);
 
+                //cubeScriptParent.AssignCubeNeighbours();
+
+                int triIndex = hit.triangleIndex;
+
+                //Debug.Log ("Hit Triangle index : " + hit.triangleIndex);
+
+                if (triIndex == 0 || triIndex == 1 ||
+                    triIndex == 2 || triIndex == 3 ||
+                    triIndex == 8 || triIndex == 9) // good
+                {
+                    activeCubeScript = cubeScriptLeft;
+                    //posActive = transform.TransformPoint(leftPosNode);
+
+                }
+                else if (triIndex == 4 || triIndex == 5 ||
+                    triIndex == 6 || triIndex == 7 ||
+                    triIndex == 10 || triIndex == 11)
+                {
+                    activeCubeScript = cubeScriptRight;
+                    //posActive = transform.TransformPoint(rightPosNode);
+                }
+                else
+                {
+                    activeCubeScript = null;
+                    Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
+                }
             }
-            else if (triIndex == 4 || triIndex == 5 ||
-                triIndex == 6 || triIndex == 7 ||
-                triIndex == 10 || triIndex == 11)
+            if (cubeScriptLeft.CubeIsVisible || cubeScriptRight.CubeIsVisible)
             {
-                activeCubeScript = cubeScriptRight;
-                //posActive = transform.TransformPoint(rightPosNode);
-            }
-            else
-            {
-                activeCubeScript = null;
-                Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
-            }
-        }
-        if (cubeScriptLeft.CubeIsVisible || cubeScriptRight.CubeIsVisible)
-        {
-            if (!_panelActive)
-            {
-                activeCubeScript.CubeSelect(true, this.gameObject); // needs to stay here or will cause stack overflow
-                ActivatePanel(true);
-            }
-            else
-            {
-                activeCubeScript.CubeSelect(false); // needs to stay here or will cause stack overflow
-                ActivatePanel(false);
+                if (!_panelActive)
+                {
+                    activeCubeScript.CubeSelect(true, this.gameObject); // needs to stay here or will cause stack overflow
+                    ActivatePanel(true);
+                }
+                else
+                {
+                    activeCubeScript.CubeSelect(false); // needs to stay here or will cause stack overflow
+                    ActivatePanel(false);
+                }
             }
         }
     }
 
 
-	void OnMouseOver() {
+    void OnMouseOver()
+    {
         /*
 		if (cubeScriptLeft == null) {
 			Debug.Log ("ERROR cubeScriptLeft == null: " + this.gameObject.name);
@@ -152,12 +154,15 @@ public class PanelPieceScript : MonoBehaviour {
 			}
 		}
         */
+
         if (!_panelActive)
         {
             PanelPieceChangeColor("Green");
         }
     }
-	void OnMouseExit() {
+
+    void OnMouseExit()
+    {
         /*
 		if (cubeScriptLeft.cubeVisible || cubeScriptRight.cubeVisible) {
 			if (!_panelActive) {
@@ -170,6 +175,7 @@ public class PanelPieceScript : MonoBehaviour {
             PanelPieceChangeColor("White");
         }
     }
+
 	public void PanelPieceGoTransparent() {
 
 		if (_rend) {

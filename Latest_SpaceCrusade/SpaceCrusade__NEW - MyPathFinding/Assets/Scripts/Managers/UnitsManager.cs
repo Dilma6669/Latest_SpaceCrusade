@@ -7,21 +7,15 @@ public class UnitsManager : MonoBehaviour
 
     private static UnitsManager _instance;
 
-    private UnitsAgent _unitsAgent;
+    private static UnitsAgent _unitsAgent;
 
     ////////////////////////////////////////////////
 
-    public UnitBuilder _unitBuilder;
+    public static UnitBuilder _unitBuilder;
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    NetWorkManager _networkManager;
-    PlayerManager _playerManager;
-
-    ////////////////////////////////////////////////
-
-    public UnitsAgent UnitsAgent
+    public static UnitsAgent UnitsAgent
     {
         get { return _unitsAgent; }
         set { _unitsAgent = value; }
@@ -29,10 +23,10 @@ public class UnitsManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    UnitScript _activeUnit = null;
+    private static UnitScript _activeUnit = null;
 
-    public List<GameObject> unitObjects = new List<GameObject>();
-    public List<UnitScript> unitScripts = new List<UnitScript>();
+    public static List<GameObject> unitObjects = new List<GameObject>();
+    public static List<UnitScript> unitScripts = new List<UnitScript>();
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -47,26 +41,19 @@ public class UnitsManager : MonoBehaviour
         {
             _instance = this;
         }
-
-        if (_unitBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     void Start()
     {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _playerManager = _gameManager._playerManager;
-        if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _networkManager = _gameManager._networkManager;
-        if (_networkManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        _unitBuilder = GameObject.Find("UnitBuilder").GetComponent<UnitBuilder>();
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void LoadPlayersUnits(Vector3 worldNodeLoc)
+    public static void LoadPlayersUnits(Vector3 worldNodeLoc)
     {
-        List<UnitData> units = _gameManager._playerManager.PlayerUnitData;
+        List<UnitData> units = PlayerManager.PlayerUnitData;
 
         foreach (UnitData unit in units)
         {
@@ -78,14 +65,14 @@ public class UnitsManager : MonoBehaviour
     }
 
 
-    private void CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
+    private static void CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
     {
-        int playerID = _gameManager._playerManager.PlayerID;
-        _networkManager.NetworkAgent.CmdTellServerToSpawnPlayerUnit(unitData, playerID, worldStart);
+        int playerID = PlayerManager.PlayerID;
+        NetWorkManager.NetworkAgent.CmdTellServerToSpawnPlayerUnit(PlayerManager.PlayerAgent.NetID, unitData, playerID, worldStart);
     }
 
 
-    public void SetUnitActive(bool onOff, UnitScript unit = null)
+    public static void SetUnitActive(bool onOff, UnitScript unit = null)
     {
         if (onOff)
         {
@@ -93,11 +80,11 @@ public class UnitsManager : MonoBehaviour
             {
                 _activeUnit.ActivateUnit(false);
             }
-            //_gameManager._cubeManager.SetCubeActive (false);
-            _gameManager._cameraManager.SetCamToOrbitUnit(unit.transform);
-            _gameManager._layerManager.ChangeCameraLayer(unit.CubeUnitIsOn);
+            // ._cubeManager.SetCubeActive (false);
+            CameraManager.SetCamToOrbitUnit(unit.transform);
+            LayerManager.ChangeCameraLayer(unit.CubeUnitIsOn);
             _activeUnit = unit;
-            //_gameManager._locationManager.DebugTestPathFindingNodes(_activeUnit);
+            // ._locationManager.DebugTestPathFindingNodes(_activeUnit);
         }
         else
         {
@@ -105,26 +92,26 @@ public class UnitsManager : MonoBehaviour
         }
     }
 
-    public void MakeActiveUnitMove(Vector3 vectorToMoveTo)
+    public static void MakeActiveUnitMove(Vector3 vectorToMoveTo)
     {
         if (_activeUnit)
         {
-            _networkManager.NetworkAgent.CmdTellServerToMoveUnit(_playerManager.PlayerAgent.NetID, _activeUnit.NetID, vectorToMoveTo);
+            NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, _activeUnit.NetID, vectorToMoveTo);
         }
     }
 
-    public void MakeUnitRecalculateMove(UnitScript unit, Vector3 vectorToMoveTo)
+    public static void MakeUnitRecalculateMove(UnitScript unit, Vector3 vectorToMoveTo)
     {
         Debug.Log("recalulating from unitsAgent");
-        GetComponent<NetworkAgent>().CmdTellServerToMoveUnit(_playerManager.PlayerAgent.NetID, unit.NetID, vectorToMoveTo);
+        NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, unit.NetID, vectorToMoveTo);
     }
 
     /*
-    public void SetUpUnitForPlayer(GameObject unit)
+    public static void SetUpUnitForPlayer(GameObject unit)
     {
         Debug.Log("fucken unit 3: " + unit);
         UnitScript unitScript = unit.GetComponent<UnitScript>();
-        unitScript.CubeUnitIsOn = _gameManager._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
+        unitScript.CubeUnitIsOn =  ._locationManager.GetLocationScript(unitScript.UnitStartingWorldLoc);
         unitScript.PlayerControllerID = _playerManager.PlayerID;
         Debug.Log("fucken unitScript.PlayerControllerID 1: " + unitScript.PlayerControllerID);
     }
@@ -132,9 +119,9 @@ public class UnitsManager : MonoBehaviour
 
 
     /*
-    public void AssignUniqueLayerToUnits()
+    public static void AssignUniqueLayerToUnits()
     {
-        string layerStr = "Player0" + _gameManager._playerManager._playerAgent.PlayerUniqueID.ToString() + "Units";
+        string layerStr = "Player0" +  ._playerManager._playerAgent.PlayerUniqueID.ToString() + "Units";
         gameObject.layer = LayerMask.NameToLayer(layerStr);
 
         Transform[] children = gameObject.GetComponentsInChildren<Transform>();

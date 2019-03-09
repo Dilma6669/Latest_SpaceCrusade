@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerShipBuilder : MonoBehaviour {
 
-    LocationManager _locationManager;
+    LocationManager LocationManager;
     CubeBuilder _cubeBuilder;
-    MapSettings _mapSettings;
+    MapSettings MapSettings;
 
 
     public List<int[,]> floors = new List<int[,]>();
@@ -15,14 +15,14 @@ public class PlayerShipBuilder : MonoBehaviour {
 
     void Awake()
     {
-        _locationManager = transform.parent.GetComponent<LocationManager>();
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        LocationManager = transform.parent.GetComponent<LocationManager>();
+        if (LocationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
         _cubeBuilder = transform.parent.GetComponentInChildren<CubeBuilder>();
         if (_cubeBuilder == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
 
-        _mapSettings = transform.parent.GetComponent<MapSettings>();
-        if (_mapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
+        MapSettings = transform.parent.GetComponent<MapSettings>();
+        if (MapSettings == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
 
@@ -40,7 +40,7 @@ public class PlayerShipBuilder : MonoBehaviour {
         List<int[,]> layers = new List<int[,]>();
         int[,] floor;
 
-        int sizeSquared = (_mapSettings.numMapPiecesXZ * 4) + 4; // calculating area count for area AROUND mainShip
+        int sizeSquared = (MapSettings.numMapPiecesXZ * 4) + 4; // calculating area count for area AROUND mainShip
         int nodeCount = 0;
         int layerCount = -1;
 
@@ -59,8 +59,8 @@ public class PlayerShipBuilder : MonoBehaviour {
             // If each corner dont make connector piece
             bool corner = false;
             if (nodeCount % sizeSquared == 0 ||
-                nodeCount % sizeSquared == (_mapSettings.numMapPiecesXZ + 1) ||
-                nodeCount % sizeSquared == (sizeSquared - 1) - (_mapSettings.numMapPiecesXZ + 1) ||
+                nodeCount % sizeSquared == (MapSettings.numMapPiecesXZ + 1) ||
+                nodeCount % sizeSquared == (sizeSquared - 1) - (MapSettings.numMapPiecesXZ + 1) ||
                 nodeCount % sizeSquared == sizeSquared - 1)
             {
                 corner = true;
@@ -74,8 +74,8 @@ public class PlayerShipBuilder : MonoBehaviour {
                 int rotation = 1;
 
                 // Rotation calculation
-                if ((nodeCount % sizeSquared >= 0 && nodeCount % sizeSquared <= (_mapSettings.numMapPiecesXZ + 1)) ||
-                    nodeCount % sizeSquared >= (sizeSquared - 1) - (_mapSettings.numMapPiecesXZ + 1) && nodeCount % sizeSquared <= sizeSquared - 1)
+                if ((nodeCount % sizeSquared >= 0 && nodeCount % sizeSquared <= (MapSettings.numMapPiecesXZ + 1)) ||
+                    nodeCount % sizeSquared >= (sizeSquared - 1) - (MapSettings.numMapPiecesXZ + 1) && nodeCount % sizeSquared <= sizeSquared - 1)
                 {
                     rotation = 0;
                 }
@@ -97,7 +97,7 @@ public class PlayerShipBuilder : MonoBehaviour {
 
                     for (int r = 0; r < rotations; r++)
                     {
-                        floor = TransposeArray(floor, _mapSettings.sizeOfMapPiecesXZ - 1);
+                        floor = TransposeArray(floor, MapSettings.sizeOfMapPiecesXZ - 1);
                     }
 
                     for (int z = 0; z < floor.GetLength(0); z++)
@@ -111,7 +111,7 @@ public class PlayerShipBuilder : MonoBehaviour {
                             int cubeType = floor[z, x];
                             GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
 
-                            CubeLocationScript cubeScript = _locationManager.GetLocationScript(GridLoc);
+                            CubeLocationScript cubeScript = LocationManager.GetLocationScript(GridLoc);
 
                             if (cubeScript != null)
                             {
@@ -132,7 +132,7 @@ public class PlayerShipBuilder : MonoBehaviour {
             /*
         }
 
-        //_gameManager.MapsFinishedLoading ();
+        //GameManager.MapsFinishedLoading ();
         */
     }
 

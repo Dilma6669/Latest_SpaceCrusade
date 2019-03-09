@@ -9,19 +9,12 @@ public class LocationManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    public CubeConnections _cubeConnections;
+    public static Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();   // movable locations
+    public static Dictionary<Vector3, CubeLocationScript> _LocationHalfLookup = new Dictionary<Vector3, CubeLocationScript>(); // not moveable locations BUT important for neighbour system
 
-    ////////////////////////////////////////////////
+    public static Dictionary<int, CubeLocationScript> _unitLocation = new Dictionary<int, CubeLocationScript>(); // sever shit
 
-    GameManager _gameManager;
-    UnitsManager _unitsManager;
-
-    ////////////////////////////////////////////////
-
-    public Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();
-    public Dictionary<int, CubeLocationScript> _unitLocation = new Dictionary<int, CubeLocationScript>();
-
-    private CubeLocationScript _activeCube = null; // hmmm dont know if should be here
+    private static CubeLocationScript _activeCube = null; // hmmm dont know if should be here
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -36,39 +29,38 @@ public class LocationManager : MonoBehaviour
         {
             _instance = this;
         }
-        if (_cubeConnections == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _unitsManager = _gameManager._unitsManager;
-        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void AddCubeScriptToLocationLookup(Dictionary<Vector3, CubeLocationScript> locs)
+    public static void SetCubeScriptToLocation(Vector3 vect, CubeLocationScript script)
     {
-        foreach (Vector3 vect in locs.Keys)
+        if (!_LocationLookup.ContainsKey(vect))
         {
-            if (!_LocationLookup.ContainsKey(vect))
-            {
-                //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
-                _LocationLookup.Add(vect, locs[vect]);
-            }
-            else
-            {
-                Debug.LogError("trying to use already taking location!!!");
-            }
+            //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
+            _LocationLookup.Add(vect, script);
+        }
+        else
+        {
+            Debug.LogError("trying to assign script to already taking location!!!");
         }
     }
 
+    public static void SetCubeScriptToHalfLocation(Vector3 vect, CubeLocationScript script)
+    {
+        if (!_LocationHalfLookup.ContainsKey(vect))
+        {
+            //Debug.Log("fucken adding to vect: " + vect + " script: " + locs[vect]);
+            _LocationHalfLookup.Add(vect, script);
+        }
+        else
+        {
+            Debug.LogError("trying to assign script to already taking location!!!");
+        }
+    }
 
-
-    public CubeLocationScript GetLocationScript(Vector3 loc)
+    public static CubeLocationScript GetLocationScript(Vector3 loc)
     {
         //Debug.Log("GetLocationScript");
 
@@ -79,8 +71,20 @@ public class LocationManager : MonoBehaviour
         return null;
 	}
 
+    public static CubeLocationScript GetHalfLocationScript(Vector3 loc)
+    {
+        //Debug.Log("GetLocationScript");
 
-    public CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc)
+        if (_LocationHalfLookup.ContainsKey(loc))
+        {
+            return _LocationHalfLookup[loc];
+        }
+        //Debug.LogError("LOCATION DOSENT EXIST Loc: " + loc);
+        return null;
+    }
+
+
+    public static CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc)
     {
         //Debug.Log("CheckIfCanMoveToCube loc: " + neighloc);
 
@@ -88,19 +92,19 @@ public class LocationManager : MonoBehaviour
 
         if (cubeScript == null)
         {
-            //Debug.LogError("FAIL move cubeScript == null");
+            Debug.LogError("FAIL move cubeScript == null: " + neighloc);
+            return null;
+        }
+
+        if (!cubeScript.CubeMovable)
+        {
+            Debug.LogWarning("FAIL move cubeScript not CubeMovable: " + neighloc);
             return null;
         }
 
         if (cubeScript.CubeOccupied)
         {
-            //Debug.LogWarning("FAIL move Cube is Occupied at vect:" + neighloc);
-            return null;
-        }
-
-        if (cubeScript._isPanel) // this might cause problems
-        {
-            //Debug.LogWarning("FAIL move  cubeScript _isPanel");
+            Debug.LogWarning("FAIL move Cube is Occupied at vect:" + neighloc);
             return null;
         }
 
@@ -108,7 +112,7 @@ public class LocationManager : MonoBehaviour
         {
             if (cubeScript.IsHumanWalkable == false && cubeScript.IsHumanClimbable == false && cubeScript.IsHumanJumpable == false)
             {
-                //Debug.LogWarning("FAIL move error");
+                Debug.LogWarning("FAIL move error Human walkable/climable/jumpable: " + neighloc);
                 return null;
             }
         }
@@ -116,10 +120,11 @@ public class LocationManager : MonoBehaviour
         {
             if (cubeScript.IsAlienWalkable == false && cubeScript.IsAlienClimbable == false && cubeScript.IsAlienJumpable == false)
             {
-               //Debug.LogWarning("FAIL move error");
+                Debug.LogWarning("FAIL move error ALIEN walkable/climable/jumpable: " + neighloc);
                 return null;
             }
         }
+        /*
         if (unit.CubeUnitIsOn != null)
         {
             int neighHalfIndex = node.NeighbourVects.IndexOf(neighloc);
@@ -128,16 +133,17 @@ public class LocationManager : MonoBehaviour
 
             if (neighbourHalfScript == null)
             {
-                //Debug.LogWarning("FAIL move neighbourHalfScript == null");
+                Debug.LogWarning("FAIL move neighbourHalfScript == null: " + neighloc);
                 return null;
             }
 
             if (neighbourHalfScript._isPanel)
             {
-                //Debug.LogWarning("FAIL move neighbourHalfScript._isPanel");
+                Debug.LogWarning("FAIL move neighbourHalfScript._isPanel: " + neighloc);
                 return null;
             }
         }
+        */
 
         //Debug.Log("SUCCES move to loc: " + neighloc);
 
@@ -147,7 +153,7 @@ public class LocationManager : MonoBehaviour
 
 
 
-    public bool SetUnitOnCube(UnitScript unitScript, Vector3 loc)
+    public static bool SetUnitOnCube(UnitScript unitScript, Vector3 loc)
     {
         //Debug.Log("SetUnitOnCube");
 
@@ -180,7 +186,7 @@ public class LocationManager : MonoBehaviour
 
 
     ////// Dont think this should be here
-    public void SetCubeActive(bool onOff, Vector3 cubeVect = new Vector3())
+    public static void SetCubeActive(bool onOff, Vector3 cubeVect = new Vector3())
     {
         if (_activeCube)
         {
@@ -192,19 +198,23 @@ public class LocationManager : MonoBehaviour
         {
             _activeCube = GetLocationScript(cubeVect);
             _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
-            _unitsManager.MakeActiveUnitMove(cubeVect);
+            UnitsManager.MakeActiveUnitMove(cubeVect);
         }
     }
 
     // tries to spawn visual nodes in all current moveable locations for a unit
-    public void DebugTestPathFindingNodes(UnitScript unit)
+    public static void DebugTestPathFindingNodes(UnitScript unit)
     {
         foreach (KeyValuePair<Vector3, CubeLocationScript> element in _LocationLookup)
         {
             CubeLocationScript script = CheckIfCanMoveToCube(unit, unit.CubeUnitIsOn, element.Key);
+
             if (script != null)
             {
-                script.CreatePathFindingNode((int)unit.NetID.Value);
+                if (script.CubeMovable)
+                {
+                    script.CreatePathFindingNode((int)unit.NetID.Value);
+                }
             }
         }
     }

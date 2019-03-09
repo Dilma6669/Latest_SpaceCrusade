@@ -9,14 +9,7 @@ public class MovementManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager     _gameManager;
-    LocationManager _locationManager;
-	PathFinding      _pathFinding;
-    DataManipulation _dataManipulation;
-
-    ////////////////////////////////////////////////
-
-    private List<GameObject> unitsToMove = new List<GameObject>();
+    private static List<GameObject> unitsToMove = new List<GameObject>();
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -33,59 +26,44 @@ public class MovementManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _locationManager = _gameManager._locationManager;
-        if (_locationManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _pathFinding = GetComponent<PathFinding> ();
-		if(_pathFinding == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-
-        _dataManipulation = FindObjectOfType<DataManipulation>();
-        if (_dataManipulation == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     // this is now being done on sevrer and return a list of vector3 to make node visual display for path for client 
-    public int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end)
+    public static int[] SetUnitsPath(GameObject objToMove, Vector3 start, Vector3 end)
     {
 
         unitsToMove.Add(objToMove);
 
         UnitScript unitScript = objToMove.GetComponent<UnitScript>();
 
-        List<CubeLocationScript> path = _pathFinding.FindPath(unitScript, start, end);
+        List<CubeLocationScript> path = PathFinding.FindPath(unitScript, start, end);
 
         if (path == null) { return null; }
 
         objToMove.GetComponent<MovementScript>().MoveUnit(path);
-        List<Vector3> vects = _dataManipulation.GetLocVectorsFromCubeScript(path);
-        int[] movePath = _dataManipulation.ConvertVectorsIntoIntArray(vects);
+        List<Vector3> vects = DataManipulation.GetLocVectorsFromCubeScript(path);
+        int[] movePath = DataManipulation.ConvertVectorsIntoIntArray(vects);
         return movePath;
     }
 
 
-    public void StopUnits() {
+    public static void StopUnits() {
 
 
 	}
 
-    public void CreatePathFindingNodes(GameObject unit, int unitNetID, int[] path)
+    public static void CreatePathFindingNodes(GameObject unit, int unitNetID, int[] path)
     {
         unit.GetComponent<UnitScript>().ClearPathFindingNodes();
 
-        List<Vector3> vects = _dataManipulation.ConvertIntArrayIntoVectors(path);
+        List<Vector3> vects = DataManipulation.ConvertIntArrayIntoVectors(path);
 
         List<CubeLocationScript> scriptList = new List<CubeLocationScript>();
 
         foreach(Vector3 vect in vects)
         {
-            CubeLocationScript script = _locationManager.GetLocationScript(vect);
+            CubeLocationScript script = LocationManager.GetLocationScript(vect);
             script.CreatePathFindingNode(unitNetID);
             scriptList.Add(script);
             //Debug.Log("pathfinding VISUAL node set at vect: " + vect);

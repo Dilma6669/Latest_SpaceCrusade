@@ -1,13 +1,12 @@
 ﻿using UnityEngine.Networking;
 
-public class SyncedVars : NetworkBehaviour {
-
+public class SyncedVars : NetworkBehaviour
+{
     [SyncVar]
 	public int globalSeed = -1;
 
-	[SyncVar]
-	public int playerCount = -1;
-
+    [SyncVar]
+    public int playerCount = -1;
 
 	public int GlobalSeed
 	{

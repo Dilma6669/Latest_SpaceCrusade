@@ -32,13 +32,13 @@ public class BaseNode : MonoBehaviour {
 
         if (coverActive)
         {
-            _worldManager.AttachMapToNode(nodeType);
+            WorldBuilder.AttachMapToNode(nodeType);
             _nodeCover.SetActive(false);
             return false; // this is not a fail, this is deactivation
         }
         else
         {
-            _worldManager.AttachMapToNode(nodeType);
+            WorldBuilder.AttachMapToNode(nodeType);
             _nodeCover.SetActive(true);
             return true;
         }

@@ -6,11 +6,6 @@ public class UnitScript : NetworkBehaviour
 {
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    UnitsManager _unitsManager;
-
-    ////////////////////////////////////////////////
-
     // GamePlay data
     private List<CubeLocationScript> _pathFindingNodes;
     private bool _unitActive;
@@ -86,15 +81,10 @@ public class UnitScript : NetworkBehaviour
     }
 
 	// Use this for initialization
-	void Start () {
-
+	void Start ()
+    {
         _pathFindingNodes = new List<CubeLocationScript>();
         _rends = GetComponentsInChildren<Renderer> ();
-
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _unitsManager = _gameManager._unitsManager;
-        if (_unitsManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
@@ -129,12 +119,12 @@ public class UnitScript : NetworkBehaviour
 
         if (onOff)
         {
-            _unitsManager.SetUnitActive(true, this);
+            UnitsManager.SetUnitActive(true, this);
             PanelPieceChangeColor("Red");
         }
         else
         {
-            _unitsManager.SetUnitActive(false);
+            UnitsManager.SetUnitActive(false);
             PanelPieceChangeColor("White");
         }
         _unitActive = onOff;
@@ -144,7 +134,7 @@ public class UnitScript : NetworkBehaviour
     void OnMouseDown()
     {
         //if (!isLocalPlayer) return;
-        if (PlayerControllerID == _gameManager._playerManager.PlayerID)
+        if (PlayerControllerID == PlayerManager.PlayerID)
         {
             if (!_unitActive)
             {

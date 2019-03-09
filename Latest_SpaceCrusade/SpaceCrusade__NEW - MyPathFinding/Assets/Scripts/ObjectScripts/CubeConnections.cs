@@ -7,11 +7,6 @@ public class CubeConnections : MonoBehaviour
     private static CubeConnections _instance;
 
     ////////////////////////////////////////////////
-
-    GameManager _gameManager;
-    LocationManager _locationManager;
-
-    ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     void Awake()
@@ -26,19 +21,10 @@ public class CubeConnections : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _locationManager = _gameManager._locationManager;
-		if(_locationManager == null){Debug.LogError ("OOPSALA we have an ERROR!");}
-	}
-
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void SetCubeNeighbours(CubeLocationScript cubeScript)
+    public static void SetCubeNeighbours(CubeLocationScript cubeScript)
     {
         if (cubeScript == null)
         {
@@ -49,7 +35,7 @@ public class CubeConnections : MonoBehaviour
             // If any of the half neighbours are panels, then this cubeScript location can be set to walkable/climable...etc
             foreach (Vector3 vect in cubeScript.NeighbourHalfVects)
             {
-                CubeLocationScript neighbourScript = _locationManager.GetLocationScript(vect);
+                CubeLocationScript neighbourScript = LocationManager.GetHalfLocationScript(vect);
                 // setup Panels in cubes
                 if (neighbourScript != null && neighbourScript._isPanel)
                 {
@@ -64,7 +50,7 @@ public class CubeConnections : MonoBehaviour
 
 
 	// If ANY kind of wall/floor/object make neighbour cubes walkable
-	public void SetUpPanelInCube(CubeLocationScript cubeScript) {
+	public static void SetUpPanelInCube(CubeLocationScript cubeScript) {
 
 		PanelPieceScript panelScript = cubeScript._panelScriptChild;
 
@@ -91,7 +77,7 @@ public class CubeConnections : MonoBehaviour
 
 
 
-	private void SetUpFloorPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
+	private static void SetUpFloorPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
 		Vector3 leftVect, rightVect;
 		CubeLocationScript cubeScriptLeft = null;
@@ -100,7 +86,7 @@ public class CubeConnections : MonoBehaviour
         Vector3 cubeLoc = cubeScript.CubeLocVector;
 
         leftVect = new Vector3 (cubeLoc.x, cubeLoc.y - 1, cubeLoc.z);
-		cubeScriptLeft = _locationManager.GetLocationScript(leftVect); // underneath panel
+		cubeScriptLeft = LocationManager.GetLocationScript(leftVect); // underneath panel
 		if (cubeScriptLeft != null) {
 			panelScript.cubeScriptLeft = cubeScriptLeft;
 			panelScript.cubeLeftVector = leftVect;
@@ -117,7 +103,7 @@ public class CubeConnections : MonoBehaviour
 
 
         rightVect = new Vector3(cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
-        cubeScriptRight = _locationManager.GetLocationScript(rightVect); // Ontop of panel
+        cubeScriptRight = LocationManager.GetLocationScript(rightVect); // Ontop of panel
         if (cubeScriptRight != null)
         {
             panelScript.cubeScriptRight = cubeScriptRight;
@@ -163,7 +149,7 @@ public class CubeConnections : MonoBehaviour
 	}
 
 
-	private void SetUpWallPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
+	private static void SetUpWallPanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
 		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
@@ -182,7 +168,7 @@ public class CubeConnections : MonoBehaviour
 
 		if (result == 180 || result == -180 || result == 0) { // Down
 			leftVect = new Vector3 (cubeLoc.x, cubeLoc.y, cubeLoc.z - 1);
-			cubeScriptLeft = _locationManager.GetLocationScript(leftVect);
+			cubeScriptLeft = LocationManager.GetLocationScript(leftVect);
 			if (cubeScriptLeft != null) {
 				panelScript.cubeScriptLeft = cubeScriptLeft;
 				panelScript.cubeLeftVector = leftVect;
@@ -201,7 +187,7 @@ public class CubeConnections : MonoBehaviour
             }
 
 			rightVect = new Vector3 (cubeLoc.x, cubeLoc.y, cubeLoc.z + 1);
-			cubeScriptRight = _locationManager.GetLocationScript(rightVect);
+			cubeScriptRight = LocationManager.GetLocationScript(rightVect);
 			if (cubeScriptRight != null) {
 				panelScript.cubeScriptRight = cubeScriptRight;
 				panelScript.cubeRightVector = rightVect;
@@ -235,7 +221,7 @@ public class CubeConnections : MonoBehaviour
 		} else if (result == 90 || result == -90) { //across 
 
 			leftVect = new Vector3 (cubeLoc.x - 1, cubeLoc.y, cubeLoc.z);
-			cubeScriptLeft = _locationManager.GetLocationScript(leftVect);
+			cubeScriptLeft = LocationManager.GetLocationScript(leftVect);
 			if (cubeScriptLeft != null) {
 				panelScript.cubeScriptLeft = cubeScriptLeft;
 				panelScript.cubeLeftVector = leftVect;
@@ -254,7 +240,7 @@ public class CubeConnections : MonoBehaviour
             }
 
 			rightVect = new Vector3 (cubeLoc.x + 1, cubeLoc.y, cubeLoc.z);
-			cubeScriptRight = _locationManager.GetLocationScript(rightVect);
+			cubeScriptRight = LocationManager.GetLocationScript(rightVect);
 			if (cubeScriptRight != null) {
 				panelScript.cubeScriptRight = cubeScriptRight;
 				panelScript.cubeRightVector = rightVect;
@@ -301,7 +287,7 @@ public class CubeConnections : MonoBehaviour
 	}
 
 
-	private void SetUpFloorAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
+	private static void SetUpFloorAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
 		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
@@ -331,7 +317,7 @@ public class CubeConnections : MonoBehaviour
 	}
 
 
-	private void SetUpCeilingAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
+	private static void SetUpCeilingAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript) {
 
 		Vector3 cubeLoc = cubeScript.CubeLocVector;
 
@@ -362,7 +348,7 @@ public class CubeConnections : MonoBehaviour
     /*
 	private void DoHalfPointsForWalls(Vector3 nodeVect) {
 
-		CubeLocationScript nodeScript = _locationManager.GetLocationScript(nodeVect);
+		CubeLocationScript nodeScript = LocationManager.GetLocationScript(nodeVect);
 		if (nodeScript != null) {
 			nodeScript._isPanel = true;
 			nodeScript.IsHumanWalkable = false;
@@ -371,9 +357,9 @@ public class CubeConnections : MonoBehaviour
     */
 
 
-	private void MakeClimbableEdges(Vector3 nodeVect) {
+	private static void MakeClimbableEdges(Vector3 nodeVect) {
 
-		CubeLocationScript nodeScript = _locationManager.GetLocationScript(nodeVect);
+		CubeLocationScript nodeScript = LocationManager.GetLocationScript(nodeVect);
 		if (nodeScript != null) {
 			if (!nodeScript._isPanel) {
 				//nodeScript.IsHumanClimbable = true; 

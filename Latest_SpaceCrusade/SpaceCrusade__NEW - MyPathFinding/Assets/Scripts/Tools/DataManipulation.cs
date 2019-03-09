@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DataManipulation : MonoBehaviour {
 
-    public List<Vector3> GetLocVectorsFromCubeScript(List<CubeLocationScript> cubesScripts)
+    public static List<Vector3> GetLocVectorsFromCubeScript(List<CubeLocationScript> cubesScripts)
     {
         List<Vector3> vects = new List<Vector3>();
         foreach (CubeLocationScript cube in cubesScripts)
@@ -15,7 +15,7 @@ public class DataManipulation : MonoBehaviour {
     }
 
 
-    public int[] ConvertVectorsIntoIntArray(List<Vector3> vects)
+    public static int[] ConvertVectorsIntoIntArray(List<Vector3> vects)
     {
         int[] intArray = new int[vects.Count * 3];
         int index = 0;
@@ -31,7 +31,7 @@ public class DataManipulation : MonoBehaviour {
         return intArray;
     }
 
-    public List<Vector3> ConvertIntArrayIntoVectors(int[] intArray)
+    public static List<Vector3> ConvertIntArrayIntoVectors(int[] intArray)
     {
         List<Vector3> vects = new List<Vector3>();
 

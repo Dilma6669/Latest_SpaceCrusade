@@ -9,12 +9,10 @@ public class UIManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    SyncedVars _syncedVars;
-    Text playerIDText;
-    Text playerNameText;
-    Text totalPlayerText;
-    Text seedNumText;
+    static Text playerIDText;
+    static Text playerNameText;
+    static Text totalPlayerText;
+    static Text seedNumText;
 
     ////////////////////////////////////////////////
 
@@ -41,28 +39,22 @@ public class UIManager : MonoBehaviour
         seedNumText = transform.FindDeepChild("SeedNum").GetComponent<Text>();
     }
 
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _syncedVars = _gameManager._networkManager._syncedVars;
-        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
     // The players personal GUI
-    public void SetUpPlayersGUI(int playerID)
+    public static void SetUpPlayersGUI(int playerID)
     {
-        GetComponent<Canvas>().enabled = true;
+        GameManager._UIManager.GetComponent<Canvas>().enabled = true;
 
         playerIDText.text = playerID.ToString();
-        playerNameText.text = _gameManager._playerManager.PlayerName;
+        playerNameText.text = PlayerManager.PlayerName;
+
+        SyncedVars _syncedVars = GameObject.Find("SyncedVars").GetComponent<SyncedVars>(); // needs to be here, function runs before awake
         seedNumText.text = _syncedVars.GlobalSeed.ToString();
     }
 
-	public void UpdateTotalPlayersGUI(int total) {
+	public static void UpdateTotalPlayersGUI(int total) {
 
         totalPlayerText.text = total.ToString();
 	}

@@ -9,48 +9,34 @@ public class MapPieceBuilder : MonoBehaviour {
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    PlayerManager _playerManager;
+    private static List<int[,]> _floors = new List<int[,]>();
+    private static List<int[,]> _vents = new List<int[,]>();
+    private static List<int[,]> _floorDataToReturn = new List<int[,]>();
+    private static List<int[,]> _ventDataToReturn = new List<int[,]>();
 
     ////////////////////////////////////////////////
 
-    private List<int[,]> _floors = new List<int[,]>();
-    private List<int[,]> _vents = new List<int[,]>();
-    private List<int[,]> _floorDataToReturn = new List<int[,]>();
-    private List<int[,]> _ventDataToReturn = new List<int[,]>();
+    private static List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript>(); 
+
+    private static int worldNodeSize = 0;
+    private static int sizeSquared = 0;
+    private static int[] neighbours;
+
+    private static int[] worldNeighbours;
+
+    private static int layerCount = -1;
+
+    private static int nodeLayerCounter = 0;
 
     ////////////////////////////////////////////////
 
-    private List<CubeLocationScript> cubesWithPanels = new List<CubeLocationScript>(); 
-
-    private int worldNodeSize = 0;
-    private int sizeSquared = 0;
-    private int[] neighbours;
-
-    private int[] worldNeighbours;
-
-    private int layerCount = -1;
-
-    private int nodeLayerCounter = 0;
-
-    private static int MAPTYPE_MAP_FLOOR = 0;
-    private static int MAPTYPE_MAP_VENTS = 1;
-    private static int MAPTYPE_CONNECT_FLOOR = 2;
-    private static int MAPTYPE_CONNECT_VENTS = 3;
-    private static int MAPTYPE_CONNECT_UP_FLOOR = 4;
-    private static int MAPTYPE_CONNECT_UP_VENTS = 5;
-    private static int MAPTYPE_SHIPPORT_FLOOR = 6;
-    private static int MAPTYPE_SHIPPORT_VENTS = 7;
-
-    ////////////////////////////////////////////////
-
-    public List<int[,]> MapFloorData
+    public static List<int[,]> MapFloorData
     {
         get { return _floorDataToReturn; }
         set { _floorDataToReturn = value; }
     }
 
-    public List<int[,]> MapVentData
+    public static List<int[,]> MapVentData
     {
         get { return _ventDataToReturn; }
         set { _ventDataToReturn = value; }
@@ -71,21 +57,12 @@ public class MapPieceBuilder : MonoBehaviour {
         }
     }
 
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-
-        _playerManager = _gameManager._playerManager;
-        if (_playerManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
     ////////////////////////////////////////////////
     //////////////////////////////////////////////
 
     // trying to connection neighbours early so this is here
 
-    public void SetPanelsNeighbours()
+    public static void SetPanelsNeighbours()
     {
         foreach (CubeLocationScript script in cubesWithPanels)
         {
@@ -107,12 +84,14 @@ public class MapPieceBuilder : MonoBehaviour {
         cubesWithPanels.Clear();
     }
 
-    public void SetWorldNodeNeighboursForDock(int[] worldNodes)
+    public static void SetWorldNodeNeighboursForDock(int[] worldNodes)
     {
         worldNeighbours = worldNodes;
     }
 
-    public void AttachMapPieceToMapNode<T>(T node, List<Vector3> nodes, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
+    //////////////////////////////////////////////
+
+    public static void AttachMapPieceToMapNode<T>(T node, List<Vector3> nodes, int _worldNodeSize, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
         MapFloorData.Clear(); // storing data for serialzatino
         MapVentData.Clear();
@@ -137,11 +116,11 @@ public class MapPieceBuilder : MonoBehaviour {
     }
 
 
-    private void BuildMapsByIEnum<T>(T node, Vector3 nodeLoc, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
+    private static void BuildMapsByIEnum<T>(T node, Vector3 nodeLoc, int _mapType = -1, int _mapPiece = -1, int _rotation = -1) where T : BaseNode
     {
-        int startGridLocX = (int)nodeLoc.x - (_gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)nodeLoc.x - (MapSettings.sizeOfMapPiecesXZ / 2);
         int startGridLocY = (int)nodeLoc.y;
-        int startGridLocZ = (int)nodeLoc.z - (_gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocZ = (int)nodeLoc.z - (MapSettings.sizeOfMapPiecesXZ / 2);
 
         Vector3 GridLoc;
 
@@ -171,22 +150,22 @@ public class MapPieceBuilder : MonoBehaviour {
             {
                 if (node.playerShipMapPART1)
                 {
-                    layers = _playerManager.PlayerShipSmallFloorDataPART1;
+                    layers = PlayerManager.PlayerShipSmallFloorDataPART1;
                 }
                 else
                 {
-                    layers = _playerManager.PlayerShipSmallFloorDataPART2;
+                    layers = PlayerManager.PlayerShipSmallFloorDataPART2;
                 }
             }
             else
             {
                 if (node.playerShipMapPART1)
                 {
-                    layers = _playerManager.PlayerShipSmallVentDataPART1;
+                    layers = PlayerManager.PlayerShipSmallVentDataPART1;
                 }
                 else
                 {
-                    layers = _playerManager.PlayerShipSmallVentDataPART2;
+                    layers = PlayerManager.PlayerShipSmallVentDataPART2;
                 }
             }
             rotation = 0;
@@ -234,7 +213,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
             for (int r = 0; r < rotations; r++)
             {
-                floor = TransposeArray(floor, _gameManager._worldManager._mapSettings.sizeOfMapPiecesXZ - 1);
+                floor = TransposeArray(floor, MapSettings.sizeOfMapPiecesXZ - 1);
 
                 /*
                 if(floorORRoof) // storing the map data for serilisation and other shit still to work out
@@ -254,19 +233,20 @@ public class MapPieceBuilder : MonoBehaviour {
 
                 for (int x = 0; x < floor.GetLength(1); x++)
                 {
+                    GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
+
                     int cubeType = floor[z, x];
                     cubeType = FigureOutDoors(node, _mapType, cubeType, rotations);
-
-                    GridLoc = new Vector3(objectsCountX, objectsCountY, objectsCountZ);
-                    // A test to see if cube has panel to try make connecting neighbours easier
-
                     int nodeLayercount = node.GetComponent<T>().nodeLayerCount + nodeLayerCounter;
     
-                    CubeLocationScript cubeScript = _gameManager._worldManager._cubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, nodeLayercount, node.gameObject.transform); // Create the cube
+                    CubeLocationScript cubeScript = CubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, nodeLayercount, node.gameObject.transform); // Create the cube
+                    
+                    // A test to see if cube has panel to try make connecting neighbours easier
                     if (cubeScript != null && cubeScript._isPanel)
                     {
                         cubesWithPanels.Add(cubeScript);
                     }
+
                     objectsCountX += 1;
                 }
                 objectsCountZ += 1;
@@ -279,8 +259,10 @@ public class MapPieceBuilder : MonoBehaviour {
             objectsCountY += 1;
         }
     }
+    
+    ////////////////////////////////////////////////////
 
-    private KeyValuePair<int, int> GetShipEntranceMap(int mapCount)
+    private static KeyValuePair<int, int> GetShipEntranceMap(int mapCount)
     {
         if (mapCount == 0 || mapCount == 9 || mapCount == 18)
         {
@@ -326,7 +308,7 @@ public class MapPieceBuilder : MonoBehaviour {
         return new KeyValuePair<int, int>(-1, -1);
     }
 
-    private KeyValuePair<int, int> GetMapPieceAndRotation(int nodeCount, int neigh1, int rot1, int[] neighs2, int[] rots2)
+    private static KeyValuePair<int, int> GetMapPieceAndRotation(int nodeCount, int neigh1, int rot1, int[] neighs2, int[] rots2)
     {
         int mapPiece = -1; // either 0,1,2 : just floor/Floor and wall/floor and corner
         int rotation = -1;
@@ -445,7 +427,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
 
     ///////
-    private int FigureOutDoors<T>(T node, int _mapType, int _cubeType, int rotations) where T : BaseNode
+    private static int FigureOutDoors<T>(T node, int _mapType, int _cubeType, int rotations) where T : BaseNode
     {
         int originalCubeType = _cubeType;
 
@@ -524,7 +506,7 @@ public class MapPieceBuilder : MonoBehaviour {
             //Debug.Log("fuceken jezus index: " + index);
 
             // stay in here
-            if (_mapType == MAPTYPE_SHIPPORT_FLOOR) // shipYard
+            if (_mapType == MapSettings.MAPTYPE_SHIPPORT_FLOOR) // shipYard
             {
                 if (worldNeighbours[index] != -1) // if world neighbour present
                 {
@@ -552,13 +534,13 @@ public class MapPieceBuilder : MonoBehaviour {
             }
             else
             {   // this is for the floors no connectors UP to cover the vents below it. kind of a special case really
-                if (_mapType == MAPTYPE_CONNECT_UP_FLOOR && _cubeType == 50) 
+                if (_mapType == MapSettings.MAPTYPE_CONNECT_UP_FLOOR && _cubeType == 50) 
                 {
-                    if (worldNeighbours[0] != -1)
-                    {
-                        int neighIndex = node.worldNodeParent.neighbours[0]; // need to know the vect of neighbours
-                        //WorldNode worldBottomNeighbour = _gameManager._locationManager._LocationLookup[neighIndex];
-                    }
+                    //if (worldNeighbours[0] != -1)
+                    //{
+                    //    int neighIndex = node.worldNodeParent.neighbours[0]; // need to know the vect of neighbours
+                    //    //WorldNode worldBottomNeighbour =  .LocationManager._LocationLookup[neighIndex];
+                    //}
                 }
             }
         }
@@ -568,7 +550,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
 
     // Get map by type and piece (NOTE: at the moment needs to be same amount of case's in each type)
-    private List<int[,]> GetMapPiece(int type, int map)
+    private static List<int[,]> GetMapPiece(int type, int map)
     {
         switch (type)
         {
@@ -733,7 +715,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
 
 
-	private int[,] TransposeArray(int[,] array, int size) {
+	private static int[,] TransposeArray(int[,] array, int size) {
 
 		int[,] ret = new int[size, size];
 

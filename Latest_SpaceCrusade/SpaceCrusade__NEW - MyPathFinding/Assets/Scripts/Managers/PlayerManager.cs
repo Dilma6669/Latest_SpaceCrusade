@@ -9,77 +9,68 @@ public class PlayerManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    GameManager _gameManager;
-    SyncedVars _syncedVars;
+    private static PlayerAgent _playerAgent;
+    private static BasePlayerData _playerData;
 
     ////////////////////////////////////////////////
 
-    private PlayerAgent _playerAgent;
-    private BasePlayerData _playerData;
+    private static int _playerID = 0;
+    private static string _playerName = "???";
+    private static int _totalPlayers = -1;
+    private static int _seed = -1;
 
     ////////////////////////////////////////////////
 
-    public GameObject _playerMotherShip;
-
-    ////////////////////////////////////////////////
-
-    int _playerID = 0;
-    string _playerName = "???";
-    int _totalPlayers = -1;
-    int _seed = -1;
-
-    ////////////////////////////////////////////////
-
-    public PlayerAgent PlayerAgent
+    public static PlayerAgent PlayerAgent
     {
         get { return _playerAgent; }
         set { _playerAgent = value; }
     }
 
-    public BasePlayerData PlayerData
+    public static BasePlayerData PlayerData
     {
         get { return _playerData; }
         set { _playerData = value; }
     }
 
-    public int PlayerID
+    public static int PlayerID
     {
         get { return _playerID; }
         set { _playerID = value; }
     }
 
-    public int TotalPlayers
+    public static int TotalPlayers
     {
         get { return _totalPlayers; }
         set { _totalPlayers = value; }
     }
 
-    public string PlayerName
+    public static string PlayerName
     {
         get { return _playerData.name; }
     }
 
-    public List<int[,]> PlayerShipSmallFloorDataPART1
+    public static List<int[,]> PlayerShipSmallFloorDataPART1
     {
         get { return _playerData.smallShipFloorsPART1; }
     }
 
-    public List<int[,]> PlayerShipSmallFloorDataPART2
+    public static List<int[,]> PlayerShipSmallFloorDataPART2
     {
         get { return _playerData.smallShipFloorsPART2; }
     }
 
-    public List<int[,]> PlayerShipSmallVentDataPART1
+    public static List<int[,]> PlayerShipSmallVentDataPART1
     {
         get { return _playerData.smallShipVentsPART1; }
     }
 
-    public List<int[,]> PlayerShipSmallVentDataPART2
+    public static List<int[,]> PlayerShipSmallVentDataPART2
     {
         get { return _playerData.smallShipVentsPART2; }
     }
 
-    public List<UnitData> PlayerUnitData
+    public static List<UnitData> PlayerUnitData
     {
         get { return _playerData.allUnitData; }
     }
@@ -97,28 +88,21 @@ public class PlayerManager : MonoBehaviour
         {
             _instance = this;
         }
-        if (_playerMotherShip == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-    }
-
-    void Start()
-    {
-        _gameManager = FindObjectOfType<GameManager>();
-        if (_gameManager == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
-        _syncedVars = _gameManager._networkManager._syncedVars;
-        if (_syncedVars == null) { Debug.LogError("OOPSALA we have an ERROR!"); }
     }
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public void SetUpPlayer()
+    public static void SetUpPlayer()
     {
+        SyncedVars _syncedVars = GameObject.Find("SyncedVars").GetComponent<SyncedVars>(); // needs to be here, function runs before awake
+
         PlayerID = _syncedVars.PlayerCount;
         LoadPlayerDataInToManager(PlayerID);
     }
 
 
-    public void LoadPlayerDataInToManager(int playerID)
+    public static void LoadPlayerDataInToManager(int playerID)
     {
         BasePlayerData data = null;
 
@@ -143,11 +127,28 @@ public class PlayerManager : MonoBehaviour
         PlayerData = data;
     }
 
-    public void LoadPlayersShip(Vector3 loc, Vector3 rot) // Dont like this here
+
+    public static KeyValuePair<Vector3, Vector3> GetPlayerStartPosition(int playerID)
     {
-        GameObject ship = Instantiate(_playerMotherShip, this.gameObject.transform, false);
-        ship.transform.position = loc;
-        ship.transform.localEulerAngles = rot;
-        ship.transform.SetParent(this.gameObject.transform);
+        switch (playerID)
+        {
+            case 0:
+                return new KeyValuePair<Vector3, Vector3>(new Vector3(-124.3f, 475, 895.9f), new Vector3(0, 90, 0));
+            case 1:
+                return new KeyValuePair<Vector3, Vector3>(new Vector3(11, 572, -879), new Vector3(0, 90, 0));
+            case 2:
+                return new KeyValuePair<Vector3, Vector3>(new Vector3(-955, 489.4f, -71), new Vector3(0, 0, 0));
+            case 3:
+                return new KeyValuePair<Vector3, Vector3>(new Vector3(738, 344, -210), new Vector3(0, 0, 0));
+            default:
+                Debug.Log("SOMETHING WENT WRONG HERE: playerID: " + playerID);
+                return new KeyValuePair<Vector3, Vector3>(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        }
+    }
+
+
+    public static void LoadPlayersShip(Vector3 loc, Vector3 rot)
+    {
+        WorldBuilder._nodeBuilder.CreatePlayersShip(loc, rot, GameManager._PlayerManager.transform);
     }
 }

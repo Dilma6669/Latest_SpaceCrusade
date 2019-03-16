@@ -84,7 +84,7 @@ public class LocationManager : MonoBehaviour
     }
 
 
-    public static CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc)
+    public static CubeLocationScript CheckIfCanMoveToCube(UnitScript unit, CubeLocationScript node, Vector3 neighloc, bool recursiveCheck = false)
     {
         //Debug.Log("CheckIfCanMoveToCube loc: " + neighloc);
 
@@ -96,8 +96,31 @@ public class LocationManager : MonoBehaviour
             return null;
         }
 
+        if (neighCubeScript._isSlope)
+        {
+            // Debug.LogError("FAIL move neighCubeScript._isSlope: " + neighloc);
+            return null;
+        }
+
         if (!neighCubeScript.CubePlatform)
         {
+            if(recursiveCheck)
+            {
+                return null;
+            }
+
+            // making climbable edges ///
+            List<Vector3> newNeighVects = node.NeighbourVects;
+            foreach (Vector3 newVect in newNeighVects)
+            {
+                CubeLocationScript script = CheckIfCanMoveToCube(unit, node, newVect, true);
+                if(script != null)
+                {
+                    return neighCubeScript; // if climable neighboursing node return true
+                }
+            }
+            ///////
+
             //Debug.LogWarning("FAIL move cubeScript not CubeMoveable: " + neighloc);
             return null;
         }
@@ -125,6 +148,89 @@ public class LocationManager : MonoBehaviour
                 return null;
             }
         }
+
+        // for the god damn slopes and moveing through panels (this is ugly but fuck off its working)
+        if (node != null)
+        {
+            Vector3 nodevect = node.CubeLocVector;
+
+            // check for panel to stop going through panels
+            if (node.CubeLocVector.y > neighloc.y)
+            {
+                Vector3 neighHalf = new Vector3(nodevect.x, nodevect.y - 1, nodevect.z);
+                CubeLocationScript neighscript = GetHalfLocationScript(neighHalf);
+                if (neighscript._isPanel)
+                {
+                    return null;
+                }
+                // BOTTOM SLOPES //
+                Vector3 neighSlope = new Vector3(nodevect.x, nodevect.y - 2, nodevect.z);
+                neighscript = GetLocationScript(neighSlope);
+                if (neighscript._isSlope)
+                {
+                    int slopeAngle = neighscript._panelScriptChild.panelAngle;
+                    if (slopeAngle == 90)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[3];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                    else if (slopeAngle == 180)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[0];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                    else if (slopeAngle == 270)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[1];
+                        if (neighloc == neighBehindVect) { return null; }
+
+                    }
+                    else if (slopeAngle == 0)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[4];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                }
+            }
+            else
+            {
+                Vector3 neighHalf = new Vector3(nodevect.x, nodevect.y + 1, nodevect.z);
+                CubeLocationScript neighscript = GetHalfLocationScript(neighHalf);
+                if (neighscript._isPanel)
+                {
+                    return null;
+                }
+                // TOP SLOPES // THIS WILL NEED TO BE IMPLEMENTED AT SOME POINT FOR ALIENS
+                Vector3 neighSlope = new Vector3(nodevect.x, nodevect.y + 2, nodevect.z);
+                neighscript = GetLocationScript(neighSlope);
+                if (neighscript._isSlope)
+                {
+                    int slopeAngle = neighscript._panelScriptChild.panelAngle;
+                    if (slopeAngle == 90)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[3];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                    else if (slopeAngle == 180)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[0];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                    else if (slopeAngle == 270)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[1];
+                        if (neighloc == neighBehindVect) { return null; }
+
+                    }
+                    else if (slopeAngle == 0)
+                    {
+                        Vector3 neighBehindVect = node.NeighbourVects[4];
+                        if (neighloc == neighBehindVect) { return null; }
+                    }
+                }
+            }
+        }
+
 
         //Debug.Log("SUCCES move to loc: " + neighloc);
 

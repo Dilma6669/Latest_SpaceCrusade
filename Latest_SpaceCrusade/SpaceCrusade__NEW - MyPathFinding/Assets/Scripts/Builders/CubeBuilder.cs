@@ -32,7 +32,7 @@ public class CubeBuilder : MonoBehaviour {
         switch (cubeType)
         {
             case 00:
-                return null;
+                break;
             case 01:
                 PanelBuilder.CreatePanelForCube("Floor", cubeScript, 0, rotations);
                 break;
@@ -67,7 +67,29 @@ public class CubeBuilder : MonoBehaviour {
                 PanelBuilder.CreatePanelForCube("CeilingAngle", cubeScript, 0, rotations);
                 break;
         }
+
+        SortOutCubeScriptShit(gridLoc, cubeScript);
+
         return cubeScript;
     }
+
+
+    private static void SortOutCubeScriptShit(Vector3 GridLoc, CubeLocationScript cubeScript)
+    {
+        // If cube is movable or not
+        if (cubeScript.CubeMoveable)
+        {
+          LocationManager.SetCubeScriptToLocation(GridLoc, cubeScript);
+        }
+        else
+        {
+            LocationManager.SetCubeScriptToHalfLocation(GridLoc, cubeScript);
+        }
+
+        // for layering system
+        LayerManager.AddCubeToLayer(cubeScript);
+    }
+
+    ////////////////////////////////////////////////
 
 }

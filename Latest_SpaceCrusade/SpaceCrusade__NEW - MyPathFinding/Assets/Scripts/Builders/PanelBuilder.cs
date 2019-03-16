@@ -27,7 +27,7 @@ public class PanelBuilder : MonoBehaviour
     public static void CreatePanelForCube(string panelName, CubeLocationScript cubeScript, int angle, int rotations) {
 
         Transform cubeTrans = cubeScript.GetComponent<Transform>();
-        GameObject panelObject = WorldBuilder._nodeBuilder.CreatePanelForCube(panelName, cubeTrans);
+        GameObject panelObject = WorldBuilder._nodeBuilder.CreatePanelObject(panelName, cubeTrans);
         PanelPieceScript panelScript = panelObject.GetComponent<PanelPieceScript>();
 
         switch (panelName) {
@@ -157,12 +157,14 @@ public class PanelBuilder : MonoBehaviour
 
 			break;
 		case "FloorAngle":
+            cubeScript._isSlope = true;
 			panelObject.transform.localPosition = new Vector3 (0, 0, 0);
 			panelObject.transform.localEulerAngles = new Vector3 (-135, angle, 0);
 			panelObject.transform.localScale = new Vector3 (20, 30, 1);
 			panelObject.transform.tag = ("Panel_FloorAngle");
 			break;
 		case "CeilingAngle":
+            cubeScript._isSlope = true;
 			panelObject.transform.localPosition = new Vector3 (0, 0, 0);
 			panelObject.transform.localEulerAngles = new Vector3 (135, angle, 0);
 			panelObject.transform.localScale = new Vector3 (20, 30, 1);

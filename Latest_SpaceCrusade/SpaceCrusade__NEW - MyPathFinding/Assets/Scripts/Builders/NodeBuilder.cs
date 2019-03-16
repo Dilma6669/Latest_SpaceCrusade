@@ -30,7 +30,6 @@ public class NodeBuilder : MonoBehaviour
     {
         if (_instance != null && _instance != this)
         {
-            Debug.Log("WTF THERES MORE THAN ONE OF SOMETHING TRYING TO BE CREATED!!!!1");
             Destroy(gameObject);
         }
         else
@@ -71,25 +70,7 @@ public class NodeBuilder : MonoBehaviour
         cubeScript.CubeLayerID = nodeLayerCount;
         cubeScript.CubeAngle = rotationY;
 
-        SortOutCubeScriptShit(gridLoc, cubeScript);
-
         return cubeObject;
-    }
-
-    private static void SortOutCubeScriptShit(Vector3 GridLoc, CubeLocationScript cubeScript)
-    {
-        // If cube is movable or not
-        if (cubeScript.CubeMoveable)
-        {
-            LocationManager.SetCubeScriptToLocation(GridLoc, cubeScript);
-        }
-        else
-        {
-            LocationManager.SetCubeScriptToHalfLocation(GridLoc, cubeScript);
-        }
-
-        // for layering system
-        LayerManager.AddCubeToLayer(cubeScript);
     }
 
     ////////////////////////////////////////////////
@@ -181,7 +162,7 @@ public class NodeBuilder : MonoBehaviour
     }
 
 
-    public GameObject CreatePanelForCube(string panelName, Transform parent)
+    public GameObject CreatePanelObject(string panelName, Transform parent)
     {
         GameObject panelObject = Instantiate(_panelPrefab, parent, false);
         panelObject.transform.SetParent(parent);

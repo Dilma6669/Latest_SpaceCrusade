@@ -21,10 +21,9 @@ public class PanelPieceScript : MonoBehaviour {
 
     private CubeLocationScript activeCubeScript = null;
 
-
 	public bool _isLadder = false;
 
-	public Vector3 leftPosNode = new Vector3();
+    public Vector3 leftPosNode = new Vector3();
 	public Vector3 rightPosNode = new Vector3();
 
 	//public Vector3 posActive;

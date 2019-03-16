@@ -153,9 +153,9 @@ public class MovementScript : MonoBehaviour
     private void Reset()
     {
         locCount = 0;
-        //_currTarget = null;
-        //_finalTarget = null;
-        //moveInProgress = false;
+        _currTarget = null;
+        _finalTarget = null;
+        moveInProgress = false;
         _newPath = false;
         foreach(CubeLocationScript node in _nodes)
         {
@@ -169,6 +169,30 @@ public class MovementScript : MonoBehaviour
     public void MoveUnit(List<CubeLocationScript> _pathNodes)
     {
         Debug.Log("MoveUnit!");
+
+        //int count = 0;
+        //foreach (CubeLocationScript script in _pathNodes) // <<<<<<< fuckin here
+        //{
+        //    if (script._panelScriptChild._isSlope)
+        //    {
+        //        Vector3 thisCubePos = script.CubeLocVector;
+        //        Vector3 cubeBeforePos = _pathNodes[count - 1].CubeLocVector;
+        //        Vector3 cubeBeforePos = _pathNodes[count - 1].CubeLocVector;
+
+        //        if (cubeBeforePos.y > thisCubePos.y)
+        //           {
+        //            apply appropriate shift
+        //          } else {
+        //            if script(before this) is lower or equal y axis
+        //              { apply appripriate shift }
+
+        //            // Will take a bit of experimenting to get right 
+        //        }
+        //    }
+        //    count++;
+        //}
+
+
 
         int[] stats = gameObject.transform.GetComponent<UnitScript>().UnitCombatStats;
         _unitsSpeed = stats[0];
@@ -198,6 +222,10 @@ public class MovementScript : MonoBehaviour
     {
         Reset();
         _nodes = _tempNodes;
+
+        _finalTarget = _nodes[_nodes.Count - 1];
+        _finalTargetVect = _nodes[_nodes.Count - 1].CubeLocVector;
+        moveInProgress = true;
         SetTarget();
     }
 

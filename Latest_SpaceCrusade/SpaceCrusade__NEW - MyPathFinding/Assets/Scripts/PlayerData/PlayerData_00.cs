@@ -15,13 +15,13 @@ public class PlayerData_00 : BasePlayerData
             // can Climb walls, unitCombat Stats, starting Local loc
             new UnitData(){
                 UnitModel = 0,
-                UnitCanClimbWalls = false,
+                UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },
                 UnitStartingLocalLoc = new Vector3(2, -7, 2)
             },
             new UnitData(){
                 UnitModel = 0,
-                UnitCanClimbWalls = false,
+                UnitCanClimbWalls = true,
                 UnitCombatStats = new int[1]{ 4 },
                 UnitStartingLocalLoc = new Vector3(2, -7, 4)
             }

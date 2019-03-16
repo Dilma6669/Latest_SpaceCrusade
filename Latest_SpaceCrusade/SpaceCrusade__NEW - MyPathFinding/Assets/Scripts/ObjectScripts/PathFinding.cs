@@ -9,7 +9,7 @@ public class PathFinding : MonoBehaviour
 
     ////////////////////////////////////////////////
 
-    public static bool _debugPathfindingNodes;
+    public static bool _debugPathfindingNodes = false;
 
     ////////////////////////////////////////////////
 
@@ -38,6 +38,8 @@ public class PathFinding : MonoBehaviour
 
         Debug.Log("FindPath startVect: " + startVect);
         Debug.Log("FindPath trying to move to: " + targetVect);
+
+        ResetPath();
 
         CubeLocationScript cubeStartScript = LocationManager.GetLocationScript(startVect);
 		CubeLocationScript cubeTargetScript = LocationManager.GetLocationScript(targetVect);
@@ -68,20 +70,15 @@ public class PathFinding : MonoBehaviour
 
             List<Vector3> neighVects = node.NeighbourVects;
 
-			foreach (Vector3 vect in neighVects) {
-
-                CubeLocationScript neightbourScript = LocationManager.GetLocationScript(vect);
-
-                //if (node == cubeStartScript)
-                //{
-                //    continue;
-                //}
+            foreach (Vector3 vect in neighVects) {
 
                 // personal checks
                 if (LocationManager.CheckIfCanMoveToCube(unit, node, vect) == null)
                 {
                     continue;
                 }
+
+                CubeLocationScript neightbourScript = LocationManager.GetLocationScript(vect);
 
                 if (closedSet.Contains (neightbourScript)) {
                     continue;
@@ -104,7 +101,7 @@ public class PathFinding : MonoBehaviour
 						openSet.Add (neightbourScript);
 				}
 			}
-		}
+		} 
 		Debug.Log ("SHIT NO WAY OF GETTING TO THAT SPOT!");
 		return null;
 	}
@@ -119,6 +116,7 @@ public class PathFinding : MonoBehaviour
 		}
 		path.Reverse();
         ResetPath();
+
         return path;
 	}
 
@@ -127,10 +125,11 @@ public class PathFinding : MonoBehaviour
 	private static int GetDistance(CubeLocationScript nodeA, CubeLocationScript nodeB) {
 		int dstX = (int)Mathf.Abs(nodeA.CubeLocVector.x - nodeB.CubeLocVector.x);
 		int dstY = (int)Mathf.Abs(nodeA.CubeLocVector.y - nodeB.CubeLocVector.y);
+        int dstZ = (int)Mathf.Abs(nodeA.CubeLocVector.z - nodeB.CubeLocVector.z);
 
-		if (dstX > dstY)
-			return 14*dstY + 10* (dstX-dstY);
-		return 14*dstX + 10 * (dstY-dstX);
+        if (dstX > dstZ)
+			return 14* dstZ + 10* (dstX- dstZ);
+		return 14*dstX + 10 * (dstZ - dstX);
 	}
 
     private static void ResetPath()

@@ -78,9 +78,9 @@ public class GridBuilder : MonoBehaviour
         _worldNodeSize = worldNodeSize;
 
         // these are the bottom left corner axis for EACH map node
-        int startGridLocX = (int)node.nodeLocation.x - (MapSettings.sizeOfMapPiecesXZ / 2);
-        int startGridLocY = (int)node.nodeLocation.y - (MapSettings.sizeOfMapPiecesY + MapSettings.sizeOfMapVentsY) / 2;
-        int startGridLocZ = (int)node.nodeLocation.z - (MapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocX = (int)node.NodeStaticLocation.x - (MapSettings.sizeOfMapPiecesXZ / 2);
+        int startGridLocY = (int)node.NodeStaticLocation.y - (MapSettings.sizeOfMapPiecesY + MapSettings.sizeOfMapVentsY) / 2;
+        int startGridLocZ = (int)node.NodeStaticLocation.z - (MapSettings.sizeOfMapPiecesXZ / 2);
 
         BuildGridLocations(startGridLocX, startGridLocY, startGridLocZ);
 

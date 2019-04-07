@@ -51,24 +51,24 @@ public class UnitsManager : MonoBehaviour
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public static void LoadPlayersUnits(Vector3 worldNodeLoc)
+    public static void LoadPlayersUnits(Vector3 worldStartLoc)
     {
         List<UnitData> units = PlayerManager.PlayerUnitData;
 
         foreach (UnitData unit in units)
         {
             Vector3 localStart = unit.UnitStartingLocalLoc;
-            Vector3 worldStart = new Vector3(localStart.x + worldNodeLoc.x, localStart.y + worldNodeLoc.y, localStart.z + worldNodeLoc.z);
+            Vector3 worldStart = new Vector3(localStart.x + worldStartLoc.x, localStart.y + worldStartLoc.y, localStart.z + worldStartLoc.z);
 
-            CreateUnitOnNetwork(unit, worldStart);
+            CreateUnitOnNetwork(unit, worldStart, worldStartLoc);
         }
     }
 
 
-    private static void CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart)
+    private static void CreateUnitOnNetwork(UnitData unitData, Vector3 worldStart, Vector3 nodeID)
     {
         int playerID = PlayerManager.PlayerID;
-        NetWorkManager.NetworkAgent.CmdTellServerToSpawnPlayerUnit(PlayerManager.PlayerAgent.NetID, unitData, playerID, worldStart);
+        NetWorkManager.NetworkAgent.CmdTellServerToSpawnPlayerUnit(PlayerManager.PlayerAgent.NetID, unitData, playerID, worldStart, nodeID);
     }
 
 
@@ -92,18 +92,18 @@ public class UnitsManager : MonoBehaviour
         }
     }
 
-    public static void MakeActiveUnitMove(Vector3 vectorToMoveTo)
+    public static void MakeActiveUnitMove(KeyValuePair<Vector3, Vector3> posRot)
     {
         if (_activeUnit)
         {
-            NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, _activeUnit.NetID, vectorToMoveTo);
+            NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, _activeUnit.NetID, posRot.Key, posRot.Value);
         }
     }
 
-    public static void MakeUnitRecalculateMove(UnitScript unit, Vector3 vectorToMoveTo)
+    public static void MakeUnitRecalculateMove(UnitScript unit, KeyValuePair<Vector3, Vector3> posRot)
     {
         Debug.Log("recalulating from unitsAgent");
-        NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, unit.NetID, vectorToMoveTo);
+        NetWorkManager.NetworkAgent.CmdTellServerToMoveUnit(PlayerManager.PlayerAgent.NetID, unit.NetID, posRot.Key, posRot.Value);
     }
 
     /*

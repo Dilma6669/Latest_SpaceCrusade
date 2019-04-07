@@ -34,7 +34,7 @@ public class PathFinding : MonoBehaviour
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public static List<CubeLocationScript> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
+    public static List<Vector3> FindPath(UnitScript unit, Vector3 startVect, Vector3 targetVect) {
 
         Debug.Log("FindPath startVect: " + startVect);
         Debug.Log("FindPath trying to move to: " + targetVect);
@@ -106,12 +106,12 @@ public class PathFinding : MonoBehaviour
 		return null;
 	}
 
-	private static List<CubeLocationScript> RetracePath(CubeLocationScript startNode, CubeLocationScript endNode) {
-		List<CubeLocationScript> path = new List<CubeLocationScript>();
+	private static List<Vector3> RetracePath(CubeLocationScript startNode, CubeLocationScript endNode) {
+		List<Vector3> path = new List<Vector3>();
 		CubeLocationScript currentNode = endNode;
 
 		while (currentNode != startNode) {
-			path.Add(currentNode);
+			path.Add(currentNode.CubeStaticLocVector);
 			currentNode = currentNode._parentPathFinding;
 		}
 		path.Reverse();
@@ -123,14 +123,16 @@ public class PathFinding : MonoBehaviour
 
 
 	private static int GetDistance(CubeLocationScript nodeA, CubeLocationScript nodeB) {
-		int dstX = (int)Mathf.Abs(nodeA.CubeLocVector.x - nodeB.CubeLocVector.x);
-		int dstY = (int)Mathf.Abs(nodeA.CubeLocVector.y - nodeB.CubeLocVector.y);
-        int dstZ = (int)Mathf.Abs(nodeA.CubeLocVector.z - nodeB.CubeLocVector.z);
+		int dstX = (int)Mathf.Abs(nodeA.CubeStaticLocVector.x - nodeB.CubeStaticLocVector.x);
+		int dstY = (int)Mathf.Abs(nodeA.CubeStaticLocVector.y - nodeB.CubeStaticLocVector.y);
+        int dstZ = (int)Mathf.Abs(nodeA.CubeStaticLocVector.z - nodeB.CubeStaticLocVector.z);
 
         if (dstX > dstZ)
-			return 14* dstZ + 10* (dstX- dstZ);
-		return 14*dstX + 10 * (dstZ - dstX);
-	}
+            //return 14* dstZ + 10* (dstX- dstZ);
+            return 14 * dstZ + 10 * (dstX - dstZ) + 10 * dstY;
+        //return 14*dstX + 10 * (dstZ - dstX);
+        return 14 * dstX + 10 * (dstZ - dstX) + 10 * dstY;
+    }
 
     private static void ResetPath()
     {

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4634455094964960}
   - component: {fileID: 65687866413149758}
   - component: {fileID: 114720580752990544}
+  - component: {fileID: 9014743832323509533}
   m_Layer: 8
   m_Name: LargeGaragePrefab
   m_TagString: Untagged
@@ -66,6 +67,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentNode: {fileID: 0}
+--- !u!54 &9014743832323509533
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1035786189968222}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1140171448076610
 GameObject:
   m_ObjectHideFlags: 0

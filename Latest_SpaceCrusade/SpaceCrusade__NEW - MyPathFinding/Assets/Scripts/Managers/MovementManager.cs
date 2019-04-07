@@ -30,14 +30,21 @@ public class MovementManager : MonoBehaviour
     {
         UnitScript unitScript = objToMove.GetComponent<UnitScript>();
 
-        List<CubeLocationScript> path = PathFinding.FindPath(unitScript, start, end);
+        List<Vector3> path = PathFinding.FindPath(unitScript, start, end);
 
         if (path == null) { return null; }
 
-        objToMove.GetComponent<MovementScript>().MoveUnit(path);
-        List<Vector3> vects = DataManipulation.GetLocVectorsFromCubeScript(path);
-        int[] movePath = DataManipulation.ConvertVectorsIntoIntArray(vects);
-        return movePath;
+        // need to work out unit rotations here (if nessacary) default making it zero
+
+        List<KeyValuePair<Vector3, Vector3>> posRot = new List<KeyValuePair<Vector3, Vector3>>();
+        foreach(Vector3 pathVect in path)
+        {
+              posRot.Add(new KeyValuePair<Vector3, Vector3>(pathVect, Vector3.zero));
+        }
+
+        objToMove.GetComponent<MovementScript>().MoveUnit(posRot);
+        int[] movePath = DataManipulation.ConvertVectorsIntoIntArray(path);
+        return movePath; // only need position not rotation for pathFinding nodes
     }
 
 
@@ -63,5 +70,15 @@ public class MovementManager : MonoBehaviour
         }
 
         unit.GetComponent<UnitScript>().AssignPathFindingNodes(scriptList);
+    }
+
+    ////////////////////////////////////////////////
+
+    public static void MoveMapNode(Vector3 nodeID, KeyValuePair<Vector3, Vector3> posRot)
+    {
+        Debug.Log("Moving Map node");
+        BaseNode nodeScript = LocationManager.GetNodeLocationScript(nodeID);
+
+        nodeScript.MoveNode(posRot);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 public class MapNode : BaseNode {
 
@@ -8,7 +7,7 @@ public class MapNode : BaseNode {
 
     void Awake()
     {
-        thisNodeType = NodeTypes.MapNode;
+        NodeType = NodeTypes.MapNode;
     }
 
     public void RemoveDoorPanels()

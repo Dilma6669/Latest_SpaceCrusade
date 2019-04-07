@@ -47,8 +47,8 @@ public class CameraManager : MonoBehaviour
 
         PlayerManager.PlayerAgent.SetUpPlayerStartPosition(camPos, camRot);
 
-        Camera_Agent.angleH = camRot.eulerAngles.y;
-        Camera_Agent.angleV = -camRot.eulerAngles.x;
+        Camera_Agent._cameraPivotScript.angleH = camRot.eulerAngles.y;
+        Camera_Agent._cameraPivotScript.angleV = -camRot.eulerAngles.x;
 
         /*
 

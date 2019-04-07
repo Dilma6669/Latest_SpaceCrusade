@@ -108,8 +108,10 @@ public class LayerManager : MonoBehaviour
         {
             parentNode = parentMapNode;
         }
-        parentLayerID = parentNode.nodeLayerCount;
-        ChangeSpecificNodeVisibility(LAYERNOTVISIBLE); // set specfic world node to not visible
+        parentLayerID = parentNode.NodeLayerCount;
+
+        ChangeSpecificNodeVisibility(LAYERNOTVISIBLE); // set specfic world node to not visible, basicly clears all layers so correct layer can be set
+
         if (LayerCurr != -1)
         {
             //ChangeSpecificNodeVisibility(parentWorldNode, LAYERVISIBLE);
@@ -133,11 +135,24 @@ public class LayerManager : MonoBehaviour
     {
         parentNode.gameObject.layer = visibilityLayer;
 
+        List<GameObject> units = new List<GameObject>(); 
+
         Transform[] allChildren = parentNode.GetComponentsInChildren<Transform>();
         foreach (Transform child in allChildren)
         {
             child.gameObject.layer = visibilityLayer;
+
+            if (child.GetComponent<UnitScript>()) // for the units
+            {
+                units.Add(child.gameObject);
+            }
         }
+
+        foreach(GameObject unit in units)
+        {
+            AssignUnitToLayer(unit);
+        }
+
     }
 
     public static void ChangeSpecificCubesVisibility(int visibilityLayer)
@@ -201,7 +216,7 @@ public class LayerManager : MonoBehaviour
 
     public static void MakeAllCubeLayersVisible()
     {
-        Debug.Log("fuekcn MakeAllLayersVisible");
+        Debug.Log("MakeAllLayersVisible");
         foreach (int layerID in _layerCubeList.Keys)
         {
             ChangeCubeLayerVisibility(layerID, LAYERVISIBLE);
@@ -210,7 +225,7 @@ public class LayerManager : MonoBehaviour
 
     public static void MakeAllCubeLayersNotVisible()
     {
-        Debug.Log("fuekcn MakeAllLayersNotVisible");
+        Debug.Log("MakeAllLayersNotVisible");
         foreach (int layerID in _layerCubeList.Keys)
         {
             ChangeCubeLayerVisibility(layerID, LAYERNOTVISIBLE);
@@ -221,7 +236,7 @@ public class LayerManager : MonoBehaviour
 
     public static void AddNodeToLayer(BaseNode node)
     {
-        int nodeLayer = node.nodeLayerCount;
+        int nodeLayer = node.NodeLayerCount;
         if (_layerNodeList.ContainsKey(nodeLayer))
         {
             _layerNodeList[nodeLayer].Add(node);
@@ -257,7 +272,7 @@ public class LayerManager : MonoBehaviour
 
     public static void MakeAllNodeLayersVisible()
     {
-        Debug.Log("fuekcn MakeAllLayersVisible");
+        Debug.Log("MakeAllLayersVisible");
         foreach (int layerID in _layerNodeList.Keys)
         {
             ChangeNodeLayerVisibility(layerID, LAYERVISIBLE);
@@ -266,10 +281,40 @@ public class LayerManager : MonoBehaviour
 
     public static void MakeAllNodeLayersNotVisible()
     {
-        Debug.Log("fuekcn MakeAllLayersNotVisible");
+        Debug.Log("MakeAllLayersNotVisible");
         foreach (int layerID in _layerNodeList.Keys)
         {
             ChangeNodeLayerVisibility(layerID, LAYERNOTVISIBLE);
+        }
+    }
+
+
+    //////////////////
+
+    public static void AssignUnitToLayer(GameObject unit)
+    {
+        int playerID = PlayerManager.PlayerID;
+        int unitControllerID = unit.GetComponent<UnitScript>().PlayerControllerID;
+
+        if (playerID == unitControllerID)
+        {
+            unit.layer = LAYERVISIBLE;
+
+            Transform[] allChildren = unit.GetComponentsInChildren<Transform>();
+            foreach (Transform child in allChildren)
+            {
+                child.gameObject.layer = LAYERVISIBLE;
+            }
+        }
+        else
+        {
+            unit.layer = LAYERNOTVISIBLE;
+
+            Transform[] allChildren = unit.GetComponentsInChildren<Transform>();
+            foreach (Transform child in allChildren)
+            {
+                child.gameObject.layer = LAYERNOTVISIBLE;
+            }
         }
     }
 

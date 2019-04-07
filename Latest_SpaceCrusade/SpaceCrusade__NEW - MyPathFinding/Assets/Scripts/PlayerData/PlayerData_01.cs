@@ -15,13 +15,13 @@ public class PlayerData_01 : BasePlayerData {
             new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = false,
-                UnitCombatStats = new int[1]{ 4 },
+                UnitCombatStats = new int[2]{ 1, 4 }, // Rank, Movement
                 UnitStartingLocalLoc = new Vector3(4, -7, 4)
             },
             new UnitData(){
                 UnitModel = 0,
                 UnitCanClimbWalls = false,
-                UnitCombatStats = new int[1]{ 4 },
+                UnitCombatStats = new int[2]{ 0, 4 },
                 UnitStartingLocalLoc = new Vector3(2, -7, 2)
             }
         };

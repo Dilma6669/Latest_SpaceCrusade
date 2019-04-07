@@ -52,10 +52,10 @@ public class GameManager : MonoBehaviour {
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    public static void StartGame(Vector3 worldNodeLoc)
+    public static void StartGame(Vector3 worldStartLoc)
     {
         Debug.Log("fuck StartGame");
-        UnitsManager.LoadPlayersUnits(worldNodeLoc);
+        UnitsManager.LoadPlayersUnits(worldStartLoc);
     }
 
 }

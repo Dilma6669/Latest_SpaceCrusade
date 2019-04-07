@@ -6,7 +6,7 @@ public class CubeLocationScript : MonoBehaviour {
 
     // Cube info
     int _cubeUniqueID;
-    public Vector3 _cubeLoc;
+    public Vector3 _cubeStaticLoc;
     public int _cubeAngle;
     public int _cubeLayerID;
     public bool _cubeMovable; // this is all movable cubes everywhere, including in the air
@@ -52,10 +52,10 @@ public class CubeLocationScript : MonoBehaviour {
         set { _cubeUniqueID = value; }
     }
 
-    public Vector3 CubeLocVector
+    public Vector3 CubeStaticLocVector
     {
-        get { return _cubeLoc; }
-        set { _cubeLoc = value; }
+        get { return _cubeStaticLoc; }
+        set { _cubeStaticLoc = value; }
     }
 
     public bool CubeMoveable
@@ -173,7 +173,7 @@ public class CubeLocationScript : MonoBehaviour {
         IsAlienWalkable = false;
         IsAlienClimbable = false;
         IsAlienJumpable = false;
-        CubeLocVector = new Vector3(-1, -1, -1);
+        CubeStaticLocVector = new Vector3(-1, -1, -1);
     }
 
     public void AssignCubeNeighbours()
@@ -211,12 +211,12 @@ public class CubeLocationScript : MonoBehaviour {
 		if (onOff) {
 			CubeActive (true);
 			_activePanel = panelSelected;
-            LocationManager.SetCubeActive (true, new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z)); // not sure if this should be here yet
+            LocationManager.SetCubeActive (true, new KeyValuePair<Vector3, Vector3>(CubeStaticLocVector, Vector3.zero)); // not sure if this should be here yet
         }
         else
         {
 			CubeActive (false);
-            LocationManager.SetCubeActive (false);
+            LocationManager.SetCubeActive (false, new KeyValuePair<Vector3, Vector3>(Vector3.zero, Vector3.zero));
 		}
 	}
 
@@ -225,7 +225,7 @@ public class CubeLocationScript : MonoBehaviour {
         
         if(!NeighbourHalfVects.Any())
         {
-            Vector3 ownVect = new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z);
+            Vector3 ownVect = new Vector3(CubeStaticLocVector.x, CubeStaticLocVector.y, CubeStaticLocVector.z);
     
             //neighHalfVects.Add(new Vector3 (ownVect.x - 1, ownVect.y - 1, ownVect.z - 1)); // 0
             //neighHalfVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 1, ownVect.z - 1)); // 1
@@ -273,7 +273,7 @@ public class CubeLocationScript : MonoBehaviour {
 
         if (!NeighbourVects.Any())
         {
-            Vector3 ownVect = new Vector3(CubeLocVector.x, CubeLocVector.y, CubeLocVector.z);
+            Vector3 ownVect = new Vector3(CubeStaticLocVector.x, CubeStaticLocVector.y, CubeStaticLocVector.z);
     
             //NeighbourVects.Add(new Vector3 (ownVect.x - 2, ownVect.y - 2, ownVect.z - 2)); // 0
             NeighbourVects.Add(new Vector3 (ownVect.x + 0, ownVect.y - 2, ownVect.z - 2)); // 1

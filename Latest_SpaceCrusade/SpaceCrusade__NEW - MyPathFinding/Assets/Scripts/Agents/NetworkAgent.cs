@@ -47,17 +47,19 @@ public class NetworkAgent : NetworkBehaviour
     }
 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    public void CmdTellServerToSpawnPlayerUnit(NetworkInstanceId clientNetID, UnitData unitData, int playerID, Vector3 worldStart)
+    public void CmdTellServerToSpawnPlayerUnit(NetworkInstanceId clientNetID, UnitData unitData, int playerID, Vector3 worldStart, Vector3 nodeID)
     {
         //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
         if (!isServer) return;
 
         unitData.UnitStartingWorldLoc = worldStart;
 
+        GameObject parent = LocationManager.GetNodeLocationScript(nodeID).gameObject;
+
         GameObject prefab = UnitsManager._unitBuilder.GetUnitModel(unitData.UnitModel);
-        GameObject unit = Instantiate(prefab, GameManager._UnitsManager.transform, false);
+        GameObject unit = Instantiate(prefab, parent.transform, false);
         NetworkServer.Spawn(unit);
-        AssignUnitDataToUnitScript(unit, playerID, unitData);
+        AssignUnitDataToUnitScript(unit, playerID, unitData, nodeID);
 
         if (unit != null)
         {
@@ -65,10 +67,14 @@ public class NetworkAgent : NetworkBehaviour
             unit.transform.position = unitData.UnitStartingWorldLoc;
             LocationManager.SetUnitOnCube(unit.GetComponent<UnitScript>(), unitData.UnitStartingWorldLoc);
             NetworkInstanceId unitNetID = unit.GetComponent<NetworkIdentity>().netId;
-            RpcUpdatePlayerUnitsOnAllClients(unit, unitNetID, playerID, unitData);
+            RpcUpdatePlayerUnitsOnAllClients(unit, unitNetID, playerID, unitData, nodeID);
 
             NetworkConnection clientID = network_Client_Objects[clientNetID].GetComponent<NetworkIdentity>().connectionToClient;
-            TargetActivateUnitLeader(clientID, unit);
+
+            if (unitData.UnitCombatStats[0] == 1) // if rank is 'Captain'???? then make active
+            {
+                TargetActivateUnitLeader(clientID, unit);
+            }
         }
         else
         {
@@ -78,9 +84,9 @@ public class NetworkAgent : NetworkBehaviour
 
 
     [ClientRpc] //ClientRpc calls - which are called on the server and run on clients
-    void RpcUpdatePlayerUnitsOnAllClients(GameObject unit, NetworkInstanceId netID, int playerID, UnitData unitData)
+    void RpcUpdatePlayerUnitsOnAllClients(GameObject unit, NetworkInstanceId netID, int playerID, UnitData unitData, Vector3 nodeID)
     {
-        AssignUnitDataToUnitScript(unit, playerID, unitData);
+        AssignUnitDataToUnitScript(unit, playerID, unitData, nodeID);
         if (unit != null)
         {
             Debug.Log("Unit Succesfully created on CLIENT");
@@ -107,7 +113,7 @@ public class NetworkAgent : NetworkBehaviour
 
 
 
-    void AssignUnitDataToUnitScript(GameObject unit, int playerID, UnitData unitData)
+    void AssignUnitDataToUnitScript(GameObject unit, int playerID, UnitData unitData, Vector3 nodeID)
     {
         UnitScript unitScript = unit.GetComponent<UnitScript>();
         unitScript.UnitData = unitData;
@@ -117,20 +123,22 @@ public class NetworkAgent : NetworkBehaviour
         unitScript.UnitCanClimbWalls = unitData.UnitCanClimbWalls;
         unitScript.UnitStartingWorldLoc = unitData.UnitStartingWorldLoc;
         unitScript.UnitCombatStats = unitData.UnitCombatStats;
-        unit.transform.SetParent(GameManager._UnitsManager.transform);
+        GameObject parent = LocationManager.GetNodeLocationScript(nodeID).gameObject;
+        unit.transform.SetParent(parent.transform);
+        //LayerManager.AssignUnitToLayer(unit);
     }
 
 
     // Server Move Unit 
     [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
-    public void CmdTellServerToMoveUnit(NetworkInstanceId clientNetID, NetworkInstanceId unitNetID, Vector3 vectorToMoveTo)
+    public void CmdTellServerToMoveUnit(NetworkInstanceId clientNetID, NetworkInstanceId unitNetID, Vector3 posToMoveTo, Vector3 rotToMoveTo)
     {
         //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
         if (!isServer) return;
 
         GameObject unit = network_Unit_Objects[unitNetID];
         UnitScript unitScript = unit.GetComponent<UnitScript>();
-        int[] movePath = MovementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeLocVector, vectorToMoveTo);
+        int[] movePath = MovementManager.SetUnitsPath(unit, unitScript.CubeUnitIsOn.CubeStaticLocVector, posToMoveTo);
         NetworkConnection clientID = network_Client_Objects[clientNetID].GetComponent<NetworkIdentity>().connectionToClient;
         int unitID = (int)network_Unit_Objects[unitNetID].GetComponent<NetworkIdentity>().netId.Value;
         TargetSendPathVectorsToClient(clientID, network_Unit_Objects[unitNetID], unitID, movePath);
@@ -154,4 +162,14 @@ public class NetworkAgent : NetworkBehaviour
         cube.AssignCubeNeighbours();
     }
     */
+
+    [Command] //The [Command] attribute indicates that the following function will be called by the Client, but will be run on the Server
+    public void CmdTellServerToMoveWorldNode(Vector3 nodeID, Vector3 locPos, Vector3 locRot)
+    {
+        //Debug.Log("CmdTellServerToSpawnPlayerUnit ");
+        if (!isServer) return;
+
+        MovementManager.MoveMapNode(nodeID, new KeyValuePair<Vector3, Vector3>(locPos, locRot));
+    }
+
 }

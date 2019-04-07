@@ -140,7 +140,7 @@ public class WorldNodeBuilder : MonoBehaviour
 
             WorldNode nodeScript = WorldBuilder._nodeBuilder.CreateNode<WorldNode>(WorldManager._WorldContainer.transform, vect, rotation, mapType, mapPiece, NodeTypes.WorldNode);
             nodeScript.worldNodeCount = (count - 1);
-            nodeScript.nodeLayerCount = countFloorY * 12; // 12 is the number of (mapieces + vents layers) in the y axis of a worldnode
+            nodeScript.NodeLayerCount = countFloorY * 12; // 12 is the number of (mapieces + vents layers) in the y axis of a worldnode
 
             // for the specified map structures
             if (MapSettings.LOADPREBUILT_STRUCTURE)
@@ -149,23 +149,23 @@ public class WorldNodeBuilder : MonoBehaviour
                 if (floor[countFloorX, countFloorZ] == 01)
                 {
                     int randSize = MapSettings.getRandomMapSize;
-                    nodeScript.nodeSize = randSize;
+                    nodeScript.NodeSize = randSize;
                 }
                 else
                 {
-                    nodeScript.nodeSize = 0;
+                    nodeScript.NodeSize = 0;
                 }
             }
             else
             {
                 int randSize = MapSettings.getRandomMapSize;
-                nodeScript.nodeSize = randSize;
+                nodeScript.NodeSize = randSize;
             }
 
 
             int shipEntranceProbablity = 20;
 
-            if (nodeScript.nodeSize == 3 && Random.Range(0, shipEntranceProbablity) == 0)
+            if (nodeScript.NodeSize == 3 && Random.Range(0, shipEntranceProbablity) == 0)
             {
                 WorldBuilder._nodeBuilder.AttachCoverToNode(nodeScript, nodeScript.gameObject, CoverTypes.LargeGarageCover, new Vector3(0, 0, 0));
                 nodeScript.entrance = true;
@@ -192,6 +192,9 @@ public class WorldNodeBuilder : MonoBehaviour
 
             //  think need to add world nodes to layer sytem
             LayerManager.AddNodeToLayer(nodeScript); // for camera layers
+
+            // for the dynamic grid experiment
+            LocationManager.SetNodeScriptToLocation(vect, nodeScript);
 
             count++;
         }
@@ -260,7 +263,7 @@ public class WorldNodeBuilder : MonoBehaviour
             {
                 neighbours[i] = -1;
             }
-            else if (_WorldNodes[neighbours[i]].nodeSize < 1)
+            else if (_WorldNodes[neighbours[i]].NodeSize < 1)
             {
                 neighbours[i] = -1;
             }

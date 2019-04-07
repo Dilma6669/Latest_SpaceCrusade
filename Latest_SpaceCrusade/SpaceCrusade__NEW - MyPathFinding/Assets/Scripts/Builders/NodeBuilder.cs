@@ -66,7 +66,7 @@ public class NodeBuilder : MonoBehaviour
 
         CubeLocationScript cubeScript = cubeObject.GetComponent<CubeLocationScript>();
         cubeScript.CubeMoveable = (gridLoc.x % 2 == 0 && gridLoc.y % 2 == 1) ? true : false;
-        cubeScript.CubeLocVector = gridLoc;
+        cubeScript.CubeStaticLocVector = gridLoc;
         cubeScript.CubeLayerID = nodeLayerCount;
         cubeScript.CubeAngle = rotationY;
 
@@ -81,11 +81,12 @@ public class NodeBuilder : MonoBehaviour
         //Debug.Log("Vector3 (gridLoc): x: " + vect.x + " y: " + vect.y + " z: " + vect.z);
         GameObject node = InstantiateNodeObject(vect, nodeType, parentNode);
         T nodeScript = node.GetComponent<T>();
-        nodeScript.nodeLocation = vect;
-        nodeScript.nodeRotation = rotation;
-        nodeScript.nodeMapType = mapType;
-        nodeScript.nodeMapPiece = mapPiece;
-        nodeScript.nodeLayerCount = -1;
+        nodeScript.NodeStaticLocation = vect;
+        nodeScript.NodeStaticRotation = rotation;
+        nodeScript.NodeMapType = mapType;
+        nodeScript.NodeMapPiece = mapPiece;
+        nodeScript.NodeLayerCount = -1;
+        nodeScript.NodeID = vect;
         return nodeScript;
     }
 
@@ -174,7 +175,7 @@ public class NodeBuilder : MonoBehaviour
         panelObject.name = (panelName);
 
         panelScript.cubeScriptParent = cubeScript;
-        panelScript._camera = CameraManager.Camera_Agent.GetComponent<Camera>();
+        panelScript._camera = CameraManager.Camera_Agent._camera;
 
         return panelObject;
     }

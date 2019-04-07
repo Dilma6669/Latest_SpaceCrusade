@@ -108,7 +108,7 @@ public class PanelPieceScript : MonoBehaviour {
                 else
                 {
                     activeCubeScript = null;
-                    Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
+                    //Debug.Log("Hit Triangle index NOT REGISTERED: " + triIndex);
                 }
             }
             if (cubeScriptLeft.CubeIsVisible || cubeScriptRight.CubeIsVisible)

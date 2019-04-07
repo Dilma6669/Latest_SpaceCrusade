@@ -11,7 +11,8 @@ public class UnitScript : NetworkBehaviour
     private bool _unitActive;
     // Visual
     private Renderer[] _rends;
-
+    // for the player+camera to pivot around
+    private Transform _playerPivot;
 
     // Unit stats
     private int _unitModel;
@@ -72,6 +73,11 @@ public class UnitScript : NetworkBehaviour
         set { _unitData = value; }
     }
 
+    public Transform PlayerPivot
+    {
+        get { return _playerPivot; }
+    }
+
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
@@ -85,6 +91,7 @@ public class UnitScript : NetworkBehaviour
     {
         _pathFindingNodes = new List<CubeLocationScript>();
         _rends = GetComponentsInChildren<Renderer> ();
+        _playerPivot = GameObject.Find("Player_Pivot").transform;
     }
 
     ////////////////////////////////////////////////
@@ -178,5 +185,12 @@ public class UnitScript : NetworkBehaviour
             node.DestroyPathFindingNode();
         }
         _pathFindingNodes.Clear();
+    }
+
+
+    public void MoveUnitsWithNode(KeyValuePair<Vector3, Vector3> posRot)
+    {
+        transform.position = transform.position + posRot.Key;
+        transform.rotation = transform.rotation * Quaternion.Euler(posRot.Value);
     }
 }

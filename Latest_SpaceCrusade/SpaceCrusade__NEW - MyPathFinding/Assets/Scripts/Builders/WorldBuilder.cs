@@ -59,24 +59,24 @@ public class WorldBuilder : MonoBehaviour
 
     public static void AttachMapToNode<T>(T node) where T : BaseNode
     {
-        if (node.thisNodeType == NodeTypes.WorldNode)
+        if (node.NodeType == NodeTypes.WorldNode)
         {
             WorldNode worldNode = node as WorldNode;
             AttachMapPiecesToWorldNode(worldNode);
         }
 
-        if (node.thisNodeType == NodeTypes.MapNode)
+        if (node.NodeType == NodeTypes.MapNode)
         {
             MapNode mapNode = node as MapNode;
             AttachMapPieceToMapNode(mapNode);
         }
 
-        if (node.thisNodeType == NodeTypes.ConnectorNode)
+        if (node.NodeType == NodeTypes.ConnectorNode)
         {
             ConnectorNode connectNode = node as ConnectorNode;
             AttachMapPieceToConnectorNode(connectNode);
         }
-        Debug.Log("AttachMapToNode FINISHED");
+       // Debug.Log("AttachMapToNode FINISHED");
     }
 
     ////////////////////////////////////////////////
@@ -87,10 +87,10 @@ public class WorldBuilder : MonoBehaviour
         foreach (MapNode mapNode in worldNode.mapNodes)
         {
             mapNode.entrance = true;
-            Vector3 nodeVect = mapNode.nodeLocation;
-            int mapSize = mapNode.nodeSize;
-            int rotation = mapNode.nodeRotation;
-            int mapType = mapNode.nodeMapType;
+            Vector3 nodeVect = mapNode.NodeStaticLocation;
+            int mapSize = mapNode.NodeSize;
+            int rotation = mapNode.NodeStaticRotation;
+            int mapType = mapNode.NodeMapType;
             int mapPiece = mapCount;
             // for the players small ship
             if (mapCount == 4)
@@ -110,17 +110,17 @@ public class WorldBuilder : MonoBehaviour
             //mapNode.mapVentData = MapPieceBuilder.MapVentData;
             mapCount++;
         }
-        GameManager.StartGame(worldNode.nodeLocation); // <<<<<< start the fucking game bitch
+        GameManager.StartGame(worldNode.NodeStaticLocation); // <<<<<< start the fucking game bitch
     }
 
 
     private static void AttachMapPieceToMapNode(MapNode mapNode)
     {
-        Vector3 nodeVect = mapNode.nodeLocation;
-        int mapSize = mapNode.nodeSize;
-        int rotation = mapNode.nodeRotation;
-        int mapType = mapNode.nodeMapType;
-        int mapPiece = mapNode.nodeMapPiece;
+        Vector3 nodeVect = mapNode.NodeStaticLocation;
+        int mapSize = mapNode.NodeSize;
+        int rotation = mapNode.NodeStaticRotation;
+        int mapType = mapNode.NodeMapType;
+        int mapPiece = mapNode.NodeMapPiece;
 
         GridBuilder.BuildLocationGrid(mapNode, mapSize);
         List<Vector3> mapPieceNodes = GridBuilder.GetGridNodeStartPositions();
@@ -134,11 +134,11 @@ public class WorldBuilder : MonoBehaviour
 
     private static void AttachMapPieceToConnectorNode(ConnectorNode connectNode)
     {
-        Vector3 nodeVect = connectNode.nodeLocation;
-        int mapSize = connectNode.nodeSize;
-        int rotation = connectNode.nodeRotation;
-        int mapType = connectNode.nodeMapType;
-        int mapPiece = connectNode.nodeMapPiece;
+        Vector3 nodeVect = connectNode.NodeStaticLocation;
+        int mapSize = connectNode.NodeSize;
+        int rotation = connectNode.NodeStaticRotation;
+        int mapType = connectNode.NodeMapType;
+        int mapPiece = connectNode.NodeMapPiece;
 
         GridBuilder.BuildLocationGrid(connectNode, mapSize);
         List<Vector3> mapPieceNodes = GridBuilder.GetGridNodeStartPositions();

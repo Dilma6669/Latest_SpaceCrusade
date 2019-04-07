@@ -223,7 +223,7 @@ public class MapPieceBuilder : MonoBehaviour {
 
                     int cubeType = floor[z, x];
                     cubeType = FigureOutDoors(node, _mapType, cubeType, rotations);
-                    int nodeLayercount = node.GetComponent<T>().nodeLayerCount + nodeLayerCounter;
+                    int nodeLayercount = node.GetComponent<T>().NodeLayerCount + nodeLayerCounter;
     
                     CubeLocationScript cubeScript = CubeBuilder.CreateCubeObject(GridLoc, cubeType, rotations, nodeLayercount, node.gameObject.transform); // Create the cube
                     

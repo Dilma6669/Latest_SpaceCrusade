@@ -43,18 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f591561d1bda1894c818e17d23091c27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _worldManager: {fileID: 0}
-  worldNodeParent: {fileID: 0}
-  thisNodeType: 2
-  nodeLocation: {x: 0, y: 0, z: 0}
-  nodeSize: 0
-  nodeRotation: 0
-  nodeLayerCount: 0
-  nodeMapType: -1
-  nodeMapPiece: -1
   neighbours: 
   entrance: 0
-  entranceSides: 
   playerShipMapPART1: 0
   playerShipMapPART2: 0
   connectorUp: 0
+  worldNodeParent: {fileID: 0}

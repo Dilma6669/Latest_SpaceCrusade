@@ -8,7 +8,7 @@ public class DataManipulation : MonoBehaviour {
         List<Vector3> vects = new List<Vector3>();
         foreach (CubeLocationScript cube in cubesScripts)
         {
-            Vector3 vect = cube.CubeLocVector;
+            Vector3 vect = cube.CubeStaticLocVector;
             vects.Add(vect);
         }
         return vects;

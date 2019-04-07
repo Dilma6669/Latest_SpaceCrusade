@@ -9,6 +9,8 @@ public class LocationManager : MonoBehaviour
 
     ////////////////////////////////////////////////
 
+    public static Dictionary<Vector3, BaseNode> _nodeLookup = new Dictionary<Vector3, BaseNode>(); // not moveable locations BUT important for neighbour system
+
     public static Dictionary<Vector3, CubeLocationScript> _LocationLookup = new Dictionary<Vector3, CubeLocationScript>();   // movable locations
     public static Dictionary<Vector3, CubeLocationScript> _LocationHalfLookup = new Dictionary<Vector3, CubeLocationScript>(); // not moveable locations BUT important for neighbour system
 
@@ -32,6 +34,33 @@ public class LocationManager : MonoBehaviour
     }
 
     ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    public static void SetNodeScriptToLocation(Vector3 vect, BaseNode script)
+    {
+        if (!_nodeLookup.ContainsKey(vect))
+        {
+            //Debug.Log("fucken adding normalscript to vect: " + vect + " script: " + script);
+            _nodeLookup.Add(vect, script);
+        }
+        else
+        {
+            Debug.LogError("trying to assign script to already taking location!!!");
+        }
+    }
+
+    public static BaseNode GetNodeLocationScript(Vector3 loc)
+    {
+        //Debug.Log("GetLocationScript");
+
+        if (_nodeLookup.ContainsKey(loc))
+        {
+            return _nodeLookup[loc];
+        }
+        //Debug.LogError("LOCATION DOSENT EXIST Loc: " + loc);
+        return null;
+    }
+
     ////////////////////////////////////////////////
 
     public static void SetCubeScriptToLocation(Vector3 vect, CubeLocationScript script)
@@ -59,6 +88,8 @@ public class LocationManager : MonoBehaviour
             Debug.LogError("trying to assign script to already taking location!!!");
         }
     }
+
+    ////////////////////////////////////////////////
 
     public static CubeLocationScript GetLocationScript(Vector3 loc)
     {
@@ -92,7 +123,7 @@ public class LocationManager : MonoBehaviour
 
         if (neighCubeScript == null)
         {
-            Debug.LogError("FAIL move cubeScript == null: " + neighloc);
+            //Debug.LogError("FAIL move cubeScript == null: " + neighloc);
             return null;
         }
 
@@ -152,10 +183,10 @@ public class LocationManager : MonoBehaviour
         // for the god damn slopes and moveing through panels (this is ugly but fuck off its working)
         if (node != null)
         {
-            Vector3 nodevect = node.CubeLocVector;
+            Vector3 nodevect = node.CubeStaticLocVector;
 
             // check for panel to stop going through panels
-            if (node.CubeLocVector.y > neighloc.y)
+            if (node.CubeStaticLocVector.y > neighloc.y)
             {
                 Vector3 neighHalf = new Vector3(nodevect.x, nodevect.y - 1, nodevect.z);
                 CubeLocationScript neighscript = GetHalfLocationScript(neighHalf);
@@ -273,7 +304,7 @@ public class LocationManager : MonoBehaviour
 
 
     ////// Dont think this should be here
-    public static void SetCubeActive(bool onOff, Vector3 cubeVect = new Vector3())
+    public static void SetCubeActive(bool onOff, KeyValuePair<Vector3, Vector3> posRot)
     {
         if (_activeCube)
         {
@@ -283,9 +314,9 @@ public class LocationManager : MonoBehaviour
 
         if (onOff)
         {
-            _activeCube = GetLocationScript(cubeVect);
+            _activeCube = GetLocationScript(posRot.Key);
             _activeCube.GetComponent<CubeLocationScript>().CubeActive(true);
-            UnitsManager.MakeActiveUnitMove(cubeVect);
+            UnitsManager.MakeActiveUnitMove(posRot);
         }
     }
 

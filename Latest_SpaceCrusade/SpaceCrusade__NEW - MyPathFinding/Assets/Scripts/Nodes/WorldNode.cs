@@ -10,7 +10,7 @@ public class WorldNode : BaseNode
 
     void Awake()
     {
-        thisNodeType = NodeTypes.WorldNode;
+        NodeType = NodeTypes.WorldNode;
     }
 
 }

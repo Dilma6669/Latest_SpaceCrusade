@@ -28,8 +28,8 @@ public class MapNodeBuilder : MonoBehaviour
     // Get Map Vects ////////////////////////////////////////////////////////////
     private static List<Vector3> GetMapVects(WorldNode nodeScript)
     {
-        Vector3 loc = nodeScript.nodeLocation;
-        int size = nodeScript.nodeSize;
+        Vector3 loc = nodeScript.NodeStaticLocation;
+        int size = nodeScript.NodeSize;
 
         List<Vector3> nodeVects = new List<Vector3>();
 
@@ -92,7 +92,7 @@ public class MapNodeBuilder : MonoBehaviour
                 int mapPiece = Random.Range(0, 4); // 3 is the number of availble map pieces
 
                 MapNode mapNode = WorldBuilder._nodeBuilder.CreateNode<MapNode>(worldNode.gameObject.transform, vect, rotation, mapType, mapPiece, NodeTypes.MapNode);
-                mapNode.nodeSize = 1;
+                mapNode.NodeSize = 1;
                 mapNode.neighbours = new int[6];
                 for (int i = 0; i < mapNode.neighbours.Length; i++)
                 {
@@ -101,13 +101,13 @@ public class MapNodeBuilder : MonoBehaviour
                 mapNode.worldNodeParent = worldNode;
 
 
-                if (worldNode.nodeSize == 1)
+                if (worldNode.NodeSize == 1)
                 {
-                    nodeLayerCount = worldNode.nodeLayerCount + 4; // 4 total layers in 1 map and vent piece
+                    nodeLayerCount = worldNode.NodeLayerCount + 4; // 4 total layers in 1 map and vent piece
                 }
-                else if (worldNode.nodeSize == 3)
+                else if (worldNode.NodeSize == 3)
                 {
-                    nodeLayerCount = worldNode.nodeLayerCount + layerCount;
+                    nodeLayerCount = worldNode.NodeLayerCount + layerCount;
 
                     if (mapCount % 9 == 0)
                     {
@@ -118,7 +118,7 @@ public class MapNodeBuilder : MonoBehaviour
                 {
                     Debug.LogError("something weird here");
                 }
-                mapNode.nodeLayerCount = nodeLayerCount;
+                mapNode.NodeLayerCount = nodeLayerCount;
 
 
                 mapNodes.Add(mapNode);
@@ -139,7 +139,7 @@ public class MapNodeBuilder : MonoBehaviour
             //// Map Neighbours
             int[] worldNodeNeighbours = worldNode.neighbours;
 
-            if (worldNode.nodeSize == 1)
+            if (worldNode.NodeSize == 1)
             {
                 MapNode mapNode = worldNode.mapNodes[0];
                 int[] mapNeighbours = mapNode.neighbours;
@@ -153,12 +153,12 @@ public class MapNodeBuilder : MonoBehaviour
                     else
                     {
                         mapNeighbours[i] = -1;
-                        mapNode.entranceSides.Add(i);
+                        //mapNode.entranceSides.Add(i);
                     }
                 }
             }
             ////////
-            if (worldNode.nodeSize == 3)
+            if (worldNode.NodeSize == 3)
             {
                 // bottom
                 SetMapNeighboursWithMultipleLinks(worldNode, 0, 4, new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, worldNode.entrance);
@@ -188,7 +188,7 @@ public class MapNodeBuilder : MonoBehaviour
         {
             WorldNode worldNeighbour = WorldNodeBuilder.GetWorldNode(worldNodeNeighbours[worldNeighCount]);
 
-            if (worldNeighbour.nodeSize == 1)
+            if (worldNeighbour.NodeSize == 1)
             {
                 foreach (int link in multipleLinkCounts)
                 {
@@ -196,7 +196,7 @@ public class MapNodeBuilder : MonoBehaviour
                 }
                 worldNode.mapNodes[singleLinkCount].neighbours[worldNeighCount] = 1; // for the middle front connector
             }
-            if (worldNeighbour.nodeSize == 3)
+            if (worldNeighbour.NodeSize == 3)
             {
                 foreach (int link in multipleLinkCounts)
                 {
@@ -209,7 +209,7 @@ public class MapNodeBuilder : MonoBehaviour
             foreach (int link in multipleLinkCounts)
             {
                 worldNode.mapNodes[link].neighbours[worldNeighCount] = -1;
-                worldNode.mapNodes[link].entranceSides.Add(worldNeighCount);
+                //worldNode.mapNodes[link].entranceSides.Add(worldNeighCount);
             }
         }
     }

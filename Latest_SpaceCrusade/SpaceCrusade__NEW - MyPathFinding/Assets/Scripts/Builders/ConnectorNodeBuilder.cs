@@ -39,7 +39,7 @@ public class ConnectorNodeBuilder : MonoBehaviour
             int[] worldNeighbours = worldNode.neighbours;
             List<KeyValuePair<Vector3, int>> vectList = new List<KeyValuePair<Vector3, int>>();
 
-            if (worldNode.nodeSize == 1)
+            if (worldNode.NodeSize == 1)
             {
                 foreach (int worldNeigh in worldNeighbours)
                 {
@@ -70,13 +70,13 @@ public class ConnectorNodeBuilder : MonoBehaviour
         WorldNode smallerNode = null;
         WorldNode biggerNode = null;
 
-        if (node0.nodeSize <= node1.nodeSize)
+        if (node0.NodeSize <= node1.NodeSize)
         {
             initialSmaller = true;
             smallerNode = node0;
             biggerNode = node1;
         }
-        else if (node0.nodeSize > node1.nodeSize)
+        else if (node0.NodeSize > node1.NodeSize)
         {
             initialSmaller = false;
             smallerNode = node1;
@@ -95,15 +95,15 @@ public class ConnectorNodeBuilder : MonoBehaviour
 
         if (initialSmaller)
         {
-            direction = (biggerNode.nodeLocation - smallerNode.nodeLocation);
+            direction = (biggerNode.NodeStaticLocation - smallerNode.NodeStaticLocation);
         }
         else
         {
-            direction = (smallerNode.nodeLocation - biggerNode.nodeLocation);
+            direction = (smallerNode.NodeStaticLocation - biggerNode.NodeStaticLocation);
         }
 
 
-        finalVect = node0.nodeLocation;
+        finalVect = node0.NodeStaticLocation;
 
         if (direction.x != 0 && direction.y == 0 && direction.z == 0)
         {
@@ -180,7 +180,7 @@ public class ConnectorNodeBuilder : MonoBehaviour
 
                 ConnectorNode connectorNode = WorldBuilder._nodeBuilder.CreateNode<ConnectorNode>(worldNode.gameObject.transform, vector, rotation, mapType, mapPiece, NodeTypes.ConnectorNode);
                 WorldBuilder._nodeBuilder.AttachCoverToNode(connectorNode, connectorNode.gameObject, CoverTypes.ConnectorCover, new Vector3(0, rotation * 90, 0));
-                connectorNode.nodeSize = 1;
+                connectorNode.NodeSize = 1;
                 connectorNode.neighbours = new int[6];
                 for (int i = 0; i < connectorNode.neighbours.Length; i++)
                 {
@@ -194,7 +194,7 @@ public class ConnectorNodeBuilder : MonoBehaviour
                 if (rotation == 4)
                 {
                     connectorNode.connectorUp = true;
-                    connectorNode.nodeMapType = MapSettings.MAPTYPE_CONNECT_UP_FLOOR;
+                    connectorNode.NodeMapType = MapSettings.MAPTYPE_CONNECT_UP_FLOOR;
                     connectorNode.transform.localEulerAngles = new Vector3(0, rotation * 90, 0);
 
                     Transform nodeCover = connectorNode.transform.Find("ConnectorCoverPrefab(Clone)");
@@ -205,15 +205,15 @@ public class ConnectorNodeBuilder : MonoBehaviour
                 }
 
 
-                if (worldNode.nodeSize == 1)
+                if (worldNode.NodeSize == 1)
                 {
-                    nodeLayerCount = worldNode.nodeLayerCount + 4;  // 4 total layers in 1 map and vent piece
+                    nodeLayerCount = worldNode.NodeLayerCount + 4;  // 4 total layers in 1 map and vent piece
                 }
                 else
                 {
                     Debug.LogError("something weird here");
                 }
-                connectorNode.nodeLayerCount = nodeLayerCount;
+                connectorNode.NodeLayerCount = nodeLayerCount;
 
                 LayerManager.AddNodeToLayer(connectorNode); // for camera layers
 
@@ -225,7 +225,7 @@ public class ConnectorNodeBuilder : MonoBehaviour
             ///// Connector Neighbours << This is a bit annoying is only using worldnode neighbours atm, might be cool to just use map neighbours instead... something to do
             int[] worldNodeNeighbours = worldNode.neighbours;
 
-            if (worldNode.nodeSize == 1)
+            if (worldNode.NodeSize == 1)
             {
                 foreach (ConnectorNode connectorNode in worldNode.connectorNodes)
                 {
@@ -240,7 +240,7 @@ public class ConnectorNodeBuilder : MonoBehaviour
                         else
                         {
                             connectorNeighbours[i] = -1;
-                            connectorNode.entranceSides.Add(i);
+                            //connectorNode.entranceSides.Add(i);
                         }
                     }
                 }

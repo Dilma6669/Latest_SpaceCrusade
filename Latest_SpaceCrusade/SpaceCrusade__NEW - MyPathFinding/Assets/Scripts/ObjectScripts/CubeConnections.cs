@@ -118,7 +118,7 @@ public class CubeConnections : MonoBehaviour
 
     private static void SetUpFloorPanel(CubeLocationScript neighbourHalfScript, PanelPieceScript panelScript) {
 
-        Vector3 cubeHalfLoc = neighbourHalfScript.CubeLocVector;
+        Vector3 cubeHalfLoc = neighbourHalfScript.CubeStaticLocVector;
 
         Vector3 leftVect = new Vector3 (cubeHalfLoc.x, cubeHalfLoc.y - 1, cubeHalfLoc.z);
         CubeLocationScript cubeScriptLeft = LocationManager.GetLocationScript(leftVect); // underneath panel
@@ -164,7 +164,7 @@ public class CubeConnections : MonoBehaviour
         CubeLocationScript cubeScriptLeft = null;
         CubeLocationScript cubeScriptRight = null;
 
-        Vector3 cubeHalfLoc = neighbourHalfScript.CubeLocVector;
+        Vector3 cubeHalfLoc = neighbourHalfScript.CubeStaticLocVector;
 
         int cubeAngle = neighbourHalfScript.CubeAngle;
 		int panelAngle = panelScript.panelAngle;
@@ -274,7 +274,7 @@ public class CubeConnections : MonoBehaviour
     // THIS IS GOING TO CAUSE PROBLEMS IN FUTURE COZ THERES NO CHECKS IF THEY CAN MOVE ONTO SLOPE, ITS ALWAYS YES
     private static void SetUpFloorAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript)
     { 
-        Vector3 cubeLoc = cubeScript.CubeLocVector;
+        Vector3 cubeLoc = cubeScript.CubeStaticLocVector;
 
         Vector3 rightVect = new Vector3(cubeLoc.x, cubeLoc.y + 2, cubeLoc.z); // OnTop ( I think)
         CubeLocationScript cubeScriptRight = LocationManager.GetLocationScript(rightVect);
@@ -321,7 +321,7 @@ public class CubeConnections : MonoBehaviour
     // THIS IS GOING TO CAUSE PROBLEMS IN FUTURE COZ THERES NO CHECKS IF THEY CAN MOVE ONTO SLOPE, ITS ALWAYS YES
     private static void SetUpCeilingAnglePanel(CubeLocationScript cubeScript, PanelPieceScript panelScript)
     {
-        Vector3 cubeLoc = cubeScript.CubeLocVector;
+        Vector3 cubeLoc = cubeScript.CubeStaticLocVector;
 
         Vector3 TopHalfVect = new Vector3(cubeLoc.x, cubeLoc.y + 1, cubeLoc.z);
         Vector3 bottomHalfVect = new Vector3(cubeLoc.x, cubeLoc.y - 1, cubeLoc.z);

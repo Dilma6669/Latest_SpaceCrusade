@@ -13,7 +13,7 @@ public class ConnectorNode : BaseNode
 
     void Awake()
     {
-        thisNodeType = NodeTypes.ConnectorNode;
+        NodeType = NodeTypes.ConnectorNode;
     }
 
     public void RemoveDoorPanels()

@@ -32,7 +32,7 @@ public class OuterZoneBuilder : MonoBehaviour
 
     public void CreateOuterZoneForNode(WorldNode node)
     {
-        Vector3 centalVect = node.nodeLocation;
+        Vector3 centalVect = node.NodeStaticLocation;
 
         BuildRestOfOuterZones(centalVect);
     }
